@@ -1,7 +1,7 @@
 <title>Carta Pengganti Mockup</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 /* Layout: ETP-portal shell with EN/BM switch; local masterlist loader; scope bar, KPI row, then the succession chart (MCP / OCP card grids) or a table; detail opens in a dialog.
    Palette mirrors the ETP portal tokens. R0/R1/R2 colours follow the readiness legend in the SRA documents. */
@@ -201,6 +201,11 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 .stackbar div { display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 600; min-width: 0; overflow: hidden; white-space: nowrap; }
 .stackbar .r0 { background: var(--r0); color: var(--r0-fg); } .stackbar .r1 { background: var(--r1); color: var(--r1-fg); } .stackbar .r2 { background: var(--r2); color: var(--r2-fg); } .stackbar .r3 { background: var(--r3); color: var(--r3-fg); }
 .bar-fill.hot { background: var(--bad); } .bar-fill.warm { background: var(--warn); }
+.sum-title { font-size: 20px; margin-top: 2px; }
+.sum-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 980px) { .sum-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .sum-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.btn[disabled] { opacity: .55; cursor: progress; }
 .nb-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 @media (max-width: 900px) { .nb-layout { grid-template-columns: 1fr; } }
 .nb-wrap { display: grid; grid-template-columns: 20px 58px minmax(0, 1fr); grid-template-rows: auto auto auto; gap: 6px 8px; }
@@ -288,6 +293,7 @@ table.idp { min-width: 1120px; }
       </div>
       <nav id="nav">
         <button type="button" data-view="dash" data-i="navDash"></button>
+        <button type="button" data-view="sum" data-i="navSum"></button>
         <button type="button" data-view="chart" aria-current="page" data-i="navChart"></button>
         <button type="button" data-view="rv" data-i="navRV"></button>
         <button type="button" data-view="idp" data-i="navIDP"></button>
@@ -365,6 +371,27 @@ table.idp { min-width: 1120px; }
       <thead><tr><th data-i="thPos"></th><th data-i="thSucc"></th><th class="num" data-i="thExp"></th><th class="num" data-i="thFit"></th><th class="num" data-i="thFun"></th><th class="num" data-i="thTot"></th><th data-i="thLvl"></th><th data-i="thGaps"></th><th data-i="thVal"></th></tr></thead>
       <tbody id="rvRows"></tbody>
     </table></div>
+  </section>
+
+  <section id="view-sum" class="stack" hidden>
+    <div class="panel">
+      <div class="section-head">
+        <div><div class="label" data-i="sumEyebrow"></div><h2 class="sum-title" id="sumTitle"></h2><p id="sumMeta"></p></div>
+        <div class="head-actions" id="exportBox">
+          <button type="button" class="btn" id="exPdf" data-i="exPdf"></button>
+          <button type="button" class="btn primary" id="exPpt" data-i="exPpt"></button>
+        </div>
+      </div>
+      <div class="note" id="exNote"></div>
+    </div>
+    <div class="sum-kpis" id="sumKpis"></div>
+    <div class="grid2">
+      <div class="panel"><h2 data-i="distTitle"></h2><div id="sumDist" class="dist"></div></div>
+      <div class="panel"><h2 data-i="effTitle"></h2><div class="table-scroll"><table><thead><tr><th data-i="thMetric"></th><th class="num" data-i="thValue"></th><th data-i="thTarget"></th><th data-i="thStatus2"></th></tr></thead><tbody id="sumEff"></tbody></table></div></div>
+    </div>
+    <div class="panel"><h2 data-i="riskTitle"></h2><div id="sumRisk" class="risk-list"></div></div>
+    <div class="panel"><h2 data-i="sumPosTitle"></h2><div class="table-scroll"><table><thead><tr><th data-i="thCat"></th><th data-i="thPos"></th><th data-i="thInc"></th><th class="num" data-i="thVacIn"></th><th class="num" data-i="thSuccN"></th><th data-i="thReady"></th><th data-i="thRisk"></th></tr></thead><tbody id="sumPos"></tbody></table></div></div>
+    <div class="panel"><h2 data-i="sumNotesTitle"></h2><ul class="notes" id="sumNotes"></ul></div>
   </section>
 
   <section id="view-card" class="stack" hidden>
@@ -504,6 +531,18 @@ table.idp { min-width: 1120px; }
       thGaps: "Priority gaps", thVal: "SRA validation by HOD", gapsNone: "From the SRA session",
       val: { pending: "Pending", ok: "Validated", rep: "Replacement list", rev: "Revise score" },
       rvProgress: (a, b) => `${a} of ${b} validated`,
+      navSum: "Summary", sumEyebrow: "Executive summary", sumTitle: d => `Succession summary · ${d} 2026`,
+      sumMeta: (src, sc) => `Source: ${src} · Scale: ${sc} · Data as at 2 Nov 2026`, srcSample: "sample data (fictional)",
+      exPdf: "Download PDF", exPpt: "Download PowerPoint", exWorking: "Preparing…",
+      exNoteSample: "Both files follow the current scope, scale and language. This summary uses fictional sample data.",
+      exNoteFile: "Both files follow the current scope, scale and language. They contain names and scores from the masterlist, so store and share them under the RESTRICTED classification.",
+      exUnavailable: "Downloads are not available in this view. Open the artifact on claude.ai to download.",
+      exSaved: f => `${f} saved.`, exDeclined: "Download cancelled.", exBusy: "A download prompt is already open. Try again in a moment.",
+      exFailed: "The file could not be created. Check your connection and try again.", exLib: "Could not load the export library. Check your connection and try again.",
+      thValue: "Value", thTarget: "Target", thStatus2: "Status", sumPosTitle: "Critical positions", thInc: "Incumbent", thVacIn: "Vacant in (months)", thSuccN: "Successors", thReady: "Readiness mix", thRisk: "Risk",
+      sumNotesTitle: "Key points", kSucc: "Successors", kVac: "Vacant now", vacNow: "Vacant", noDate: "No date",
+      classSample: "Sample data · fictional", classFile: "RESTRICTED",
+      pptKpiTitle: "Key figures", pptEffTitle: "Programme effectiveness", pptRiskTitle: "Positions needing attention", pptPosTitle: "Critical positions", pptNotesTitle: "Key points", cont: "cont.", page: "Page",
       nbTitle: "9-Box: performance × potential", nbNote: "Proxy until a separate potential rating exists: performance = PMS 2025, potential = SRA readiness on the selected scale. Each successor counted once, at their highest SRA.",
       nbCount: (n, x) => `${n} successors placed${x ? ` · ${x} without PMS` : ""}`,
       nbPerf: "Performance (PMS 2025)", nbPot: "Potential (SRA readiness)",
@@ -621,6 +660,18 @@ table.idp { min-width: 1120px; }
       thGaps: "Jurang utama", thVal: "Pengesahan SRA oleh HOD", gapsNone: "Daripada sesi SRA",
       val: { pending: "Belum disahkan", ok: "Disahkan", rep: "Senarai penggantian", rev: "Semak semula skor" },
       rvProgress: (a, b) => `${a} daripada ${b} disahkan`,
+      navSum: "Ringkasan", sumEyebrow: "Ringkasan eksekutif", sumTitle: d => `Ringkasan succession · ${d} 2026`,
+      sumMeta: (src, sc) => `Sumber: ${src} · Skala: ${sc} · Data setakat 2 Nov 2026`, srcSample: "data contoh (rekaan)",
+      exPdf: "Muat turun PDF", exPpt: "Muat turun PowerPoint", exWorking: "Menyediakan…",
+      exNoteSample: "Kedua-dua fail ikut skop, skala dan bahasa semasa. Ringkasan ini guna data contoh rekaan.",
+      exNoteFile: "Kedua-dua fail ikut skop, skala dan bahasa semasa. Ia mengandungi nama dan skor daripada masterlist, jadi simpan dan kongsi di bawah klasifikasi RESTRICTED.",
+      exUnavailable: "Muat turun tidak tersedia dalam paparan ini. Buka artifact di claude.ai untuk muat turun.",
+      exSaved: f => `${f} disimpan.`, exDeclined: "Muat turun dibatalkan.", exBusy: "Satu tetingkap muat turun sedang dibuka. Cuba lagi sebentar.",
+      exFailed: "Fail tidak dapat dijana. Semak sambungan dan cuba lagi.", exLib: "Pustaka eksport tidak dapat dimuatkan. Semak sambungan dan cuba lagi.",
+      thValue: "Nilai", thTarget: "Sasaran", thStatus2: "Status", sumPosTitle: "Jawatan kritikal", thInc: "Penyandang", thVacIn: "Kosong dalam (bulan)", thSuccN: "Pengganti", thReady: "Campuran kesediaan", thRisk: "Risiko",
+      sumNotesTitle: "Perkara utama", kSucc: "Pengganti", kVac: "Kosong sekarang", vacNow: "Kosong", noDate: "Tiada tarikh",
+      classSample: "Data contoh · rekaan", classFile: "RESTRICTED",
+      pptKpiTitle: "Angka utama", pptEffTitle: "Keberkesanan program", pptRiskTitle: "Jawatan yang perlu perhatian", pptPosTitle: "Jawatan kritikal", pptNotesTitle: "Perkara utama", cont: "samb.", page: "Muka",
       nbTitle: "9-Box: prestasi × potensi", nbNote: "Proksi sehingga ada penarafan potensi berasingan: prestasi = PMS 2025, potensi = tahap kesediaan SRA ikut skala dipilih. Setiap pengganti dikira sekali, pada SRA tertinggi.",
       nbCount: (n, x) => `${n} pengganti diletakkan${x ? ` · ${x} tiada PMS` : ""}`,
       nbPerf: "Prestasi (PMS 2025)", nbPot: "Potensi (kesediaan SRA)",
@@ -1012,7 +1063,8 @@ table.idp { min-width: 1120px; }
         <td><span class="pill ${SC[s.st]}">${L().stat[s.st]}</span></td></tr>`;
     })).join("") || `<tr><td colspan="9" class="sub" style="text-align:center;padding:24px">${esc(term ? L().noMatch(term) : L().emptyScope)}</td></tr>`;
   }
-  function renderNotes() {
+  function renderNotes() { $("notes").innerHTML = noteList().map(x => `<li>${x}</li>`).join(""); }
+  function noteList() {
     const out = [], vis = visible();
     const vac = vis.filter(p => p.inc.vacant).length;
     if (vac) out.push(L().nVac(vac));
@@ -1042,7 +1094,7 @@ table.idp { min-width: 1120px; }
     Object.entries(counts).filter(([, v]) => v.length > 1).forEach(([k, v]) => out.push(L().nMulti(esc(names[k]), v.length, v.map(esc).join(", "))));
     Object.keys(counts).forEach(k => { if (DATA.positions.some(p => !p.inc.vacant && p.inc.key === k)) out.push(L().nChain(esc(names[k]))); });
     out.push(L().nIdp);
-    $("notes").innerHTML = out.map(x => `<li>${x}</li>`).join("");
+    return out;
   }
   // ---------- Dashboard ----------
   const uc = t => t.charAt(0).toUpperCase() + t.slice(1);
@@ -1093,29 +1145,35 @@ table.idp { min-width: 1120px; }
       <tbody>${list.map(e => `<tr class="clk" data-p="${e.best.p.id}" data-x="${e.best.i}"><td><b>${esc(e.per.n)}</b> <span class="sub">${esc(e.per.g || "")}</span></td><td class="sub">${esc(tx(e.best.p.t))}</td><td class="num">${e.pm.toFixed(1)}%</td><td class="num">${total(e.best.s).toFixed(1)}%</td><td><span class="rd ${lvCls(e.lv)}">${e.lv}</span></td></tr>`).join("")}</tbody>
     </table></div>` : `<p class="note">${U.nbEmpty}</p>`);
   }
-  function renderEff(ps) {
-    const U = L(), n = ps.length, people = peopleInScope(ps);
+  function effMetrics(ps) {
+    const n = ps.length, people = peopleInScope(ps);
     const rows = ps.flatMap(p => p.succ.filter(isInternal).map(s => ({ p, s })));
     const per = ps.map(p => p.succ.filter(isInternal));
     const pct = (a, b) => b ? Math.round(a / b * 100) : null;
     const fileMode = DATA.source === "file";
     const genders = people.map(e => genderOf(e.per)).filter(Boolean);
-    const idpKnown = rows.filter(({ p, s }) => { const k = p.id + "|" + p.succ.indexOf(s); return (IDPS[k] && IDPS[k].status !== "draft") || s.prog; });
-    const idpOk = rows.filter(({ p, s }) => { const k = p.id + "|" + p.succ.indexOf(s); return (IDPS[k] && IDPS[k].status === "app") || s.prog === "ok" || s.prog === "run"; });
+    const idk = ({ p, s }) => p.id + "|" + p.succ.indexOf(s);
+    const idpKnown = rows.filter(r => (IDPS[idk(r)] && IDPS[idk(r)].status !== "draft") || r.s.prog);
+    const idpOk = rows.filter(r => (IDPS[idk(r)] && IDPS[idk(r)].status === "app") || r.s.prog === "ok" || r.s.prog === "run");
+    const P = v => v + "%";
     const M = [
       ["bench", n ? (rows.length / n) : null, v => v.toFixed(1), v => v >= 2],
-      ["two", pct(per.filter(a => a.length >= 2).length, n), v => v + "<small>%</small>", v => v >= 100],
+      ["two", pct(per.filter(a => a.length >= 2).length, n), P, v => v >= 100],
       ["ready", n ? rows.filter(({ p, s }) => level(total(s), p.cat) === "R0").length / n : null, v => v.toFixed(2), v => v >= 1],
-      ["meet", fileMode ? pct(rows.filter(r => r.s.st !== "nomeet").length, rows.length) : null, v => v + "<small>%</small>", v => v >= 100],
-      ["runway", pct(rows.filter(({ p, s }) => runwayShort(s, p)).length, rows.length), v => v + "<small>%</small>", v => v <= 10],
-      ["overlap", pct(people.filter(e => e.list.length > 1).length, people.length), v => v + "<small>%</small>", v => v <= 20],
-      ["women", genders.length ? pct(genders.filter(g => g === "F").length, genders.length) : null, v => v + "<small>%</small>", v => v >= 30],
-      ["idp", idpKnown.length || !fileMode ? pct(idpOk.length, rows.length) : null, v => v + "<small>%</small>", v => v >= 100]
+      ["meet", fileMode ? pct(rows.filter(r => r.s.st !== "nomeet").length, rows.length) : null, P, v => v >= 100],
+      ["runway", pct(rows.filter(({ p, s }) => runwayShort(s, p)).length, rows.length), P, v => v <= 10],
+      ["overlap", pct(people.filter(e => e.list.length > 1).length, people.length), P, v => v <= 20],
+      ["women", genders.length ? pct(genders.filter(g => g === "F").length, genders.length) : null, P, v => v >= 30],
+      ["idp", idpKnown.length || !fileMode ? pct(idpOk.length, rows.length) : null, P, v => v >= 100]
     ];
-    $("effGrid").innerHTML = M.map(([k, v, fmt, good]) => {
-      const st = v == null ? "na" : good(v) ? "ok" : "watch", [t, d, tgt] = U.eff[k];
-      return `<div class="eff ${st}"><span class="t">${t}</span><span class="v">${v == null ? "–" : fmt(v)}</span><span class="d">${v == null ? (U.effNa[k] || d) : d}</span>
-        <div class="row"><span>${tgt}</span><span class="pill ${st === "ok" ? "p-ok" : st === "watch" ? "p-warn" : "p-mute"}">${U.effSt[st]}</span></div></div>`;
+    return M.map(([k, v, fmt, good]) => ({ k, v, text: v == null ? "–" : fmt(v), st: v == null ? "na" : good(v) ? "ok" : "watch" }));
+  }
+  function renderEff(ps) {
+    const U = L();
+    $("effGrid").innerHTML = effMetrics(ps).map(m => {
+      const [t, d, tgt] = U.eff[m.k], v = m.text.replace(/%$/, "<small>%</small>");
+      return `<div class="eff ${m.st}"><span class="t">${t}</span><span class="v">${v}</span><span class="d">${m.v == null ? (U.effNa[m.k] || d) : d}</span>
+        <div class="row"><span>${tgt}</span><span class="pill ${m.st === "ok" ? "p-ok" : m.st === "watch" ? "p-warn" : "p-mute"}">${U.effSt[m.st]}</span></div></div>`;
     }).join("");
     $("notYet").innerHTML = U.notYet.map(([a, b]) => `<tr><td><b>${a}</b></td><td class="sub">${b}</td></tr>`).join("");
   }
@@ -1303,20 +1361,217 @@ table.idp { min-width: 1120px; }
     renderMix();
   }
 
+  // ---------- Summary + export ----------
+  function summaryData() {
+    const U = L(), ps = visible(), an = ps.map(analyse);
+    const rows = ps.flatMap(p => p.succ.filter(isInternal).map(s => ({ p, s })));
+    const pc = (a, b) => b ? Math.round(a / b * 100) : 0;
+    const succN = new Set(ps.flatMap(p => p.succ.filter(s => s.st !== "struck").map(s => s.key))).size;
+    const kpis = [
+      [U.kPos, String(ps.length)], [U.kSucc, String(succN)],
+      [U.kCov, pc(an.filter(a => a.internal.length).length, ps.length) + "%"], [U.kR0, pc(an.filter(a => a.hasR0).length, ps.length) + "%"],
+      [U.kHigh, String(an.filter(a => a.risk === "high").length)], [U.kVac, String(ps.filter(p => p.inc.vacant).length)]
+    ];
+    const dist = ["MCP", "OCP"].filter(c => ps.some(p => p.cat === c)).map(c => {
+      const lv = rows.filter(r => r.p.cat === c).map(r => level(total(r.s), c));
+      return { cat: c, n: lv.length, parts: SCALES[scale][c].map(b => b[1]).map(l => ({ l, n: lv.filter(x => x === l).length })) };
+    });
+    const eff = effMetrics(ps).map(m => ({ name: U.eff[m.k][0], value: m.text, target: U.eff[m.k][2], status: U.effSt[m.st], st: m.st }));
+    const risk = ps.map((p, i) => [p, an[i]]).filter(([, a]) => a.risk === "high").map(([p, a]) => ({ pos: tx(p.t), dept: deptLabel(p.dept), cat: p.cat, why: uc(whyText(p, a)) }));
+    const positions = ps.map((p, i) => {
+      const a = an[i], cnt = {};
+      a.internal.forEach(s => { const l = level(total(s), p.cat); cnt[l] = (cnt[l] || 0) + 1; });
+      return { cat: p.cat, pos: tx(p.t) + (p.g ? ` (${p.g})` : ""), dept: deptLabel(p.dept), inc: p.inc.vacant ? U.vacantName : p.inc.n,
+        vac: p.inc.vacant ? U.vacNow : a.mo == null ? U.noDate : String(a.mo), succ: a.internal.length,
+        mix: Object.keys(cnt).sort().map(l => `${l} × ${cnt[l]}`).join(", ") || "–", risk: U.risk[a.risk], rk: a.risk };
+    });
+    const strip = h => h.replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+    return {
+      title: U.sumTitle(dept ? deptLabel(dept) : U.deptAll),
+      meta: U.sumMeta(DATA.source === "file" ? DATA.fileName : U.srcSample, U.scaleName[scale]),
+      cls: DATA.source === "file" ? U.classFile : U.classSample, kpis, dist, eff, risk, positions,
+      notes: noteList().map(strip).slice(0, 8), showDept: !dept
+    };
+  }
+  function renderSummary() {
+    const U = L(), d = summaryData();
+    $("sumTitle").textContent = d.title; $("sumMeta").textContent = d.meta;
+    if (!dlKnownMissing) $("exNote").textContent = DATA.source === "file" ? U.exNoteFile : U.exNoteSample; else $("exNote").textContent = U.exUnavailable;
+    $("sumKpis").innerHTML = d.kpis.map(([k, v]) => `<div class="panel kpi accent"><span class="label">${esc(k)}</span><span class="value">${esc(v).replace(/%$/, "<small>%</small>")}</span></div>`).join("");
+    $("sumDist").innerHTML = d.dist.map(x => `<div class="dist-row"><b>${U.distCat(x.cat, x.n)}</b><div class="stackbar">${x.parts.map(pt => pt.n ? `<div class="${lvCls(pt.l)}" style="flex:${pt.n}">${pt.l} · ${pt.n}</div>` : "").join("")}</div></div>`).join("") || `<p class="note">${U.emptyScope}</p>`;
+    $("sumEff").innerHTML = d.eff.map(m => `<tr><td>${esc(m.name)}</td><td class="num"><b>${esc(m.value)}</b></td><td class="sub">${esc(m.target)}</td><td><span class="pill ${m.st === "ok" ? "p-ok" : m.st === "watch" ? "p-warn" : "p-mute"}">${esc(m.status)}</span></td></tr>`).join("");
+    $("sumRisk").innerHTML = d.risk.length ? d.risk.map(r => `<div class="risk-item" style="cursor:default"><b>${esc(r.pos)}</b><span>${esc(r.dept)} · ${r.cat} · ${esc(r.why)}</span></div>`).join("") : `<p class="note">${U.riskEmpty}</p>`;
+    const RC = { high: "p-bad", med: "p-warn", low: "p-ok" };
+    $("sumPos").innerHTML = d.positions.map(r => `<tr><td>${r.cat}</td><td><b>${esc(r.pos)}</b>${d.showDept ? `<div class="sub">${esc(r.dept)}</div>` : ""}</td><td>${esc(r.inc)}</td><td class="num">${esc(r.vac)}</td><td class="num">${r.succ}</td><td class="sub">${esc(r.mix)}</td><td><span class="pill ${RC[r.rk]}">${esc(r.risk)}</span></td></tr>`).join("") || `<tr><td colspan="7" class="sub" style="text-align:center;padding:16px">${U.emptyScope}</td></tr>`;
+    $("sumNotes").innerHTML = d.notes.map(n => `<li>${esc(n)}</li>`).join("");
+  }
+
+  const LIBS = {
+    pdf: ["https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js", "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"],
+    ppt: ["https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"]
+  };
+  const loaded = {};
+  const loadScript = src => loaded[src] || (loaded[src] = new Promise((res, rej) => { const sc = document.createElement("script"); sc.src = src; sc.onload = res; sc.onerror = () => { delete loaded[src]; rej(new Error("lib")); }; document.head.appendChild(sc); }));
+  async function loadLibs(kind) { for (const u of LIBS[kind]) await loadScript(u); }
+  let dlPromise = null, dlKnownMissing = false;
+  function getDownloads() {
+    if (dlPromise) return dlPromise;
+    if (!(window.claude && typeof window.claude.use === "function")) return Promise.resolve(null);
+    dlPromise = window.claude.use("downloads").catch(() => null);
+    return dlPromise;
+  }
+  const BRAND = { dark: "0D6636", mid: "4A9437", tint: "E3F3DA", text: "2A2B2E", muted: "6A6B6D", line: "E6E6E6", R0: "4A9437", R1: "F2D230", R2: "E06666", R3: "C9CBCD", "-": "C9CBCD", high: "C62828", med: "945800", low: "0D6636" };
+  const pdfSafe = t => String(t).replace(/≥/g, ">=").replace(/≤/g, "<=").replace(/→/g, "->").replace(/✗/g, "x").replace(/✓/g, "v").replace(/↺/g, "").replace(/[^\x00-\xFF·–—‘’“”…]/g, "");
+  const fileStem = () => "Succession-Summary-" + (dept ? deptLabel(dept).replace(/[^A-Za-z0-9]+/g, "-") : "All") + "-2026";
+
+  async function buildPdf(d) {
+    await loadLibs("pdf");
+    const { jsPDF } = window.jspdf, doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" }), U = L();
+    const W = 297, M = 14, hex = h => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    const h2 = (t, y, x) => { doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(...hex(BRAND.text)); doc.text(pdfSafe(t), x == null ? M : x, y); doc.setFont("helvetica", "normal"); };
+    doc.setFillColor(...hex("52DE56")); doc.rect(0, 0, W, 3, "F");
+    doc.setTextColor(...hex(BRAND.text)); doc.setFont("helvetica", "bold"); doc.setFontSize(18); doc.text(pdfSafe(d.title), M, 16);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(...hex(BRAND.muted)); doc.text(pdfSafe(d.meta), M, 22);
+    let y = 28; const bw = (W - 2 * M - 5 * 4) / 6;
+    d.kpis.forEach(([k, v], i) => {
+      const x = M + i * (bw + 4);
+      doc.setDrawColor(...hex(BRAND.line)); doc.setFillColor(255, 255, 255); doc.rect(x, y, bw, 20, "FD");
+      doc.setFillColor(...hex(BRAND.dark)); doc.rect(x, y, 1.2, 20, "F");
+      doc.setFontSize(7); doc.setTextColor(...hex(BRAND.muted)); doc.text(pdfSafe(k.toUpperCase()), x + 4, y + 6, { maxWidth: bw - 6 });
+      doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.setTextColor(...hex(BRAND.text)); doc.text(pdfSafe(v), x + 4, y + 16); doc.setFont("helvetica", "normal");
+    });
+    y = 56; h2(U.distTitle, y);
+    y += 4; const barW = 120;
+    d.dist.forEach(x => {
+      doc.setFontSize(8); doc.setTextColor(...hex(BRAND.muted)); doc.text(pdfSafe(U.distCat(x.cat, x.n)), M, y + 3);
+      let bx = M; const tot = x.parts.reduce((a, p) => a + p.n, 0) || 1;
+      x.parts.forEach(pt => {
+        if (!pt.n) return; const w = barW * pt.n / tot;
+        doc.setFillColor(...hex(BRAND[pt.l] || BRAND.R3)); doc.rect(bx, y + 5, w, 6, "F");
+        doc.setFontSize(7); if (pt.l === "R1" || pt.l === "-" || pt.l === "R3") doc.setTextColor(42, 43, 46); else doc.setTextColor(255, 255, 255);
+        if (w > 10) doc.text(`${pt.l} ${pt.n}`, bx + 1.5, y + 9); bx += w;
+      });
+      y += 15;
+    });
+    h2(U.effTitle, 56, M + barW + 12);
+    doc.autoTable({ startY: 59, margin: { left: M + barW + 12, right: M }, head: [[U.thMetric, U.thValue, U.thTarget, U.thStatus2].map(pdfSafe)],
+      body: d.eff.map(m => [m.name, m.value, m.target, m.status].map(pdfSafe)), styles: { fontSize: 7.5, cellPadding: 1.4 },
+      headStyles: { fillColor: hex(BRAND.dark) }, alternateRowStyles: { fillColor: hex("F0F9EC") },
+      didParseCell: c => { if (c.section === "body" && c.column.index === 3) { const st = d.eff[c.row.index].st; c.cell.styles.textColor = hex(st === "ok" ? BRAND.low : st === "watch" ? BRAND.med : BRAND.muted); c.cell.styles.fontStyle = "bold"; } } });
+    const y2 = Math.max(y, doc.lastAutoTable.finalY) + 8;
+    h2(U.riskTitle, y2);
+    doc.autoTable({ startY: y2 + 2, margin: { left: M, right: M, bottom: 14 }, head: [[U.thPos, U.thDept, U.thCat, U.thRisk].map(pdfSafe)],
+      body: d.risk.length ? d.risk.map(r => [r.pos, r.dept, r.cat, r.why].map(pdfSafe)) : [[pdfSafe(U.riskEmpty), "", "", ""]],
+      styles: { fontSize: 7.5, cellPadding: 1.4 }, headStyles: { fillColor: hex(BRAND.high) }, columnStyles: { 3: { cellWidth: 120 } } });
+    doc.addPage();
+    h2(U.sumPosTitle, 14);
+    const head = [U.thCat, U.thPos].concat(d.showDept ? [U.thDept] : []).concat([U.thInc, U.thVacIn, U.thSuccN, U.thReady, U.thRisk]);
+    doc.autoTable({ startY: 18, margin: { left: M, right: M, bottom: 14 }, head: [head.map(pdfSafe)],
+      body: d.positions.map(r => [r.cat, r.pos].concat(d.showDept ? [r.dept] : []).concat([r.inc, r.vac, String(r.succ), r.mix, r.risk]).map(pdfSafe)),
+      styles: { fontSize: 7.5, cellPadding: 1.4 }, headStyles: { fillColor: hex(BRAND.dark) }, alternateRowStyles: { fillColor: hex("F0F9EC") },
+      didParseCell: c => { if (c.section === "body" && c.column.index === head.length - 1) { c.cell.styles.textColor = hex(BRAND[d.positions[c.row.index].rk]); c.cell.styles.fontStyle = "bold"; } } });
+    let y3 = doc.lastAutoTable.finalY + 8;
+    if (y3 > 170) { doc.addPage(); y3 = 16; }
+    h2(U.sumNotesTitle, y3); doc.setFontSize(8.5); doc.setTextColor(...hex(BRAND.text));
+    y3 += 5;
+    d.notes.forEach(n => { const lines = doc.splitTextToSize("•  " + pdfSafe(n), W - 2 * M); if (y3 + lines.length * 4 > 196) { doc.addPage(); y3 = 16; } doc.text(lines, M, y3); y3 += lines.length * 4 + 1.5; });
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) {
+      doc.setPage(i); doc.setFontSize(7.5); doc.setTextColor(...hex(BRAND.muted));
+      doc.text(pdfSafe(`Succession Planning Portal · ${d.cls}`), M, 204); doc.text(pdfSafe(`${U.page} ${i} / ${pages}`), W - M, 204, { align: "right" });
+    }
+    return doc.output("blob");
+  }
+
+  async function buildPpt(d) {
+    await loadLibs("ppt");
+    const U = L(), pptx = new window.PptxGenJS();
+    pptx.layout = "LAYOUT_WIDE"; pptx.title = d.title;
+    const F = "Calibri";
+    pptx.defineSlideMaster({ title: "SP", background: { color: "FFFFFF" },
+      objects: [{ rect: { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: "52DE56" } } },
+        { text: { text: `Succession Planning Portal · ${d.cls}`, options: { x: 0.5, y: 7.05, w: 8, h: 0.3, fontFace: F, fontSize: 9, color: BRAND.muted } } }],
+      slideNumber: { x: 12.3, y: 7.05, fontFace: F, fontSize: 9, color: BRAND.muted } });
+    const head = t => ({ text: t, options: { bold: true, color: "FFFFFF", fill: { color: BRAND.dark }, fontFace: F, fontSize: 11 } });
+    const cell = (t, o) => ({ text: String(t), options: Object.assign({ fontFace: F, fontSize: 10.5, color: BRAND.text }, o || {}) });
+    const title = (sl, t) => sl.addText(t, { x: 0.5, y: 0.3, w: 12.3, h: 0.6, fontFace: F, fontSize: 24, bold: true, color: BRAND.text });
+    let sl = pptx.addSlide({ masterName: "SP" });
+    sl.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.35, h: 7.5, fill: { color: BRAND.dark } });
+    sl.addText(U.sumEyebrow.toUpperCase(), { x: 0.9, y: 2.2, w: 11, h: 0.4, fontFace: F, fontSize: 14, bold: true, color: BRAND.mid, charSpacing: 2 });
+    sl.addText(d.title, { x: 0.9, y: 2.7, w: 11.5, h: 1.2, fontFace: F, fontSize: 36, bold: true, color: BRAND.text });
+    sl.addText(d.meta, { x: 0.9, y: 4.0, w: 11.5, h: 0.5, fontFace: F, fontSize: 14, color: BRAND.muted });
+    sl = pptx.addSlide({ masterName: "SP" }); title(sl, U.pptKpiTitle);
+    d.kpis.forEach(([k, v], i) => {
+      const x = 0.5 + (i % 3) * 2.15, y = 1.2 + Math.floor(i / 3) * 1.55;
+      sl.addShape(pptx.ShapeType.rect, { x, y, w: 2.0, h: 1.35, fill: { color: "FFFFFF" }, line: { color: BRAND.line } });
+      sl.addShape(pptx.ShapeType.rect, { x, y, w: 0.07, h: 1.35, fill: { color: BRAND.dark }, line: { color: BRAND.dark } });
+      sl.addText(k.toUpperCase(), { x: x + 0.15, y: y + 0.08, w: 1.8, h: 0.5, fontFace: F, fontSize: 9, color: BRAND.muted, valign: "top" });
+      sl.addText(v, { x: x + 0.15, y: y + 0.55, w: 1.8, h: 0.7, fontFace: F, fontSize: 28, bold: true, color: BRAND.text });
+    });
+    if (d.dist.length) {
+      const labels = d.dist.map(x => x.cat), levels = d.dist[0].parts.map(p => p.l);
+      const data = levels.map(l => ({ name: l === "-" ? U.notReady : l, labels, values: d.dist.map(x => (x.parts.find(p => p.l === l) || { n: 0 }).n) }));
+      sl.addText(U.distTitle, { x: 7.1, y: 1.1, w: 5.7, h: 0.4, fontFace: F, fontSize: 14, bold: true, color: BRAND.text });
+      sl.addChart(pptx.charts.BAR, data, { x: 7.1, y: 1.5, w: 5.7, h: 3.0, barDir: "bar", barGrouping: "stacked", chartColors: levels.map(l => BRAND[l] || BRAND.R3),
+        showLegend: true, legendPos: "b", legendFontFace: F, legendFontSize: 10, catAxisLabelFontFace: F, valAxisLabelFontFace: F, catAxisLabelFontSize: 11, valAxisLabelFontSize: 9,
+        showValue: true, dataLabelFontSize: 9, dataLabelColor: "FFFFFF", valGridLine: { color: "EEEEEE", size: 0.5 } });
+    }
+    sl = pptx.addSlide({ masterName: "SP" }); title(sl, U.pptEffTitle);
+    const SC = { ok: BRAND.low, watch: BRAND.med, na: BRAND.muted };
+    sl.addTable([[head(U.thMetric), head(U.thValue), head(U.thTarget), head(U.thStatus2)]].concat(d.eff.map(m => [cell(m.name), cell(m.value, { bold: true, align: "right" }), cell(m.target, { color: BRAND.muted }), cell(m.status, { bold: true, color: SC[m.st] })])),
+      { x: 0.5, y: 1.2, w: 12.3, colW: [5.3, 1.8, 2.8, 2.4], border: { type: "solid", color: BRAND.line, pt: 0.75 }, rowH: 0.48 });
+    sl.addText(U.effNote, { x: 0.5, y: 6.4, w: 12.3, h: 0.4, fontFace: F, fontSize: 10, italic: true, color: BRAND.muted });
+    sl = pptx.addSlide({ masterName: "SP" }); title(sl, U.pptRiskTitle);
+    const riskRows = d.risk.slice(0, 7);
+    sl.addTable([[head(U.thPos), head(U.thDept), head(U.thCat), head(U.thRisk)]].concat(riskRows.length ? riskRows.map(r => [cell(r.pos, { bold: true }), cell(r.dept), cell(r.cat), cell(r.why, { fontSize: 9.5 })]) : [[cell(U.riskEmpty), cell(""), cell(""), cell("")]]),
+      { x: 0.5, y: 1.1, w: 12.3, colW: [3.6, 2.3, 0.9, 5.5], border: { type: "solid", color: BRAND.line, pt: 0.75 } });
+    if (d.risk.length > 7) sl.addText(`+${d.risk.length - 7}`, { x: 12.1, y: 0.35, w: 0.7, h: 0.5, fontFace: F, fontSize: 12, color: BRAND.high, bold: true, align: "right" });
+    sl = pptx.addSlide({ masterName: "SP" }); title(sl, U.pptNotesTitle);
+    sl.addText(d.notes.map(n => ({ text: n, options: { bullet: true, breakLine: true, paraSpaceAfter: 6 } })), { x: 0.5, y: 1.1, w: 12.3, h: 5.6, fontFace: F, fontSize: 13, color: BRAND.text, valign: "top" });
+    const RK = { high: BRAND.high, med: BRAND.med, low: BRAND.low }, perSlide = 11;
+    for (let i = 0; i < Math.max(1, d.positions.length); i += perSlide) {
+      sl = pptx.addSlide({ masterName: "SP" }); title(sl, U.pptPosTitle + (i ? ` (${U.cont})` : ""));
+      const hdr = [head(U.thCat), head(U.thPos)].concat(d.showDept ? [head(U.thDept)] : []).concat([head(U.thInc), head(U.thVacIn), head(U.thSuccN), head(U.thReady), head(U.thRisk)]);
+      const body = d.positions.slice(i, i + perSlide).map(r => [cell(r.cat), cell(r.pos, { bold: true })].concat(d.showDept ? [cell(r.dept)] : []).concat([cell(r.inc), cell(r.vac, { align: "right" }), cell(r.succ, { align: "right" }), cell(r.mix), cell(r.risk, { bold: true, color: RK[r.rk] })]));
+      const colW = d.showDept ? [0.7, 2.9, 1.7, 2.4, 1.1, 0.9, 1.4, 1.2] : [0.7, 3.6, 3.0, 1.2, 1.0, 1.6, 1.2];
+      sl.addTable([hdr].concat(body.length ? body : [[cell(U.emptyScope)].concat(hdr.slice(1).map(() => cell("")))]), { x: 0.5, y: 1.1, w: 12.3, colW, fontSize: 10, border: { type: "solid", color: BRAND.line, pt: 0.75 } });
+    }
+    return pptx.write({ outputType: "blob" });
+  }
+
+  async function doExport(kind) {
+    const U = L(), btn = $(kind === "pdf" ? "exPdf" : "exPpt"), label = btn.textContent;
+    const dl = await getDownloads();
+    if (!dl) { toast(U.exUnavailable); return; }
+    btn.disabled = true; btn.textContent = U.exWorking;
+    let blob;
+    try { blob = kind === "pdf" ? await buildPdf(summaryData()) : await buildPpt(summaryData()); }
+    catch (err) { toast(err && err.message === "lib" ? U.exLib : U.exFailed); btn.disabled = false; btn.textContent = label; return; }
+    const filename = fileStem() + (kind === "pdf" ? ".pdf" : ".pptx");
+    try { await dl.save({ filename, data: blob }); toast(U.exSaved(filename)); }
+    catch (err) {
+      const c = err && err.code;
+      toast(c === "declined" ? U.exDeclined : c === "rate_limited" ? U.exBusy : (c === "bad_request" || c === "transform_error") ? U.exFailed : U.exUnavailable);
+      if (["unavailable", "not_granted", "capability_disabled", "capability_removed", "extension_not_enabled"].includes(c)) { dlKnownMissing = true; $("exportBox").hidden = true; $("exNote").textContent = U.exUnavailable; }
+    } finally { btn.disabled = false; btn.textContent = label; }
+  }
+
   // ---------- Pages ----------
   let page = "chart";
-  const FROM_HASH = { dashboard: "dash", chart: "chart", readiness: "rv", idp: "idp", "employee-card": "card" }, TO_HASH = { dash: "dashboard", chart: "chart", rv: "readiness", idp: "idp", card: "employee-card" };
+  const FROM_HASH = { dashboard: "dash", summary: "sum", chart: "chart", readiness: "rv", idp: "idp", "employee-card": "card" }, TO_HASH = { dash: "dashboard", sum: "summary", chart: "chart", rv: "readiness", idp: "idp", card: "employee-card" };
   const readHash = () => { page = FROM_HASH[location.hash.slice(1)] || "chart"; };
   function go(pg) { if (TO_HASH[pg] === location.hash.slice(1)) { page = pg; render(); } else location.hash = TO_HASH[pg]; }
 
   function render() {
     renderStatic(); renderLegend();
-    const side = ["rv", "idp", "card"].includes(page);
+    const side = ["rv", "idp", "card", "sum"].includes(page);
+    $("view-sum").hidden = page !== "sum";
     $("view-dash").hidden = page !== "dash"; $("view-rv").hidden = page !== "rv"; $("view-idp").hidden = page !== "idp"; $("view-card").hidden = page !== "card"; $("chartPanel").hidden = page !== "chart";
     $("notesPanel").hidden = side; $("kpis").hidden = side;
     if (!side) renderKpis();
     if (page === "idp") renderIDP();
     if (page === "card") renderCard();
+    if (page === "sum") renderSummary();
     if (page === "dash") renderDash();
     if (page === "rv") renderRV();
     if (page === "chart") { if (view === "chart") renderChart(); else renderTable(); }
@@ -1447,6 +1702,9 @@ table.idp { min-width: 1120px; }
     const again = document.querySelector(`select[data-val="${sel.dataset.val}"]`); if (again) again.focus();
   });
   window.addEventListener("hashchange", () => { readHash(); render(); });
+  $("exPdf").addEventListener("click", () => doExport("pdf"));
+  $("exPpt").addEventListener("click", () => doExport("ppt"));
+  if (window.claude && typeof window.claude.use === "function") getDownloads().then(dl => { if (!dl) { dlKnownMissing = true; $("exportBox").hidden = true; $("exNote").textContent = L().exUnavailable; } });
   initVal(); readHash();
   render();
 })();
