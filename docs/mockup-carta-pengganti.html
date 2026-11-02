@@ -280,6 +280,102 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 .guide-item:hover { background: var(--sunken); border-color: var(--accent); }
 .guide-item span { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
 .guide-item .go { color: var(--accent); font-weight: 600; font-size: 12px; }
+.ico { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.ico-lg { width: 26px; height: 26px; color: var(--accent); }
+.ico-xl { width: 40px; height: 40px; stroke-width: 1.6; }
+.ico-tile { width: 38px; height: 38px; padding: 8px; border-radius: 10px; background: var(--brand-tint); color: var(--accent); }
+.ov-flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ov-step { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 5px 10px 5px 5px; border-radius: 999px; background: var(--sunken); border: 1px solid var(--line); }
+.ov-step b { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-fg); font-family: var(--mono); font-size: 11px; }
+.ov-arrow { width: 18px; height: 12px; background: var(--accent2); clip-path: polygon(0 35%, 60% 35%, 60% 0, 100% 50%, 60% 100%, 60% 65%, 0 65%); flex: none; }
+.ov-stats .ov-stat { display: flex; gap: 10px; align-items: center; }
+.ov-stat span { display: grid; }
+.ov-stat b { font-family: var(--mono); font-size: 22px; font-weight: 500; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.ov-stat small { color: var(--muted); font-size: 12px; }
+.ov-card { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 14px; border-top: 3px solid var(--line); }
+.ov-card b { font-size: 16px; } .ov-card p { margin: 2px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.ov-card.c0 { border-top-color: var(--ok); } .ov-card.c0 .ico { color: var(--ok); }
+.ov-card.c1 { border-top-color: var(--bad); } .ov-card.c1 .ico { color: var(--bad); }
+.ov-card.c2 { border-top-color: var(--accent2); } .ov-card.c2 .ico { color: var(--accent2); }
+.stairs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: end; }
+@media (max-width: 860px) { .stairs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .stairs { grid-template-columns: 1fr; } .stair-bar { height: 44px !important; } }
+.stair { display: grid; gap: 8px; align-content: end; padding: 10px; border-radius: 12px; border: 1.5px dashed transparent; min-width: 0; }
+.stair.focus { border-color: var(--bad); }
+.stair-head { display: flex; align-items: center; gap: 8px; }
+.stair-head b { font-size: 14px; color: var(--accent); line-height: 1.2; }
+.stair-ico { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff; flex: none; }
+.stair-ico .ico { width: 20px; height: 20px; }
+.stair-bar { border-radius: 8px 8px 0 0; display: flex; align-items: flex-end; padding: 8px; font-size: 12px; font-weight: 600; color: #fff; }
+.s0 { background: var(--accent); } .s1 { background: var(--accent2); } .s2 { background: #6ebe46; } .s3 { background: #c05f17; }
+.stair-bar.s2 { color: #0b1a0e; }
+.stair p { margin: 0; font-size: 12.5px; color: var(--muted); }
+.stair-cats { display: grid; gap: 3px; }
+.stair-cats span { background: var(--sunken); border-radius: 5px; padding: 3px 8px; font-size: 11.5px; font-family: var(--mono); }
+.stair-cats b { font-family: var(--font); color: var(--accent); margin-right: 4px; }
+.stair-flag { font-size: 11px; font-style: italic; color: var(--bad); text-align: center; }
+.cp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 480px) { .cp-grid { grid-template-columns: 1fr; } }
+.cp { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.cp-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cp-badge { background: var(--accent); color: var(--accent-fg); font-weight: 700; font-size: 13px; padding: 4px 10px; border-radius: 6px; letter-spacing: .04em; }
+.cp-badge.alt { background: var(--accent2); }
+.cp-g { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.cp > b { font-size: 13px; }
+.ico-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
+.ico-list li { display: flex; gap: 8px; align-items: center; }
+.ico-list .ico { color: var(--accent); }
+.crit-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 640px) { .crit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.crit-item { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.crit-item span { display: grid; min-width: 0; }
+.crit-item b { font-size: 14px; }
+.crit-item small { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
+.journey .j-dot .ico { width: 16px; height: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chips span { font-size: 11px; padding: 2px 7px; border-radius: 999px; background: var(--sunken); border: 1px solid var(--line); color: var(--fg); }
+.sra-viz { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; align-items: center; }
+@media (max-width: 520px) { .sra-viz { grid-template-columns: 1fr; justify-items: center; } }
+.donut { width: 150px; height: 150px; transform: rotate(0deg); }
+.donut circle { fill: none; stroke-width: 7; }
+.dn-bg { stroke: var(--sunken); }
+.dn-0 { stroke: var(--accent2); background: var(--accent2); } .dn-1 { stroke: #a8d98f; background: #a8d98f; } .dn-2 { stroke: var(--accent); background: var(--accent); }
+.dn-t { font: 700 5px var(--font); fill: var(--fg); text-anchor: middle; }
+.dn-s { font: 500 4px var(--mono); fill: var(--muted); text-anchor: middle; }
+.sra-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; width: 100%; }
+.sra-legend li { display: grid; grid-template-columns: 12px 44px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.sw-dn { width: 12px; height: 12px; border-radius: 3px; }
+.sra-legend .pct { font-family: var(--mono); font-size: 16px; color: var(--accent); }
+.sra-legend span b { display: block; font-size: 13px; } .sra-legend small { color: var(--muted); font-size: 11.5px; }
+.sra-legend .by { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--sunken); border: 1px solid var(--line); white-space: nowrap; }
+.sra-legend .by .ico { width: 14px; height: 14px; }
+.gauge { position: relative; padding: 0 0 26px; margin-top: 6px; }
+.g-zones { display: flex; height: 54px; border-radius: 8px; overflow: hidden; }
+.g-zone { display: grid; place-content: center; text-align: center; gap: 1px; min-width: 0; padding: 0 2px; }
+.g-zone b { font-family: var(--mono); font-size: 13px; } .g-zone span { font-size: 10.5px; }
+.g-zone.r0 { background: var(--r0); color: var(--r0-fg); } .g-zone.r1 { background: var(--r1); color: var(--r1-fg); } .g-zone.r2 { background: var(--r2); color: var(--r2-fg); } .g-zone.r3 { background: var(--r3); color: var(--r3-fg); }
+.g-ticks { position: relative; height: 16px; margin-top: 4px; }
+.g-ticks span { position: absolute; transform: translateX(-50%); font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+.g-ticks span:first-child { transform: none; } .g-ticks span:last-child { transform: translateX(-100%); }
+.g-prop { position: absolute; top: -4px; height: 62px; border-left: 2px dashed var(--fg); }
+.g-prop span { position: absolute; top: 84px; right: -2px; white-space: nowrap; font-size: 10.5px; font-weight: 600; color: var(--fg); }
+.g-prop { height: 84px; }
+.mix { display: flex; height: 64px; border-radius: 10px; overflow: hidden; }
+.mix-seg { display: flex; align-items: center; gap: 8px; padding: 0 12px; min-width: 0; overflow: hidden; white-space: nowrap; }
+.mix-seg b { font-family: var(--mono); font-size: 20px; } .mix-seg span { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.mix-seg .ico { width: 22px; height: 22px; }
+.m0.mix-seg { background: var(--accent); color: var(--accent-fg); } .m1.mix-seg { background: var(--accent2); color: var(--accent-fg); } .m2.mix-seg { background: var(--brand-tint); color: var(--fg); padding: 0 8px; }
+.m2.mix-seg span { display: none; }
+@media (max-width: 560px) { .mix-seg span { display: none; } .m2.mix-seg .ico { display: none; } }
+.mix-detail { display: grid; gap: 6px; border-top: 3px solid var(--line); padding-top: 8px; }
+.mix-detail.m0 { border-top-color: var(--accent); } .mix-detail.m1 { border-top-color: var(--accent2); } .mix-detail.m2 { border-top-color: #a8d98f; }
+.roles-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.role-chip { flex: 1 1 140px; display: grid; justify-items: center; text-align: center; gap: 4px; padding: 12px 8px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.role-chip b { font-size: 13px; } .role-chip small { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+@media (max-width: 640px) { .roles-row .ov-arrow { display: none; } }
+.guide-item { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+.gi-txt { display: grid; gap: 1px; min-width: 0; }
+.guide-item .go { font-size: 16px; }
 .sum-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 980px) { .sum-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .sum-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -1638,86 +1734,104 @@ table.idp { min-width: 1120px; }
   }
 
   // ---------- Overview ----------
+  const CY = {
+    en: { edit: "Edit status", save: "Save status", cancel: "Cancel", saving: "Saving…", status: "Status", note: "Short note (optional)", notePh: "e.g. IDP",
+      hint: "Changes are saved for everyone who opens this portal.", updated: (n, d) => n ? `Updated by ${n} · ${d}` : `Updated ${d}`,
+      def: "Showing the default status until HR saves one.", stale: "Showing the last saved status while checking for updates.", offline: "Could not reach the saved status. Showing the last known one.",
+      saved: "Cycle status saved. Everyone who opens the portal now sees it.", denied: "You can view the status but not change it. Ask the portal owner for Editor access.", failed: "The status could not be saved. Try again." },
+    ms: { edit: "Tukar status", save: "Simpan status", cancel: "Batal", saving: "Menyimpan…", status: "Status", note: "Nota ringkas (pilihan)", notePh: "cth. IDP",
+      hint: "Perubahan disimpan untuk semua yang membuka portal ini.", updated: (n, d) => n ? `Dikemas kini oleh ${n} · ${d}` : `Dikemas kini ${d}`,
+      def: "Memaparkan status lalai sehingga HR menyimpan status.", stale: "Memaparkan status terakhir disimpan sambil menyemak kemas kini.", offline: "Status yang disimpan tidak dapat dicapai. Memaparkan status terakhir diketahui.",
+      saved: "Status kitaran disimpan. Semua yang membuka portal kini nampak status ini.", denied: "Anda boleh lihat status tetapi tidak boleh menukarnya. Minta akses Editor daripada pemilik portal.", failed: "Status tidak dapat disimpan. Cuba lagi." }
+  };
   const OV = {
     en: {
       tier: "Talent, Succession & Leadership Pipeline", title: "Succession Planning 2026 · MCP & OCP",
-      lead: "Succession planning makes sure every critical position has successors who are ready, or being made ready, to step in. Successors are identified against set criteria, assessed through the Successor Readiness Assessment (SRA), validated with the HOD and the Talent Review Committee, then developed through an Individual Development Plan (IDP).",
-      stats: (p, s, d) => [[p, "critical positions"], [s, "successors"], [d, d === 1 ? "department" : "departments"]],
-      goalLabel: "Programme goal", goal: "Build a strong, capable successor pool for mission and operational critical positions, to minimise vacancy risk and keep the business running.",
-      whatIs: ["What it is", "Position-focused readiness", "Each successor is assessed against the requirements of a specific target position."],
-      whatNot: ["What it is not", "No automatic appointment", "Being named a successor is not a promotion or an entitlement. Appointments follow the normal approval process."],
-      commit: ["Commitment", "Development and review", "Each successor follows an IDP. The succession dashboard is reviewed twice a year."],
-      pipeTitle: "Four-tier talent pipeline", pipeNote: "This portal covers the third tier.", focus: "Focus of this portal",
+      lead: "Ready successors for every critical position: identified, assessed, validated, then developed.",
+      flow: ["Identify", "Assess (SRA)", "Validate (HOD · TRC)", "Develop (IDP)"],
+      stats: ["critical positions", "successors", "departments"],
+      goalLabel: "Programme goal", goal: "A strong successor pool that keeps critical roles filled and the business running.",
+      cards: [["check", "Position-focused", "Assessed against one target role"], ["x", "Not a promotion", "No automatic appointment or entitlement"], ["shield", "Develop & review", "IDP for every successor · reviewed twice a year"]],
+      pipeTitle: "Four-tier talent pipeline", focus: "This portal",
+      pipe: ["Feeds the future talent pool", "ETP builds the leadership pipeline", "Ready successors for critical roles", "Strategic leadership for the vision"],
       defTitle: "Critical positions",
-      mcp: "Roles that set strategy and organisational direction. They report directly to the GMD & CEO.",
-      ocp: "Roles essential to business-as-usual operations, in normal and crisis situations. Generally Division Heads at grade TH9 and above.",
-      critTitle: "Selection criteria", critNote: "Applied to MCP and OCP successors. The portal checks these from the masterlist.",
-      crit: ["Grade TH7–TH11 (MCP) · TH7–TH10 (OCP)", "Permanent and confirmed, or confirmed contract with ≥1 year of service", "Degree holder", "Age 55 and below (subject to readiness)", "Performance at least Excellent for 2 consecutive years", "No disciplinary action in the last 5 years"],
+      mcp: [["Sets strategy & direction"], ["Reports to GMD & CEO"]], ocp: [["Runs business-as-usual"], ["Usually Division Heads, TH9+"]],
+      critTitle: "Who can be a successor",
+      crit: [["layers", "TH7–TH11", "Grade · OCP TH7–TH10"], ["briefcase", "Confirmed", "Permanent, or contract ≥ 1 yr"], ["cap", "Degree", "Bachelor's or higher"], ["calendar", "≤ 55", "Age, subject to readiness"], ["award", "Excellent × 2", "PMS, 2 years in a row"], ["shield", "Clean 5 yrs", "No disciplinary action"]],
       procTitle: "Six-stage process", procNote: "Status for the 2026 cycle", st: { done: "Done", now: "In progress", next: "Next" },
-      cy: { edit: "Edit status", save: "Save status", cancel: "Cancel", saving: "Saving…", status: "Status", note: "Short note (optional)", notePh: "e.g. IDP",
-        hint: "Changes are saved for everyone who opens this portal.", updated: (n, d) => n ? `Updated by ${n} · ${d}` : `Updated ${d}`,
-        def: "Showing the default status until HR saves one.", stale: "Showing the last saved status while checking for updates.", offline: "Could not reach the saved status. Showing the last known one.",
-        saved: "Cycle status saved. Everyone who opens the portal now sees it.", denied: "You can view the status but not change it. Ask the portal owner for Editor access.", failed: "The status could not be saved. Try again." },
-      stages: [
-        ["Identify potential talent, build the talent pool and review its inflow and outflow.", "Selection criteria · MCP & OCP defined · annual talent cycle"],
-        ["Assess leadership capability with robust tools.", "Harrison JSA · performance management"],
-        ["A platform for leaders to discuss readiness and identify successors.", "Talent Review Committee · SRA results · succession plan template"],
-        ["Narrow readiness gaps with customised development.", "IDP · coaching & mentoring · mobility. Pre-discussion with the HOD comes before the IDP session with successors."],
-        ["Build a strong succession pool to minimise vacancy risk.", "Succession dashboard · readiness analytics · bi-annual review"],
-        ["Keep high performers engaged and reduce HiPo turnover.", "TEX · differentiated rewards · leadership engagement"]
-      ],
-      sraTitle: "How readiness is assessed", sraNote: "Successor Readiness Assessment (SRA) 2026",
-      sra: [["40%", "Job Success Analysis", "Harrison Assessment: behavioural fit with the target role.", "Completed by the successor"], ["10%", "Job experience", "Relevant experience and track record. Scale 0–2.", "Assessed by the HOD"], ["50%", "Functional competencies", "Technical expertise for the role. Scale 1–4.", "Assessed by the HOD"]],
-      total: "SRA total", scaleNote: "Readiness scale (current, TRC 01/2023(2)). A higher proposed scale is awaiting approval.",
-      scale: [["R0", "≥70%", "Ready now"], ["R1", "50–69%", "1–2 years"], ["R2", "40–49%", "2–4 years"], ["–", "≤39%", "Not ready"]],
-      devTitle: "Development · 70 · 20 · 10", devNote: "Every gap from the SRA becomes an IDP action, tracked through the IDP and KPI cascading.",
-      dev: [["70%", "On-the-job", "Stretch assignments, job rotation, acting roles, presenting to the Board and MANCO"], ["20%", "Coaching & mentoring", "Executive coaching, mentoring by the incumbent, GROW feedback from the HOD"], ["10%", "Training", "Executive education, professional certification, e-learning"]],
+      stages: [["Build the talent pool", ["Criteria", "MCP & OCP", "Annual cycle"]], ["Assess leadership capability", ["Harrison JSA", "PMS"]], ["Discuss readiness, name successors", ["TRC", "SRA results"]], ["Close gaps with an IDP", ["IDP", "Coaching", "Mobility"]], ["Keep the successor pool strong", ["Dashboard", "Bi-annual review"]], ["Keep HiPos engaged", ["TEX", "Rewards", "Engagement"]]],
+      sraTitle: "How readiness is scored", sraNote: "Successor Readiness Assessment 2026",
+      sra: [["40%", "Job fit", "Harrison JSA", "user", "Successor"], ["10%", "Job experience", "Scale 0–2", "tie", "HOD"], ["50%", "Functional competencies", "Scale 1–4", "tie", "HOD"]],
+      gaugeTitle: "Readiness scale", gauge: [["Not ready", "≤39%"], ["R2", "2–4 yrs"], ["R1", "1–2 yrs"], ["R0", "Ready now"]], proposed: "Proposed R0 (MCP)",
+      devTitle: "Development mix", devNote: "Every SRA gap becomes an IDP action",
+      dev: [["70%", "briefcase", "On-the-job", ["Stretch projects", "Job rotation", "Acting role", "Board papers"]], ["20%", "chat", "Coaching & mentoring", ["Executive coaching", "Mentoring", "GROW feedback"]], ["10%", "book", "Training", ["Exec education", "Certification", "E-learning"]]],
+      rolesTitle: "Who does what",
+      roles: [["user", "Successor", "JSA · IDP"], ["tie", "HOD", "Assess · validate · approve IDP"], ["org", "Talent Mgmt", "Run the cycle · TRC papers"], ["users", "TRC / HCC", "Review · approve"], ["cpu", "Portal", "Screen · score · track"]],
       guideTitle: "Using this portal", open: "Open",
-      guide: [["dash", "Dashboard", "Coverage, 9-Box, effectiveness metrics and positions at risk."], ["sum", "Summary", "Executive one-pager with PDF and PowerPoint download."], ["chart", "Succession Chart", "Each critical position with its incumbent and successors."], ["rv", "Readiness Validation", "SRA scores to validate with each HOD."], ["idp", "IDP", "Development plan per successor, 70 · 20 · 10."], ["card", "Employee Card", "Successor profile, SRA result and gaps."]]
+      guide: [["dash", "chart", "Dashboard", "Coverage, 9-Box, metrics"], ["sum", "doc", "Summary", "One-pager · PDF · PowerPoint"], ["chart", "sitemap", "Succession Chart", "Positions and successors"], ["rv", "clipboard", "Readiness Validation", "SRA scores with the HOD"], ["idp", "trend", "IDP", "70 · 20 · 10 plans"], ["card", "user", "Employee Card", "Profile, SRA and gaps"]]
     },
     ms: {
       tier: "Talent, Succession & Leadership Pipeline", title: "Succession Planning 2026 · MCP & OCP",
-      lead: "Succession planning memastikan setiap jawatan kritikal ada pengganti yang sedia, atau sedang disediakan, untuk mengambil alih. Pengganti dikenal pasti ikut kriteria, dinilai melalui Successor Readiness Assessment (SRA), disahkan bersama HOD dan Talent Review Committee, kemudian dibangunkan melalui Pelan Pembangunan Individu (IDP).",
-      stats: (p, s, d) => [[p, "jawatan kritikal"], [s, "pengganti"], [d, "jabatan"]],
-      goalLabel: "Matlamat program", goal: "Membina kumpulan pengganti yang kukuh dan berkebolehan untuk jawatan kritikal misi dan operasi, bagi mengurangkan risiko kekosongan dan memastikan kesinambungan perniagaan.",
-      whatIs: ["Apa itu", "Kesediaan ikut jawatan", "Setiap pengganti dinilai berbanding keperluan satu jawatan sasaran yang khusus."],
-      whatNot: ["Apa bukan", "Bukan lantikan automatik", "Dinamakan sebagai pengganti bukan kenaikan pangkat atau hak. Lantikan ikut proses kelulusan biasa."],
-      commit: ["Komitmen", "Pembangunan dan semakan", "Setiap pengganti ikut IDP. Succession dashboard disemak dua kali setahun."],
-      pipeTitle: "Saluran bakat empat peringkat", pipeNote: "Portal ini meliputi peringkat ketiga.", focus: "Fokus portal ini",
+      lead: "Pengganti yang sedia untuk setiap jawatan kritikal: dikenal pasti, dinilai, disahkan, kemudian dibangunkan.",
+      flow: ["Kenal pasti", "Nilai (SRA)", "Sahkan (HOD · TRC)", "Bangun (IDP)"],
+      stats: ["jawatan kritikal", "pengganti", "jabatan"],
+      goalLabel: "Matlamat program", goal: "Kumpulan pengganti yang kukuh supaya jawatan kritikal sentiasa terisi dan perniagaan terus berjalan.",
+      cards: [["check", "Ikut jawatan", "Dinilai berbanding satu jawatan sasaran"], ["x", "Bukan kenaikan pangkat", "Tiada lantikan automatik atau hak"], ["shield", "Bangun & semak", "IDP untuk setiap pengganti · disemak dua kali setahun"]],
+      pipeTitle: "Saluran bakat empat peringkat", focus: "Portal ini",
+      pipe: ["Mengisi talent pool masa depan", "ETP membina saluran kepimpinan", "Pengganti sedia untuk jawatan kritikal", "Kepimpinan strategik untuk visi"],
       defTitle: "Jawatan kritikal",
-      mcp: "Jawatan yang merangka strategi dan hala tuju organisasi. Melapor terus kepada GMD & CEO.",
-      ocp: "Jawatan penting untuk operasi harian, dalam keadaan biasa dan krisis. Lazimnya Ketua Bahagian gred TH9 ke atas.",
-      critTitle: "Kriteria pemilihan", critNote: "Digunakan untuk pengganti MCP dan OCP. Portal menyemak kriteria ini daripada masterlist.",
-      crit: ["Gred TH7–TH11 (MCP) · TH7–TH10 (OCP)", "Tetap dan disahkan, atau kontrak disahkan dengan ≥1 tahun berkhidmat", "Pemegang ijazah", "Umur 55 tahun ke bawah (tertakluk kesediaan)", "Prestasi sekurang-kurangnya Cemerlang 2 tahun berturut-turut", "Tiada tindakan tatatertib 5 tahun lepas"],
+      mcp: [["Merangka strategi & hala tuju"], ["Melapor kepada GMD & CEO"]], ocp: [["Menjalankan operasi harian"], ["Lazimnya Ketua Bahagian, TH9+"]],
+      critTitle: "Siapa boleh jadi pengganti",
+      crit: [["layers", "TH7–TH11", "Gred · OCP TH7–TH10"], ["briefcase", "Disahkan", "Tetap, atau kontrak ≥ 1 thn"], ["cap", "Ijazah", "Sarjana muda atau lebih"], ["calendar", "≤ 55", "Umur, tertakluk kesediaan"], ["award", "Cemerlang × 2", "PMS, 2 tahun berturut"], ["shield", "Bersih 5 thn", "Tiada tindakan tatatertib"]],
       procTitle: "Proses enam peringkat", procNote: "Status kitaran 2026", st: { done: "Selesai", now: "Sedang berjalan", next: "Seterusnya" },
-      cy: { edit: "Tukar status", save: "Simpan status", cancel: "Batal", saving: "Menyimpan…", status: "Status", note: "Nota ringkas (pilihan)", notePh: "cth. IDP",
-        hint: "Perubahan disimpan untuk semua yang membuka portal ini.", updated: (n, d) => n ? `Dikemas kini oleh ${n} · ${d}` : `Dikemas kini ${d}`,
-        def: "Memaparkan status lalai sehingga HR menyimpan status.", stale: "Memaparkan status terakhir disimpan sambil menyemak kemas kini.", offline: "Status yang disimpan tidak dapat dicapai. Memaparkan status terakhir diketahui.",
-        saved: "Status kitaran disimpan. Semua yang membuka portal kini nampak status ini.", denied: "Anda boleh lihat status tetapi tidak boleh menukarnya. Minta akses Editor daripada pemilik portal.", failed: "Status tidak dapat disimpan. Cuba lagi." },
-      stages: [
-        ["Kenal pasti bakat berpotensi, bina talent pool dan semak aliran masuk dan keluarnya.", "Kriteria pemilihan · MCP & OCP ditetapkan · kitaran bakat tahunan"],
-        ["Nilai keupayaan kepimpinan dengan alat yang mantap.", "Harrison JSA · pengurusan prestasi"],
-        ["Platform untuk pemimpin membincangkan kesediaan dan mengenal pasti pengganti.", "Talent Review Committee · keputusan SRA · templat pelan pengganti"],
-        ["Kecilkan jurang kesediaan dengan pembangunan khusus.", "IDP · coaching & mentoring · mobiliti. Pra-perbincangan dengan HOD dibuat sebelum sesi IDP bersama pengganti."],
-        ["Bina kumpulan pengganti yang kukuh untuk kurangkan risiko kekosongan.", "Succession dashboard · analitik kesediaan · semakan dwi-tahunan"],
-        ["Kekalkan penglibatan bakat berprestasi tinggi dan kurangkan turnover HiPo.", "TEX · ganjaran berbeza · leadership engagement"]
-      ],
-      sraTitle: "Cara kesediaan dinilai", sraNote: "Successor Readiness Assessment (SRA) 2026",
-      sra: [["40%", "Job Success Analysis", "Harrison Assessment: kesesuaian tingkah laku dengan jawatan sasaran.", "Dijawab oleh pengganti"], ["10%", "Pengalaman kerja", "Pengalaman dan rekod prestasi yang berkaitan. Skala 0–2.", "Dinilai oleh HOD"], ["50%", "Kompetensi fungsian", "Kepakaran teknikal untuk jawatan. Skala 1–4.", "Dinilai oleh HOD"]],
-      total: "Jumlah SRA", scaleNote: "Skala kesediaan (semasa, TRC 01/2023(2)). Skala cadangan yang lebih tinggi sedang menunggu kelulusan.",
-      scale: [["R0", "≥70%", "Sedia sekarang"], ["R1", "50–69%", "1–2 tahun"], ["R2", "40–49%", "2–4 tahun"], ["–", "≤39%", "Belum sedia"]],
-      devTitle: "Pembangunan · 70 · 20 · 10", devNote: "Setiap jurang daripada SRA menjadi tindakan IDP, dipantau melalui IDP dan KPI cascading.",
-      dev: [["70%", "On-the-job", "Tugasan stretch, job rotation, memangku jawatan, bentang kepada Lembaga dan MANCO"], ["20%", "Coaching & mentoring", "Executive coaching, mentoring oleh penyandang, GROW feedback daripada HOD"], ["10%", "Latihan", "Pendidikan eksekutif, pensijilan profesional, e-learning"]],
+      stages: [["Bina talent pool", ["Kriteria", "MCP & OCP", "Kitaran tahunan"]], ["Nilai keupayaan kepimpinan", ["Harrison JSA", "PMS"]], ["Bincang kesediaan, namakan pengganti", ["TRC", "Keputusan SRA"]], ["Tutup jurang dengan IDP", ["IDP", "Coaching", "Mobiliti"]], ["Kekalkan kumpulan pengganti kukuh", ["Dashboard", "Semakan dwi-tahunan"]], ["Kekalkan penglibatan HiPo", ["TEX", "Ganjaran", "Engagement"]]],
+      sraTitle: "Cara kesediaan diskor", sraNote: "Successor Readiness Assessment 2026",
+      sra: [["40%", "Job fit", "Harrison JSA", "user", "Pengganti"], ["10%", "Pengalaman kerja", "Skala 0–2", "tie", "HOD"], ["50%", "Kompetensi fungsian", "Skala 1–4", "tie", "HOD"]],
+      gaugeTitle: "Skala kesediaan", gauge: [["Belum sedia", "≤39%"], ["R2", "2–4 thn"], ["R1", "1–2 thn"], ["R0", "Sedia sekarang"]], proposed: "Cadangan R0 (MCP)",
+      devTitle: "Campuran pembangunan", devNote: "Setiap jurang SRA menjadi tindakan IDP",
+      dev: [["70%", "briefcase", "On-the-job", ["Projek stretch", "Job rotation", "Memangku", "Kertas Lembaga"]], ["20%", "chat", "Coaching & mentoring", ["Executive coaching", "Mentoring", "GROW feedback"]], ["10%", "book", "Latihan", ["Pendidikan eksekutif", "Pensijilan", "E-learning"]]],
+      rolesTitle: "Siapa buat apa",
+      roles: [["user", "Pengganti", "JSA · IDP"], ["tie", "HOD", "Nilai · sahkan · lulus IDP"], ["org", "Talent Mgmt", "Urus kitaran · kertas TRC"], ["users", "TRC / HCC", "Semak · lulus"], ["cpu", "Portal", "Tapis · skor · jejak"]],
       guideTitle: "Cara guna portal ini", open: "Buka",
-      guide: [["dash", "Dashboard", "Liputan, 9-Box, metrik keberkesanan dan jawatan berisiko."], ["sum", "Ringkasan", "Ringkasan eksekutif satu halaman dengan muat turun PDF dan PowerPoint."], ["chart", "Carta Pengganti", "Setiap jawatan kritikal dengan penyandang dan penggantinya."], ["rv", "Readiness Validation", "Skor SRA untuk disahkan bersama setiap HOD."], ["idp", "IDP", "Pelan pembangunan setiap pengganti, 70 · 20 · 10."], ["card", "Kad Pekerja", "Profil pengganti, keputusan SRA dan jurang."]]
+      guide: [["dash", "chart", "Dashboard", "Liputan, 9-Box, metrik"], ["sum", "doc", "Ringkasan", "Satu halaman · PDF · PowerPoint"], ["chart", "sitemap", "Carta Pengganti", "Jawatan dan pengganti"], ["rv", "clipboard", "Readiness Validation", "Skor SRA bersama HOD"], ["idp", "trend", "IDP", "Pelan 70 · 20 · 10"], ["card", "user", "Kad Pekerja", "Profil, SRA dan jurang"]]
     }
   };
+  OV.en.cy = CY.en; OV.ms.cy = CY.ms;
   const PIPE = [
-    { t: ["Graduate Talent", "Bakat Graduan"], band: ["Fresh graduates / entry level", "Graduan baharu / peringkat permulaan"], h: 34, d: ["Grooms young talent, especially fresh graduates, to feed the future talent pool and build an early leadership mindset.", "Membentuk bakat muda, terutamanya graduan baharu, untuk mengisi talent pool masa depan dan membina minda kepimpinan awal."] },
-    { t: ["Talent Management", "Pengurusan Bakat"], band: ["Executive – Manager (TH4 – TH6)", "Eksekutif – Pengurus (TH4 – TH6)"], h: 58, d: ["Develops high-potential professionals through the Emerging Talent Programme (ETP) to build the internal leadership pipeline.", "Membangunkan profesional berpotensi tinggi melalui Emerging Talent Programme (ETP) untuk membina saluran kepimpinan dalaman."] },
-    { t: ["Succession Planning", "Succession Planning"], band: ["Assistant Manager – HOD (TH5 – TH11)", "Penolong Pengurus – HOD (TH5 – TH11)"], h: 82, focus: true, d: ["Readiness of successors for critical positions, so future leaders are ready for the next level.", "Kesediaan pengganti untuk jawatan kritikal, supaya pemimpin masa depan sedia untuk peringkat seterusnya."] },
-    { t: ["Senior Leadership Team", "Pasukan Kepimpinan Kanan"], band: ["Senior Management (C-Suite)", "Pengurusan Kanan (C-Suite)"], h: 106, d: ["Strategic leadership development at senior management level to drive the organisation's vision and mission.", "Pembangunan kepimpinan strategik di peringkat pengurusan kanan untuk memacu visi dan misi organisasi."] }
+    { t: ["Graduate Talent", "Bakat Graduan"], band: ["Fresh graduates / entry", "Graduan baharu / permulaan"], h: 40, ico: "cap" },
+    { t: ["Talent Management", "Pengurusan Bakat"], band: ["Executive – Manager · TH4–TH6", "Eksekutif – Pengurus · TH4–TH6"], h: 70, ico: "rocket" },
+    { t: ["Succession Planning", "Succession Planning"], band: ["Asst. Manager – HOD · TH5–TH11", "Pen. Pengurus – HOD · TH5–TH11"], h: 100, ico: "trend", focus: true },
+    { t: ["Senior Leadership Team", "Pasukan Kepimpinan Kanan"], band: ["Senior Management (C-Suite)", "Pengurusan Kanan (C-Suite)"], h: 130, ico: "trophy" }
   ];
+  const STAGE_ICO = ["search", "clipboard", "chat", "trend", "sitemap", "heart"];
+  const ICON_SPRITE = `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></symbol>
+    <symbol id="i-tie" viewBox="0 0 24 24"><circle cx="12" cy="6" r="3.5"/><path d="M5 21c0-4.5 3-7 7-7s7 2.5 7 7"/><path d="M12 14l-1.3 2.5L12 21l1.3-4.5z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.7c2.3.6 4 2.3 4 5.3"/></symbol>
+    <symbol id="i-org" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1M10 21v-3h4v3"/></symbol>
+    <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+    <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-sitemap" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M12 15l-3-3c1.5-4.5 5-8 10-9-1 5-4.5 8.5-9 10z"/><path d="M9 12H5l2-4h4M12 15v4l4-2v-4"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 3M16 6h3a3 3 0 0 1-3 3M12 13v4M8 21h8M9 17h6"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M19 19v2H6"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+  </defs></svg>`;
+  const ico = (id, cls) => `<svg class="ico${cls ? " " + cls : ""}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
   const STAGE_NAMES = ["Talent Identification", "Talent Assessment", "Talent Evaluation & Review", "Talent Development", "Succession Planning", "Talent Retention"];
   // Shared cycle status: db doc settings/cycle (everyone reads, Editors/owner write)
   const DEFAULT_CYCLE = { stages: ["done", "done", "done", "now", "next", "next"], notes: ["", "", "", "IDP", "", ""] };
@@ -1777,58 +1891,84 @@ table.idp { min-width: 1120px; }
       const st = src.stages[i], note = src.notes[i];
       const edit = cycleEditing ? `<div class="cy-edit"><select data-cy-st="${i}" aria-label="${O.cy.status}: ${n}">${["done", "now", "next"].map(k => `<option value="${k}"${k === st ? " selected" : ""}>${O.st[k]}</option>`).join("")}</select>
         <input data-cy-note="${i}" value="${esc(note)}" maxlength="40" placeholder="${O.cy.notePh}" aria-label="${O.cy.note}: ${n}"></div>` : "";
-      return `<li class="${st}"><span class="j-dot">${st === "done" ? "✓" : i + 1}</span><div class="j-body"><span class="j-when">${O.st[st]}${note ? " · " + esc(note) : ""}</span><b>${n}</b>${edit}<span class="j-sub">${O.stages[i][0]}</span><span class="j-en">${O.stages[i][1]}</span></div></li>`;
+      return `<li class="${st}"><span class="j-dot">${st === "done" ? ico("check") : ico(STAGE_ICO[i])}</span><div class="j-body"><span class="j-when">${i + 1} · ${O.st[st]}${note ? " · " + esc(note) : ""}</span><b>${n}</b>${edit}<span class="j-sub">${O.stages[i][0]}</span><span class="chips">${O.stages[i][1].map(c => `<span>${c}</span>`).join("")}</span></div></li>`;
     }).join("")}</ol>`;
   }
   function renderOverview() {
     const O = OV[lang], ps = DATA.positions;
     const succ = new Set(ps.flatMap(p => p.succ.filter(s => s.st !== "struck").map(s => s.key))).size;
     const depts = new Set(ps.map(p => p.dept)).size;
-    const stats = O.stats(ps.length, succ, depts).map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
-    const isCard = ([lab, big, txt], cls) => `<div class="panel ov-is ${cls}"><div class="label">${lab}</div><b class="big">${big}</b><p>${txt}</p></div>`;
-    $("view-ov").innerHTML = `
+    const statIco = ["sitemap", "users", "org"];
+    // donut: circumference 100 on r = 15.915
+    let off = 25;
+    const donut = O.sra.map((c, i) => { const v = parseFloat(c[0]); const seg = `<circle class="dn dn-${i}" cx="21" cy="21" r="15.915" stroke-dasharray="${v} ${100 - v}" stroke-dashoffset="${off}"/>`; off -= v; return seg; }).join("");
+    const zones = [[0, 40, "r3"], [40, 50, "r2"], [50, 70, "r1"], [70, 100, "r0"]];
+    $("view-ov").innerHTML = ICON_SPRITE + `
       <div class="panel ov-hero">
-        <div class="ov-hero-text"><div class="tier">${O.tier}</div><h2 class="ov-title">${O.title}</h2><p class="ov-lead">${O.lead}</p><div class="ov-stats">${stats}</div></div>
-        <div class="ov-goal"><div class="label">${O.goalLabel}</div><p>${O.goal}</p></div>
+        <div class="ov-hero-text"><div class="tier">${O.tier}</div><h2 class="ov-title">${O.title}</h2><p class="ov-lead">${O.lead}</p>
+          <div class="ov-flow">${O.flow.map((f, i) => `${i ? '<span class="ov-arrow" aria-hidden="true"></span>' : ""}<span class="ov-step"><b>${i + 1}</b>${f}</span>`).join("")}</div>
+          <div class="ov-stats">${[ps.length, succ, depts].map((v, i) => `<div class="ov-stat">${ico(statIco[i], "ico-tile")}<span><b>${v}</b><small>${O.stats[i]}</small></span></div>`).join("")}</div>
+        </div>
+        <div class="ov-goal">${ico("flag", "ico-lg")}<div class="label">${O.goalLabel}</div><p>${O.goal}</p></div>
       </div>
-      <div class="grid3">${isCard(O.whatIs, "is-ok")}${isCard(O.whatNot, "is-bad")}${isCard(O.commit, "is-acc")}</div>
+      <div class="grid3">${O.cards.map(([ic, big, txt], i) => `<div class="panel ov-card c${i}">${ico(ic, "ico-xl")}<div><b>${big}</b><p>${txt}</p></div></div>`).join("")}</div>
       <div class="panel">
-        <div class="section-head"><h2>${O.pipeTitle}</h2><span class="note">${O.pipeNote}</span></div>
-        <div class="pipe">${PIPE.map(t => `<div class="pipe-col${t.focus ? " focus" : ""}">
-          <b class="pipe-name">${tx(t.t)}</b>
-          <div class="pipe-bar" style="height:${t.h}px"><span>${tx(t.band)}</span></div>
-          <p>${tx(t.d)}</p>
-          ${t.focus ? `<div class="pipe-cats"><div><b>MCP (C-1)</b><span>TH7 – TH11</span></div><div><b>OCP (C-2)</b><span>TH7 – TH10</span></div><div><b>BCP</b><span>TH5 – TH7</span></div></div><span class="pipe-flag">${O.focus}</span>` : ""}
+        <h2>${O.pipeTitle}</h2>
+        <div class="stairs">${PIPE.map((t, i) => `<div class="stair${t.focus ? " focus" : ""}">
+          <div class="stair-head"><span class="stair-ico s${i}">${ico(t.ico)}</span><b>${tx(t.t)}</b></div>
+          <div class="stair-bar s${i}" style="height:${t.h}px"><span>${tx(t.band)}</span></div>
+          <p>${O.pipe[i]}</p>
+          ${t.focus ? `<div class="stair-cats"><span><b>MCP</b> C-1 · TH7–11</span><span><b>OCP</b> C-2 · TH7–10</span><span><b>BCP</b> TH5–7</span></div><span class="stair-flag">${O.focus}</span>` : ""}
         </div>`).join("")}</div>
       </div>
       <div class="grid2">
         <div class="panel"><h2>${O.defTitle}</h2>
-          <div class="cat"><div class="section-head"><b>Mission Critical Position (MCP)</b><span class="g">C-1 · TH7–TH11</span></div><p>${O.mcp}</p></div>
-          <div class="cat"><div class="section-head"><b>Operational Critical Position (OCP)</b><span class="g">C-2 · TH7–TH10</span></div><p>${O.ocp}</p></div>
+          <div class="cp-grid">
+            <div class="cp"><div class="cp-top"><span class="cp-badge">MCP</span><span class="cp-g">C-1 · TH7–TH11</span></div><b>Mission Critical Position</b>
+              <ul class="ico-list"><li>${ico("flag")}${O.mcp[0]}</li><li>${ico("org")}${O.mcp[1]}</li></ul></div>
+            <div class="cp"><div class="cp-top"><span class="cp-badge alt">OCP</span><span class="cp-g">C-2 · TH7–TH10</span></div><b>Operational Critical Position</b>
+              <ul class="ico-list"><li>${ico("cpu")}${O.ocp[0]}</li><li>${ico("sitemap")}${O.ocp[1]}</li></ul></div>
+          </div>
         </div>
-        <div class="panel"><div class="section-head"><h2>${O.critTitle}</h2></div><p class="note" style="margin:0">${O.critNote}</p>
-          <ol class="crit-list">${O.crit.map(c => `<li>${c}</li>`).join("")}</ol></div>
+        <div class="panel"><h2>${O.critTitle}</h2>
+          <div class="crit-grid">${O.crit.map(([ic, big, sm]) => `<div class="crit-item">${ico(ic, "ico-tile")}<span><b>${big}</b><small>${sm}</small></span></div>`).join("")}</div>
+        </div>
       </div>
       <div class="panel">
         ${cycleHead(O)}
         ${cycleJourney(O)}
       </div>
-      <div class="panel">
-        <div class="section-head"><h2>${O.sraTitle}</h2><span class="note">${O.sraNote}</span></div>
-        <div class="eq">${O.sra.map((c, i) => `${i ? '<span class="eq-op">+</span>' : ""}<div class="eq-box"><span class="eq-big">${c[0]}</span><b>${c[1]}</b><small>${c[2]}</small><span class="who">${c[3]}</span></div>`).join("")}<span class="eq-op">=</span><div class="eq-box result"><span class="eq-big">100%</span><b>${O.total}</b></div></div>
-        <div class="scale-strip">${O.scale.map(([l, r, d]) => `<div class="${l === "–" ? "r3" : l.toLowerCase()}"><b>${l}</b><span>${r}</span><span>${d}</span></div>`).join("")}</div>
-        <p class="note" style="margin:0">${O.scaleNote}</p>
+      <div class="grid2">
+        <div class="panel">
+          <div class="section-head"><h2>${O.sraTitle}</h2><span class="note">${O.sraNote}</span></div>
+          <div class="sra-viz">
+            <svg class="donut" viewBox="0 0 42 42" role="img" aria-label="${O.sra.map(c => c[0] + " " + c[1]).join(", ")}"><circle class="dn-bg" cx="21" cy="21" r="15.915"/>${donut}<text x="21" y="20" class="dn-t">SRA</text><text x="21" y="25.5" class="dn-s">100%</text></svg>
+            <ul class="sra-legend">${O.sra.map((c, i) => `<li><span class="sw-dn dn-${i}"></span><span class="pct">${c[0]}</span><span><b>${c[1]}</b><small>${c[2]}</small></span><span class="by">${ico(c[3])}${c[4]}</span></li>`).join("")}</ul>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>${O.gaugeTitle}</h2>
+          <div class="gauge">
+            <div class="g-zones">${zones.map(([a, b, c], i) => `<div class="g-zone ${c}" style="flex:${b - a}"><b>${O.gauge[i][0]}</b><span>${O.gauge[i][1]}</span></div>`).join("")}</div>
+            <div class="g-ticks">${[0, 40, 50, 70, 100].map(v => `<span style="left:${v}%">${v}%</span>`).join("")}</div>
+            <div class="g-prop" style="left:90%"><span>${O.proposed} ≥90%</span></div>
+          </div>
+        </div>
       </div>
       <div class="panel">
         <div class="section-head"><h2>${O.devTitle}</h2><span class="note">${O.devNote}</span></div>
-        <div class="grid3">${O.dev.map(([p, t, d], i) => `<div class="dev dev-${i}"><span class="eq-big">${p}</span><b>${t}</b><small>${d}</small></div>`).join("")}</div>
+        <div class="mix">${O.dev.map(([p, ic, t], i) => `<div class="mix-seg m${i}" style="flex:${parseFloat(p)}">${ico(ic)}<b>${p}</b><span>${t}</span></div>`).join("")}</div>
+        <div class="grid3">${O.dev.map(([p, ic, t, chips], i) => `<div class="mix-detail m${i}"><b>${t}</b><span class="chips">${chips.map(c => `<span>${c}</span>`).join("")}</span></div>`).join("")}</div>
+      </div>
+      <div class="panel">
+        <h2>${O.rolesTitle}</h2>
+        <div class="roles-row">${O.roles.map(([ic, t, d], i) => `${i ? '<span class="ov-arrow" aria-hidden="true"></span>' : ""}<div class="role-chip">${ico(ic, "ico-tile")}<b>${t}</b><small>${d}</small></div>`).join("")}</div>
       </div>
       <div class="panel">
         <h2>${O.guideTitle}</h2>
-        <div class="guide">${O.guide.map(([v, t, d]) => `<button type="button" class="guide-item" data-view="${v}"><b>${t}</b><span>${d}</span><span class="go">${O.open} →</span></button>`).join("")}</div>
+        <div class="guide">${O.guide.map(([v, ic, t, d]) => `<button type="button" class="guide-item" data-view="${v}">${ico(ic, "ico-tile")}<span class="gi-txt"><b>${t}</b><span>${d}</span></span><span class="go">→</span></button>`).join("")}</div>
       </div>`;
   }
-
   // ---------- Pages ----------
   let page = "chart";
   const FROM_HASH = { overview: "ov", dashboard: "dash", summary: "sum", chart: "chart", readiness: "rv", idp: "idp", "employee-card": "card" }, TO_HASH = { ov: "overview", dash: "dashboard", sum: "summary", chart: "chart", rv: "readiness", idp: "idp", card: "employee-card" };
