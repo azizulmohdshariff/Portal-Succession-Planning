@@ -1,281 +1,489 @@
 <title>Aliran Succession Planning</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one wide swimlane canvas (roles = rows, phases A–H = columns), sticky role column, notes below */
+/* Layout: ETP-portal shell (brand top rule, title + segmented tabs), stage stepper, swimlane canvas in a panel, reference panels below.
+   Palette mirrors the ETP portal tokens. Amber/red are status colours only. */
 :root {
-  --bg: #f5f7f9;
-  --surface: #ffffff;
-  --fg: #16202a;
-  --muted: #5a6876;
-  --line: #d9e0e6;
-  --edge: #6b7a88;
-  --back: #c2410c;
-  --accent: #155e75;
-  --lane-0: #0f766e; /* Pekerja */
-  --lane-1: #1d4ed8; /* Line Manager */
-  --lane-2: #7c3aed; /* HOD */
-  --lane-3: #b45309; /* HR */
-  --lane-4: #be123c; /* Talent Council */
-  --lane-5: #475569; /* Sistem */
-  --on-solid: #ffffff;
-  --font-display: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
-  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --bg: #f8fcf6; --surface: #ffffff; --sunken: #f0f9ec; --line: #e6e6e6; --fg: #2a2b2e; --muted: #6a6b6d;
+  --accent: #0d6636; --accent-fg: #ffffff; --accent2: #4a9437; --brand: #52de56; --brand-tint: #e3f3da;
+  --ok: #0d6636; --warn: #945800; --bad: #c62828;
+  --ok-bg: #e3f3da; --warn-bg: #fdf0dc; --bad-bg: #fbe4e4; --mute-bg: #eaeaea;
+  --r0: #4a9437; --r1: #d9b100; --r2: #e06666;
+  --edge: #8b958d;
+  --font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0f151b; --surface: #17202a; --fg: #e4eaf0; --muted: #94a3b2; --line: #2a3644;
-    --edge: #8796a5; --back: #fb923c; --accent: #67c3dc;
-    --lane-0: #2dd4bf; --lane-1: #7aa2ff; --lane-2: #b794f6; --lane-3: #f0a64a; --lane-4: #fb7185; --lane-5: #a3b1c2;
-    --on-solid: #0f151b;
-    color-scheme: dark;
-  }
-}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1d1e20; --surface: #2a2b2e; --sunken: #232427; --line: #4d4d4d; --fg: #f4f4f5; --muted: #bfc0c0;
+  --accent: #6ebe46; --accent-fg: #000000; --accent2: #52de56; --brand: #52de56; --brand-tint: #1f3d2a;
+  --ok: #86e889; --warn: #f0a93b; --bad: #ff6b6b;
+  --ok-bg: #1f3d2a; --warn-bg: #3a2a10; --bad-bg: #3d1616; --mute-bg: #3a3b3e;
+  --r0: #6ebe46; --r1: #e8c547; --r2: #ff8a8a; --edge: #8f9a92;
+  color-scheme: dark;
+} }
 :root[data-theme="dark"] {
-  --bg: #0f151b; --surface: #17202a; --fg: #e4eaf0; --muted: #94a3b2; --line: #2a3644;
-  --edge: #8796a5; --back: #fb923c; --accent: #67c3dc;
-  --lane-0: #2dd4bf; --lane-1: #7aa2ff; --lane-2: #b794f6; --lane-3: #f0a64a; --lane-4: #fb7185; --lane-5: #a3b1c2;
-  --on-solid: #0f151b;
+  --bg: #1d1e20; --surface: #2a2b2e; --sunken: #232427; --line: #4d4d4d; --fg: #f4f4f5; --muted: #bfc0c0;
+  --accent: #6ebe46; --accent-fg: #000000; --accent2: #52de56; --brand: #52de56; --brand-tint: #1f3d2a;
+  --ok: #86e889; --warn: #f0a93b; --bad: #ff6b6b;
+  --ok-bg: #1f3d2a; --warn-bg: #3a2a10; --bad-bg: #3d1616; --mute-bg: #3a3b3e;
+  --r0: #6ebe46; --r1: #e8c547; --r2: #ff8a8a; --edge: #8f9a92;
   color-scheme: dark;
 }
 
-body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
-.wrap { padding-block: 32px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1320px; margin: 0 auto; display: grid; gap: 28px; }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; border-top: 4px solid var(--brand); background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px;
+  padding-block: 20px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+h1 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
+h2 { font-size: 15px; font-weight: 600; margin: 0; text-wrap: balance; }
+h3 { font-size: 13px; font-weight: 600; margin: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button { font: inherit; color: inherit; }
 
-header { display: grid; gap: 8px; }
-.eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
-h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 4vw, 36px); line-height: 1.15; margin: 0; text-wrap: balance; }
-.lede { margin: 0; color: var(--muted); max-width: 68ch; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand { display: grid; gap: 2px; }
+.brand small { color: var(--muted); }
+nav { display: flex; gap: 4px; background: var(--sunken); border: 1px solid var(--line); border-radius: 8px; padding: 3px; overflow-x: auto; }
+nav a { padding: 6px 12px; border-radius: 6px; color: var(--muted); text-decoration: none; font-weight: 500; white-space: nowrap; }
+nav a[aria-current="page"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
 
-.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.toolbar .label { font-size: 12px; color: var(--muted); margin-right: 4px; }
-.chip-btn { font: 500 12px/1 var(--font-body); padding: 7px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
-.chip-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
-.chip-btn[aria-pressed="true"] { border-color: var(--c); box-shadow: inset 0 0 0 1px var(--c); }
-.chip-btn:focus-visible, .lane-label:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; display: grid; gap: 12px; align-content: start; }
+.label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 500; }
+.note { color: var(--muted); font-size: 12px; }
+.tier { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; }
+.section-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; max-width: 72ch; }
+.pill { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .03em; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.p-ok { color: var(--ok); background: var(--ok-bg); } .p-warn { color: var(--warn); background: var(--warn-bg); } .p-bad { color: var(--bad); background: var(--bad-bg); } .p-mute { color: var(--muted); background: var(--mute-bg); }
+
+.ico { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* Hero */
+.hero { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+@media (max-width: 860px) { .hero { grid-template-columns: 1fr; } }
+.hero-text { display: grid; gap: 8px; align-content: start; }
+.hero-title { font-size: 22px; line-height: 1.25; }
+.lead { margin: 0; color: var(--muted); line-height: 1.6; max-width: 70ch; }
+.tiers { display: grid; gap: 6px; background: var(--brand-tint); border-radius: 8px; padding: 12px 14px; align-content: center; }
+.tiers div { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.tiers b { color: var(--accent); }
+.tiers span { font-family: var(--mono); font-size: 12px; }
+
+/* Stage stepper */
+.journey { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.journey li { position: relative; display: grid; gap: 8px; align-content: start; padding-right: 10px; }
+.journey li::before { content: ""; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: var(--accent2); z-index: 0; }
+.journey li:first-child::before { left: 15px; } .journey li:last-child::before { right: auto; width: 15px; }
+.journey button { all: unset; display: grid; gap: 8px; cursor: pointer; border-radius: 8px; }
+.journey button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.j-dot { position: relative; z-index: 1; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-weight: 500; background: var(--accent); color: var(--accent-fg); box-shadow: 0 0 0 4px var(--surface); }
+.j-body { display: grid; gap: 2px; font-size: 13px; }
+.j-body b { font-weight: 600; }
+.j-sub { color: var(--muted); font-size: 12px; line-height: 1.4; }
+.journey button:hover b { color: var(--accent); text-decoration: underline; }
+@media (max-width: 760px) {
+  .journey { grid-template-columns: 1fr; gap: 14px; }
+  .journey button { grid-template-columns: 32px 1fr; gap: 12px; }
+  .journey li { padding: 0; }
+  .journey li::before { top: 32px; bottom: -14px; left: 15px; right: auto; width: 2px; height: auto; }
+  .journey li:first-child::before { left: 15px; } .journey li:last-child::before { display: none; }
+}
+
+/* Scope bar (role focus) */
+.scope { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.scope .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.chip-btn { border: 1px solid var(--line); background: var(--surface); padding: 5px 10px; border-radius: 7px; cursor: pointer; font-weight: 500; font-size: 13px; display: inline-flex; gap: 6px; align-items: center; }
+.chip-btn:hover { background: var(--sunken); }
+.chip-btn[aria-pressed="true"] { background: var(--brand-tint); border-color: var(--accent); color: var(--accent); }
 
 /* Canvas */
-.canvas-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); -webkit-overflow-scrolling: touch; }
+.canvas-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
 .canvas-row { display: flex; width: max-content; }
-.labels { position: sticky; left: 0; z-index: 4; background: var(--surface); border-right: 1px solid var(--line); flex: none; width: 128px; }
-.labels .head, .labels .status-head { display: flex; align-items: flex-end; padding: 0 12px 10px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
+.labels { position: sticky; left: 0; z-index: 4; background: var(--surface); border-right: 1px solid var(--line); flex: none; width: 150px; }
+.labels .head, .labels .status-head { display: flex; align-items: flex-end; padding: 0 12px 10px; font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
 .labels .status-head { border-bottom: 0; border-top: 1px solid var(--line); align-items: center; padding-bottom: 0; }
-.lane-label { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 12px; border-bottom: 1px solid var(--line); cursor: pointer; background: none; border-left: 0; border-right: 0; border-top: 0; text-align: left; width: 100%; color: inherit; font: inherit; }
-.lane-label strong { font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: var(--c); line-height: 1.2; }
+.lane-label { display: grid; grid-template-columns: 30px 1fr; gap: 8px; align-items: center; padding: 0 10px; border: 0; border-bottom: 1px solid var(--line); cursor: pointer; background: none; text-align: left; width: 100%; }
+.lane-label:hover { background: var(--sunken); }
+.lane-label .ico { width: 30px; height: 30px; padding: 6px; border-radius: 8px; background: var(--brand-tint); color: var(--accent); }
+.lane-label strong { display: block; font-size: 13px; font-weight: 600; line-height: 1.2; }
 .lane-label span { font-size: 11px; color: var(--muted); line-height: 1.3; }
+.lane-label[aria-pressed="true"] { background: var(--brand-tint); }
 
-.diagram { position: relative; flex: none; }
-.diagram svg { position: absolute; inset: 0; overflow: visible; }
-.phase { position: absolute; top: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 10px 10px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.phase b { font-family: var(--font-mono); font-size: 11px; color: var(--accent); letter-spacing: .04em; }
-.phase em { font-style: normal; font-family: var(--font-display); font-weight: 700; font-size: 13px; line-height: 1.2; }
-.band { position: absolute; left: 0; right: 0; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--c) 3.5%, transparent); }
+.diagram { position: relative; flex: none; background: var(--surface); }
+.diagram svg { position: absolute; inset: 0; overflow: visible; z-index: 1; }
+.phase { position: absolute; top: 0; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--surface); }
+.flow-num { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--accent-fg); display: grid; place-items: center; font-family: var(--mono); font-size: 12px; font-weight: 600; flex: none; }
+.phase b { font-weight: 600; font-size: 13px; line-height: 1.2; }
+.band { position: absolute; left: 0; right: 0; border-bottom: 1px solid var(--line); }
+.band.alt { background: var(--sunken); }
 .vsep { position: absolute; width: 0; border-left: 1px dashed var(--line); }
 
-.node { position: absolute; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px 9px; font-size: 11.5px; line-height: 1.3; color: var(--fg); background: color-mix(in srgb, var(--c) 9%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--c) 70%, transparent); border-radius: 7px; z-index: 2; transition: opacity .2s; text-wrap: balance; }
-.node.sys { border-style: dashed; }
-.node.dec { border: 0; border-radius: 0; background: color-mix(in srgb, var(--c) 22%, var(--surface)); clip-path: polygon(11% 0, 89% 0, 100% 50%, 89% 100%, 11% 100%, 0 50%); font-weight: 600; padding: 6px 18px; }
-.node.term { border: 0; border-radius: 999px; background: var(--c); color: var(--on-solid); font-weight: 600; }
-.node.term.end-neg { background: var(--surface); color: var(--c); border: 1.5px solid var(--c); }
-.node .tag { display: block; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .04em; opacity: .75; margin-top: 2px; }
+.node { position: absolute; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px 9px; font-size: 11.5px; line-height: 1.3; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent2); border-radius: 8px; z-index: 2; transition: opacity .2s; text-wrap: balance; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+.node.sys { background: var(--sunken); border: 1px dashed var(--muted); border-left: 3px dashed var(--muted); box-shadow: none; }
+.node.dec { border: 0; border-radius: 0; box-shadow: none; background: var(--brand-tint); color: var(--accent); clip-path: polygon(11% 0, 89% 0, 100% 50%, 89% 100%, 11% 100%, 0 50%); font-weight: 600; padding: 6px 18px; }
+.node.term { border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.node .tag { display: block; font-family: var(--mono); font-size: 9.5px; color: var(--muted); margin-top: 2px; }
+.node.dec .tag { color: var(--accent); opacity: .8; }
+.node.term .tag { color: var(--accent-fg); opacity: .85; }
 
 .edge { fill: none; stroke: var(--edge); stroke-width: 1.4; transition: opacity .2s; }
-.edge.back { stroke: var(--back); stroke-dasharray: 5 4; }
+.edge.back { stroke: var(--warn); stroke-dasharray: 5 4; }
 .elabel rect { fill: var(--surface); stroke: var(--line); }
-.elabel text { font: 600 10px var(--font-body); fill: var(--muted); }
-.elabel.back text { fill: var(--back); }
+.elabel text { font: 600 10px var(--font); fill: var(--accent); }
+.elabel.back text { fill: var(--warn); }
 .elabel { transition: opacity .2s; }
 
 .status { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
-.status code { font-family: var(--font-mono); font-size: 9.5px; padding: 3px 6px; border-radius: 4px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); white-space: nowrap; }
-.status code.neg { background: color-mix(in srgb, var(--back) 12%, transparent); color: var(--back); }
+.status .pill { font-family: var(--mono); font-size: 9.5px; font-weight: 500; letter-spacing: 0; }
 
-.canvas-wrap[data-focus] .node, .canvas-wrap[data-focus] .edge, .canvas-wrap[data-focus] .elabel { opacity: .18; }
+.canvas-wrap[data-focus] .node, .canvas-wrap[data-focus] .edge, .canvas-wrap[data-focus] .elabel { opacity: .16; }
 .canvas-wrap[data-focus] .on { opacity: 1 !important; }
 
-.hint { font-size: 12px; color: var(--muted); margin: -16px 0 0; }
-
-/* Legend + notes */
-.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 12px; color: var(--muted); align-items: center; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12px; color: var(--muted); align-items: center; }
 .legend i { display: inline-block; vertical-align: middle; margin-right: 7px; }
-.lg-task { width: 26px; height: 16px; border: 1.5px solid var(--edge); border-radius: 4px; }
-.lg-sys { width: 26px; height: 16px; border: 1.5px dashed var(--edge); border-radius: 4px; }
-.lg-dec { width: 28px; height: 16px; background: color-mix(in srgb, var(--edge) 35%, var(--surface)); clip-path: polygon(15% 0, 85% 0, 100% 50%, 85% 100%, 15% 100%, 0 50%); }
-.lg-term { width: 26px; height: 16px; border-radius: 999px; background: var(--edge); }
+.lg-task { width: 26px; height: 16px; border: 1px solid var(--line); border-left: 3px solid var(--accent2); border-radius: 4px; background: var(--surface); }
+.lg-sys { width: 26px; height: 16px; border: 1px dashed var(--muted); border-radius: 4px; background: var(--sunken); }
+.lg-dec { width: 28px; height: 16px; background: var(--brand-tint); clip-path: polygon(15% 0, 85% 0, 100% 50%, 85% 100%, 15% 100%, 0 50%); }
+.lg-term { width: 26px; height: 16px; border-radius: 999px; background: var(--accent); }
 .lg-fwd { width: 28px; height: 0; border-top: 1.5px solid var(--edge); }
-.lg-back { width: 28px; height: 0; border-top: 1.5px dashed var(--back); }
+.lg-back { width: 28px; height: 0; border-top: 1.5px dashed var(--warn); }
 
-.roles h2 { font-family: var(--font-display); font-size: 18px; margin: 0 0 12px; }
-.role-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px 28px; margin: 0; }
-.role-grid div { min-width: 0; padding-top: 10px; border-top: 2px solid var(--c); }
-.role-grid dt { font-family: var(--font-display); font-weight: 700; color: var(--c); }
-.role-grid dd { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+/* Reference view */
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 860px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 13px; }
+th { color: var(--muted); font-weight: 500; font-size: 12px; }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cat { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; display: grid; gap: 4px; }
+.cat .g { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.cat p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
 
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.sra-bar { display: flex; height: 34px; border-radius: 8px; overflow: hidden; }
+.sra-bar div { display: grid; place-items: center; font-family: var(--mono); font-size: 13px; font-weight: 600; }
+.s-jsa { background: var(--accent2); color: var(--accent-fg); flex: 40; }
+.s-exp { background: var(--brand-tint); color: var(--accent); flex: 10; }
+.s-fun { background: var(--accent); color: var(--accent-fg); flex: 50; }
+.sra-list { display: grid; gap: 10px; }
+.sra-list div { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: start; }
+.sra-list b.pct { font-family: var(--mono); font-size: 18px; color: var(--accent); }
+.sra-list p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+.who { display: inline-block; margin-top: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--sunken); border: 1px solid var(--line); }
+
+.rd { display: inline-grid; place-items: center; min-width: 30px; padding: 2px 6px; border-radius: 6px; font-family: var(--mono); font-weight: 600; font-size: 12px; }
+.rd0 { background: color-mix(in srgb, var(--r0) 25%, var(--surface)); color: var(--fg); }
+.rd1 { background: color-mix(in srgb, var(--r1) 30%, var(--surface)); color: var(--fg); }
+.rd2 { background: color-mix(in srgb, var(--r2) 28%, var(--surface)); color: var(--fg); }
+.rd3 { background: var(--mute-bg); color: var(--fg); }
+.callout { border-left: 3px solid var(--accent); background: var(--brand-tint); border-radius: 0 8px 8px 0; padding: 10px 12px; font-size: 13px; line-height: 1.5; }
+.callout.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+
+.pillar { border-radius: 10px; padding: 14px; display: grid; gap: 8px; align-content: start; }
+.pillar h3 { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; }
+.pillar h3 span { font-family: var(--mono); font-size: 20px; }
+.pillar ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; font-size: 12.5px; line-height: 1.45; }
+.pl-70 { background: var(--accent); color: var(--accent-fg); }
+.pl-20 { background: var(--accent2); color: var(--accent-fg); }
+.pl-10 { background: var(--brand-tint); color: var(--fg); }
+.pl-10 h3 span { color: var(--accent); }
+.track { background: var(--fg); color: var(--bg); border-radius: 8px; padding: 10px 14px; font-size: 13px; text-align: center; }
+
+.asp { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 6px; counter-reset: a; }
+.asp li { display: grid; grid-template-columns: 26px 1fr; gap: 8px; font-size: 13px; align-items: start; }
+.asp li::before { counter-increment: a; content: "(" counter(a, lower-alpha) ")"; font-family: var(--mono); color: var(--accent); font-size: 12px; padding-top: 1px; }
+
+/* Roles view */
+.role-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.role-head { display: flex; gap: 10px; align-items: center; }
+.role-head .ico { width: 36px; height: 36px; padding: 8px; border-radius: 10px; background: var(--brand-tint); color: var(--accent); }
+.role-head small { display: block; color: var(--muted); font-size: 12px; }
+.role-card ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; line-height: 1.45; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 </style>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></symbol>
+    <symbol id="i-tie" viewBox="0 0 24 24"><circle cx="12" cy="6" r="3.5"/><path d="M5 21c0-4.5 3-7 7-7s7 2.5 7 7"/><path d="M12 14l-1.3 2.5L12 21l1.3-4.5z"/></symbol>
+    <symbol id="i-org" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1M10 21v-3h4v3"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.7c2.3.6 4 2.3 4 5.3"/></symbol>
+    <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+  </defs>
+</svg>
+
 <div class="wrap">
-  <header>
-    <div class="eyebrow">Portal Succession Planning · Draf aliran v0.1</div>
-    <h1>Aliran Succession Planning ikut peranan</h1>
-    <p class="lede">Satu kitaran penuh, dari persediaan oleh HR hingga pemantauan IDP. Setiap baris ialah satu peranan dan setiap lajur ialah satu fasa (A–H). Garis putus-putus oren menunjukkan item yang dikembalikan atau perlu diulang.</p>
-  </header>
-
-  <div class="toolbar" id="toolbar" role="group" aria-label="Fokus pada peranan">
-    <span class="label">Fokus peranan:</span>
+  <div class="top">
+    <div class="brand"><h1>Succession Planning Portal</h1><small>MCP · OCP · BCP · Readiness Validation &amp; IDP · Draf aliran kerja v0.2</small></div>
+    <nav aria-label="Bahagian portal">
+      <a href="#aliran" data-view="aliran">Aliran</a>
+      <a href="#rujukan" data-view="rujukan">Kriteria &amp; Skor</a>
+      <a href="#peranan" data-view="peranan">Peranan</a>
+    </nav>
   </div>
 
-  <div class="canvas-wrap" id="cw">
-    <div class="canvas-row">
-      <div class="labels" id="labels"></div>
-      <div class="diagram" id="diagram"><svg id="svg" aria-hidden="true"></svg></div>
+  <!-- ALIRAN -->
+  <section id="view-aliran" class="stack">
+    <div class="panel hero">
+      <div class="hero-text">
+        <div class="tier">Talent, Succession &amp; Leadership Pipeline</div>
+        <h2 class="hero-title">Proses succession planning dalam portal</h2>
+        <p class="lead">Calon dikenal pasti mengikut kriteria, dinilai melalui Successor Readiness Assessment (SRA), disahkan oleh HOD dan Talent Review Committee, kemudian dibangunkan melalui IDP dan dipantau dalam succession dashboard.</p>
+      </div>
+      <div class="tiers" aria-label="Kategori jawatan kritikal">
+        <div class="label">Fokus: Assistant Manager – HOD</div>
+        <div><b>MCP (C-1)</b><span>TH7 – TH11</span></div>
+        <div><b>OCP (C-2)</b><span>TH7 – TH10</span></div>
+        <div><b>BCP</b><span>TH5 – TH7</span></div>
+      </div>
     </div>
-  </div>
-  <p class="hint">Skrol ke kanan untuk lihat semua fasa. Klik nama peranan untuk sorot tugasan peranan itu sahaja.</p>
 
-  <div class="legend">
-    <span><i class="lg-task"></i>Tugasan pengguna</span>
-    <span><i class="lg-sys"></i>Automasi sistem</span>
-    <span><i class="lg-dec"></i>Keputusan / kelulusan</span>
-    <span><i class="lg-term"></i>Mula / tamat</span>
-    <span><i class="lg-fwd"></i>Aliran biasa</span>
-    <span><i class="lg-back"></i>Dikembalikan / ulang</span>
-  </div>
+    <div class="panel">
+      <div class="section-head"><h2>6 peringkat proses</h2><span class="note">Klik peringkat untuk lompat ke lajurnya dalam swimlane</span></div>
+      <ol class="journey" id="journey"></ol>
+    </div>
 
-  <section class="roles">
-    <h2>Tanggungjawab setiap peranan</h2>
-    <dl class="role-grid" id="roles"></dl>
+    <div class="panel">
+      <div class="section-head">
+        <div><h2>Swimlane ikut peranan</h2><p>Skrol ke kanan untuk lihat semua peringkat. Klik nama peranan untuk sorot tugasan peranan itu sahaja.</p></div>
+      </div>
+      <div class="scope" id="scope"><span class="lbl">Fokus peranan</span></div>
+      <div class="canvas-wrap" id="cw">
+        <div class="canvas-row">
+          <div class="labels" id="labels"></div>
+          <div class="diagram" id="diagram"><svg id="svg" aria-hidden="true"></svg></div>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i class="lg-task"></i>Tugasan pengguna</span>
+        <span><i class="lg-sys"></i>Automasi portal</span>
+        <span><i class="lg-dec"></i>Keputusan / pengesahan</span>
+        <span><i class="lg-term"></i>Mula / tamat kitaran</span>
+        <span><i class="lg-fwd"></i>Aliran biasa</span>
+        <span><i class="lg-back"></i>Semak semula / pinda</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- RUJUKAN -->
+  <section id="view-rujukan" class="stack" hidden>
+    <div class="grid2">
+      <div class="panel">
+        <h2>Definisi jawatan kritikal</h2>
+        <div class="cat"><div class="section-head"><h3>Mission Critical Position (MCP)</h3><span class="g">C-1 · TH7–TH11</span></div><p>Jawatan yang merangka strategi dan hala tuju organisasi. Melapor terus kepada GMD &amp; CEO.</p></div>
+        <div class="cat"><div class="section-head"><h3>Operational Critical Position (OCP)</h3><span class="g">C-2 · TH7–TH10</span></div><p>Jawatan penting untuk operasi harian, dalam keadaan biasa dan krisis. Lazimnya Ketua Bahagian gred TH9 ke atas.</p></div>
+        <div class="cat"><div class="section-head"><h3>BCP</h3><span class="g">TH5–TH7</span></div><p>Lapisan pengganti peringkat awal dalam saluran succession.</p></div>
+      </div>
+      <div class="panel">
+        <h2>Kriteria pemilihan (MCP &amp; OCP)</h2>
+        <div class="table-scroll"><table>
+          <thead><tr><th>No.</th><th>Kriteria</th><th>Semakan portal</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td>Gred TH7–TH11 (MCP) · TH7–TH10 (OCP)</td><td><span class="pill p-ok">Auto · HRIS</span></td></tr>
+            <tr><td class="num">2</td><td>Tetap dan disahkan jawatan</td><td><span class="pill p-ok">Auto · HRIS</span></td></tr>
+            <tr><td class="num">3</td><td>Kontrak disahkan, sekurang-kurangnya 1 tahun berkhidmat</td><td><span class="pill p-ok">Auto · HRIS</span></td></tr>
+            <tr><td class="num">4</td><td>Pemegang ijazah</td><td><span class="pill p-ok">Auto · HRIS</span></td></tr>
+            <tr><td class="num">5</td><td>Umur 55 tahun ke bawah (tertakluk tahap kesediaan)</td><td><span class="pill p-warn">Auto + semakan HR</span></td></tr>
+            <tr><td class="num">6</td><td>Skor prestasi sekurang-kurangnya <i>Excellent</i> 2 tahun berturut-turut</td><td><span class="pill p-ok">Auto · PMS</span></td></tr>
+            <tr><td class="num">7</td><td>Tiada rekod tindakan / prosiding tatatertib 5 tahun lepas</td><td><span class="pill p-ok">Auto · HRIS</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h2>Komponen Successor Readiness Assessment (SRA)</h2>
+        <div class="sra-bar" role="img" aria-label="JSA 40%, pengalaman kerja 10%, kompetensi fungsian 50%"><div class="s-jsa">40%</div><div class="s-exp">10%</div><div class="s-fun">50%</div></div>
+        <div class="sra-list">
+          <div><b class="pct">40%</b><span><b>Job Success Analysis (JSA) melalui Harrison Assessment</b><p>Kesesuaian tingkah laku dan job fit berbanding profil kejayaan jawatan sasaran.</p><span class="who">Dijawab oleh calon pengganti</span></span></div>
+          <div><b class="pct">10%</b><span><b>Pengalaman kerja</b><p>Pengalaman, pendedahan dan rekod prestasi berbanding keperluan jawatan sasaran. Skala 0–2.</p><span class="who">Dinilai oleh HOD jawatan dipetakan</span></span></div>
+          <div><b class="pct">50%</b><span><b>Kompetensi fungsian</b><p>Kepakaran teknikal dan keupayaan fungsian yang ditunjukkan. Skala 1–4.</p><span class="who">Dinilai oleh HOD jawatan dipetakan</span></span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Skala tahap kesediaan</h2>
+        <div class="table-scroll"><table>
+          <thead><tr><th>Semasa<br><span class="note">TRC 01/2023(2)</span></th><th>Cadangan<br><span class="note">belum diluluskan</span></th><th>Tahap</th><th>Deskriptor</th></tr></thead>
+          <tbody>
+            <tr><td class="num">≥70%</td><td class="num">≥90%</td><td><span class="rd rd0">R0</span></td><td>Ready Now</td></tr>
+            <tr><td class="num">50–69%</td><td class="num">75–89%</td><td><span class="rd rd1">R1</span></td><td>Sedia dalam 1–2 tahun</td></tr>
+            <tr><td class="num">40–49%</td><td class="num">60–74%</td><td><span class="rd rd2">R2</span></td><td>Sedia dalam 2–4 tahun<br><span class="note">Cadangan: 3–4 tahun</span></td></tr>
+            <tr><td class="num">≤39%</td><td class="num">≤59%</td><td><span class="rd rd3">–&nbsp;/&nbsp;R3</span></td><td>Semasa: role fit rendah, belum sedia<br><span class="note">Cadangan: R3, sedia lebih 5 tahun</span></td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout">Portal perlu simpan ambang skor sebagai tetapan, bukan dikod tetap. Bila cadangan R0 ≥90% diluluskan, HR cuma kemas kini tetapan dan pengiraan R0–R3 ikut berubah.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-head"><div><h2>Pendekatan pembangunan · IDP 70 · 20 · 10</h2><p>Setiap intervensi dalam IDP ditag dengan kategori, wajaran, garis masa (suku tahun), status dan catatan.</p></div></div>
+      <div class="grid3">
+        <div class="pillar pl-70"><h3>Experiential / On-the-Job <span>70%</span></h3><ul><li>Stretch assignment / projek bisnes sebenar</li><li>Job rotation (tertutup / terbuka)</li><li>Pendedahan rentas fungsi</li><li>Job shadowing</li><li>Memangku Ketua Bahagian / Jabatan</li><li>Bentang kertas kepada Lembaga, jawatankuasa dan MANCO</li></ul></div>
+        <div class="pillar pl-20"><h3>Social / Coaching &amp; Mentoring <span>20%</span></h3><ul><li>Executive coaching (individu / kumpulan)</li><li>Mentoring oleh penyandang / pemimpin kanan</li><li>Pengganti jadi mentor kepada talent pool ETP</li><li>GROW feedback daripada HOD</li><li>Perkongsian amalan terbaik &amp; networking</li><li>Sesi libat urus (Lembaga untuk MCP, pengurusan kanan untuk OCP)</li></ul></div>
+        <div class="pillar pl-10"><h3>Formal / Training <span>10%</span></h3><ul><li>Latihan bilik darjah</li><li>Executive education / pendidikan profesional</li><li>Program pensijilan profesional (CIA, CISA, ACCA, CFA, FRM dan lain-lain)</li><li>E-learning / kursus dalam talian</li><li>Seminar &amp; persidangan luar</li></ul></div>
+      </div>
+      <div class="track"><b>Pemantauan:</b> Individual Development Plan (IDP) &amp; KPI cascading</div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h2>Aspirasi kerjaya calon</h2>
+        <p class="note" style="margin:0">Disahkan bersama calon dan HOD semasa sesi libat urus, sebagai input kepada pengesahan kesediaan dan IDP.</p>
+        <ol class="asp">
+          <li>Berminat untuk maju ke peranan kepimpinan</li>
+          <li>Beraspirasi untuk disediakan bagi jawatan kritikal / pengganti</li>
+          <li>Beraspirasi menjalani pembangunan berstruktur</li>
+          <li>Sanggup melabur masa &amp; usaha untuk pembangunan jangka panjang</li>
+          <li>Sanggup mengambil peranan stretch / diperluas</li>
+        </ol>
+        <div class="note">Penyertaan program direkod juga: Executive Coaching dan Executive Education (disemak dengan rekod latihan).</div>
+      </div>
+      <div class="panel">
+        <h2>Paparan output dalam portal</h2>
+        <div class="table-scroll"><table>
+          <thead><tr><th>Skrin</th><th>Kandungan</th></tr></thead>
+          <tbody>
+            <tr><td><b>Carta pengganti</b></td><td>Jawatan + penyandang, pengganti dalaman ikut warna R0 / R1 / R2, dan calon penggantian (replacement)</td></tr>
+            <tr><td><b>Readiness validation</b></td><td>Jadual skor Job Exp · Job Fit · Fungsian · Jumlah · Tahap · Jurang utama · Pengesahan SRA oleh HOD</td></tr>
+            <tr><td><b>Kad pekerja</b></td><td>Profil, keputusan SRA, kekuatan, jurang kepimpinan (Harrison), jurang fungsian, maklum balas HOD</td></tr>
+            <tr><td><b>IDP</b></td><td>A. Kepimpinan / soft skills dan B. Fungsian / teknikal / pensijilan, dengan kategori, wajaran, garis masa, status</td></tr>
+            <tr><td><b>Succession dashboard</b></td><td>Liputan pengganti, analitik kesediaan, risiko kekosongan (tarikh tamat kontrak / bersara)</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERANAN -->
+  <section id="view-peranan" class="stack" hidden>
+    <div class="role-grid" id="roleGrid"></div>
   </section>
 </div>
 
 <script>
 (function () {
-  const SLOT_W = 150, NODE_W = 126, NODE_H = 60, LANE_H = 112, HEAD_H = 62, STATUS_H = 64, SLOTS = 19;
+  const SLOT_W = 150, NODE_W = 126, NODE_H = 62, LANE_H = 116, HEAD_H = 52, STATUS_H = 60, SLOTS = 20;
   const COL_PAD = (SLOT_W - NODE_W) / 2;
 
   const lanes = [
-    { name: "Pekerja", sub: "Talent / calon", duty: "Kemas kini profil, isi aspirasi kerjaya dan mobiliti, calonkan diri (pilihan), bina dan laksana IDP." },
-    { name: "Line Manager", sub: "Penyelia langsung", duty: "Pilih calon pengganti dan tahap kesediaan, nilai potensi dan kompetensi, luluskan IDP, kemas kini progres suku tahunan." },
-    { name: "HOD", sub: "Ketua Jabatan", duty: "Kenal pasti jawatan kritikal dalam jabatan, semak dan sokong atau kembalikan pencalonan." },
-    { name: "HR / Talent Mgmt", sub: "Pentadbir kitaran", duty: "Buka kitaran, tetapkan kriteria dan borang, nilai risiko, sediakan pakej kalibrasi, terbitkan talent pool, semakan pertengahan kitaran." },
-    { name: "Talent Council", sub: "Panel kalibrasi", duty: "Kalibrasi 9-Box, putuskan senarai pengganti muktamad, rekod rasional setiap keputusan." },
-    { name: "Sistem", sub: "Automasi portal", duty: "Sync data HRIS, tapis kelayakan, tarik rating KPI, jana 9-Box, hantar notifikasi, pautan LMS, cadang calon bila jawatan kosong." }
+    { name: "Calon Pengganti", sub: "Potential successor", ico: "i-user",
+      duty: ["Jawab Harrison Job Success Analysis (JSA)", "Sahkan aspirasi kerjaya (a)–(e)", "Bina IDP bersama HOD dalam sesi libat urus", "Laksana intervensi 70·20·10 dan kemas kini status"] },
+    { name: "HOD", sub: "Ketua jawatan dipetakan", ico: "i-tie",
+      duty: ["Calonkan dan petakan calon kepada jawatan kritikal", "Nilai pengalaman kerja (10%) dan kompetensi fungsian (50%)", "Sesi SRA: sahkan atau semak semula tahap kesediaan", "Pra-perbincangan IDP dan luluskan IDP", "Pantau prestasi pengganti, beri GROW feedback"] },
+    { name: "Talent Management", sub: "HR / HCM", ico: "i-org",
+      duty: ["Buka kitaran tahunan, tetapkan jawatan MCP · OCP · BCP", "Sahkan talent pool selepas tapisan kriteria", "Sediakan kad pekerja, carta pengganti dan kertas TRC", "Semakan dwi-tahunan succession dashboard", "Program retention: TEX, ganjaran berbeza, engagement"] },
+    { name: "TRC / HCC", sub: "Talent Review Committee", ico: "i-users",
+      duty: ["Talent review: muktamadkan pengganti dan calon penggantian", "Luluskan atau minta pindaan (HCC)", "Luluskan perubahan skala kesediaan", "Kemas kini carta pengganti selepas semakan dwi-tahunan"] },
+    { name: "Portal", sub: "Automasi sistem", ico: "i-cpu",
+      duty: ["Sync HRIS: gred, umur, status, PMS, rekod tatatertib", "Tapis 7 kriteria pemilihan secara automatik", "Kira skor SRA dan tahap R0–R3 ikut ambang dalam tetapan", "Jejak status IDP dan KPI cascading", "Succession dashboard, analitik kesediaan dan risiko turnover HiPo"] }
   ];
 
   const phases = [
-    { k: "A", t: "Persediaan kitaran", s: 0, e: 2 },
-    { k: "B", t: "Jawatan kritikal", s: 3, e: 4 },
-    { k: "C", t: "Pencalonan", s: 5, e: 7 },
-    { k: "D", t: "Penilaian talent", s: 8, e: 9 },
-    { k: "E", t: "Kalibrasi & kelulusan", s: 10, e: 12 },
-    { k: "F", t: "Penerbitan", s: 13, e: 13 },
-    { k: "G", t: "IDP", s: 14, e: 16 },
-    { k: "H", t: "Pemantauan", s: 17, e: 18 }
+    { t: "Talent Identification", d: "Kenal pasti calon & bina talent pool", s: 0, e: 4 },
+    { t: "Talent Assessment", d: "SRA: JSA 40% · Pengalaman 10% · Fungsian 50%", s: 5, e: 6 },
+    { t: "Talent Evaluation & Review", d: "Sesi SRA bersama HOD, TRC & HCC", s: 7, e: 10 },
+    { t: "Talent Development", d: "IDP 70·20·10 bagi tutup jurang", s: 11, e: 14 },
+    { t: "Succession Planning", d: "Dashboard & semakan dwi-tahunan", s: 15, e: 17 },
+    { t: "Talent Retention", d: "Kekalkan HiPo, kurangkan turnover", s: 18, e: 19 }
   ];
 
-  // type: task | sys | dec | term | endneg
   const nodes = [
-    { id: "start",   l: 3, s: 0,  t: "term", txt: "Mula kitaran baru" },
-    { id: "cycle",   l: 3, s: 1,  t: "task", txt: "Cipta kitaran & tetapkan tarikh fasa" },
-    { id: "hris",    l: 5, s: 1,  t: "sys",  txt: "Sync data pekerja dari HRIS" },
-    { id: "crit",    l: 3, s: 2,  t: "task", txt: "Tetapkan kriteria kelayakan & borang" },
-    { id: "notif1",  l: 5, s: 2,  t: "sys",  txt: "Notifikasi: kitaran dibuka" },
-    { id: "listpos", l: 2, s: 3,  t: "task", txt: "Senaraikan jawatan kritikal" },
-    { id: "riskcal", l: 5, s: 4,  t: "sys",  txt: "Kira risiko: umur bersara, turnover" },
-    { id: "risk",    l: 3, s: 4,  t: "task", txt: "Sahkan tahap risiko kekosongan" },
-    { id: "selfnom", l: 0, s: 5,  t: "task", txt: "Calonkan diri", tag: "pilihan" },
-    { id: "filter",  l: 5, s: 5,  t: "sys",  txt: "Tapis calon ikut kelayakan" },
-    { id: "pick",    l: 1, s: 5,  t: "task", txt: "Pilih calon & tahap kesediaan" },
-    { id: "submit",  l: 1, s: 6,  t: "task", txt: "Isi justifikasi & hantar" },
-    { id: "hodok",   l: 2, s: 7,  t: "dec",  txt: "Sokong pencalonan?" },
-    { id: "aspire",  l: 0, s: 8,  t: "task", txt: "Isi aspirasi kerjaya & mobiliti" },
-    { id: "assess",  l: 1, s: 8,  t: "task", txt: "Nilai potensi & kompetensi" },
-    { id: "kpi",     l: 5, s: 8,  t: "sys",  txt: "Tarik rating KPI 3 tahun" },
-    { id: "ext",     l: 3, s: 9,  t: "task", txt: "Muat naik 360° / assessment centre", tag: "pilihan" },
-    { id: "ninebox", l: 5, s: 9,  t: "sys",  txt: "Jana kedudukan 9-Box" },
-    { id: "pack",    l: 3, s: 10, t: "task", txt: "Sediakan pakej kalibrasi" },
-    { id: "calib",   l: 4, s: 11, t: "task", txt: "Sesi kalibrasi, laras 9-Box" },
-    { id: "tcok",    l: 4, s: 12, t: "dec",  txt: "Lulus calon?" },
-    { id: "reject",  l: 4, s: 13, t: "endneg", txt: "Ditolak, rekod rasional" },
-    { id: "publish", l: 3, s: 13, t: "task", txt: "Terbit succession slate & talent pool" },
-    { id: "notif2",  l: 5, s: 14, t: "sys",  txt: "Notifikasi calon (ikut polisi)" },
-    { id: "idp",     l: 0, s: 14, t: "task", txt: "Bina IDP", tag: "70 · 20 · 10" },
-    { id: "idpok",   l: 1, s: 15, t: "dec",  txt: "Lulus IDP?" },
-    { id: "doidp",   l: 0, s: 16, t: "task", txt: "Laksana aktiviti IDP" },
-    { id: "lms",     l: 5, s: 16, t: "sys",  txt: "Daftar kursus melalui LMS" },
-    { id: "prog",    l: 1, s: 17, t: "task", txt: "Kemas kini progres suku tahunan" },
-    { id: "mid",     l: 3, s: 17, t: "task", txt: "Semakan pertengahan kitaran" },
-    { id: "vacancy", l: 5, s: 18, t: "sys",  txt: "Jawatan kosong? Cadang calon Ready Now" },
-    { id: "close",   l: 3, s: 18, t: "term", txt: "Tutup kitaran", tag: "↺ kembali ke A" }
+    { id: "start",   l: 2, s: 0,  t: "term", txt: "Buka kitaran tahunan", tag: "Annual Talent Cycle" },
+    { id: "defpos",  l: 2, s: 1,  t: "task", txt: "Tetapkan jawatan kritikal", tag: "MCP · OCP · BCP" },
+    { id: "hris",    l: 4, s: 1,  t: "sys",  txt: "Sync HRIS: gred, umur, PMS, tatatertib" },
+    { id: "screen",  l: 4, s: 2,  t: "sys",  txt: "Tapis 7 kriteria pemilihan", tag: "Excellent 2 thn · ≤55" },
+    { id: "nominate",l: 1, s: 3,  t: "task", txt: "Calon & petakan pengganti ke jawatan" },
+    { id: "pool",    l: 2, s: 4,  t: "task", txt: "Sahkan talent pool & senarai calon" },
+    { id: "jsa",     l: 0, s: 5,  t: "task", txt: "Jawab Harrison JSA", tag: "40% · job fit" },
+    { id: "assess",  l: 1, s: 5,  t: "task", txt: "Nilai pengalaman & kompetensi fungsian", tag: "10% + 50%" },
+    { id: "sra",     l: 4, s: 6,  t: "sys",  txt: "Kira skor SRA & tahap R0–R3" },
+    { id: "card",    l: 2, s: 7,  t: "task", txt: "Sedia kad pekerja & carta pengganti" },
+    { id: "aspire",  l: 0, s: 8,  t: "task", txt: "Sahkan aspirasi kerjaya", tag: "(a)–(e)" },
+    { id: "sraok",   l: 1, s: 8,  t: "dec",  txt: "Sesi SRA: sahkan kesediaan?" },
+    { id: "trc",     l: 3, s: 9,  t: "task", txt: "Talent review: muktamad pengganti" },
+    { id: "hcc",     l: 3, s: 10, t: "dec",  txt: "Lulus (HCC)?" },
+    { id: "preidp",  l: 1, s: 11, t: "task", txt: "Pra-perbincangan IDP bersama HR" },
+    { id: "idp",     l: 0, s: 12, t: "task", txt: "Sesi libat urus: bina IDP", tag: "70 · 20 · 10" },
+    { id: "idpok",   l: 1, s: 13, t: "dec",  txt: "Lulus IDP?" },
+    { id: "doidp",   l: 0, s: 14, t: "task", txt: "Laksana intervensi: OJT, coaching, latihan" },
+    { id: "track",   l: 4, s: 14, t: "sys",  txt: "Jejak status IDP & KPI cascading" },
+    { id: "monitor", l: 1, s: 15, t: "task", txt: "Pantau prestasi pengganti", tag: "GROW feedback" },
+    { id: "dash",    l: 4, s: 15, t: "sys",  txt: "Succession dashboard & readiness analytics" },
+    { id: "review",  l: 2, s: 16, t: "task", txt: "Semakan dwi-tahunan dashboard" },
+    { id: "update",  l: 3, s: 17, t: "task", txt: "Kemas kini carta pengganti" },
+    { id: "tex",     l: 2, s: 18, t: "task", txt: "TEX, ganjaran & leadership engagement" },
+    { id: "risk",    l: 4, s: 18, t: "sys",  txt: "Analitik risiko turnover HiPo" },
+    { id: "next",    l: 2, s: 19, t: "term", txt: "Kitaran seterusnya", tag: "↺ kembali ke 1" }
   ];
 
   const edges = [
-    ["start", "cycle"], ["cycle", "hris"], ["cycle", "crit"], ["crit", "notif1"],
-    ["notif1", "listpos"], ["listpos", "risk"], ["riskcal", "risk"], ["risk", "pick"],
-    ["filter", "pick"], ["selfnom", "pick", "sahkan"], ["pick", "submit"], ["submit", "hodok"],
-    ["hodok", "pick", "Dikembalikan", true], ["hodok", "assess", "Ya"],
-    ["aspire", "assess"], ["kpi", "ninebox"], ["assess", "ninebox"], ["ext", "ninebox"],
-    ["ninebox", "pack"], ["pack", "calib"], ["calib", "tcok"],
-    ["tcok", "calib", "Ubah kesediaan", true], ["tcok", "publish", "Ya"], ["tcok", "reject", "Tolak"],
-    ["publish", "notif2"], ["notif2", "idp"], ["idp", "idpok"],
-    ["idpok", "idp", "Tidak", true], ["idpok", "doidp", "Ya"],
-    ["doidp", "lms"], ["doidp", "prog"], ["prog", "mid"], ["mid", "vacancy"], ["mid", "close"], ["vacancy", "close"]
+    ["start", "defpos"], ["defpos", "hris"], ["hris", "screen"], ["screen", "nominate", "Layak"], ["nominate", "pool"],
+    ["pool", "jsa"], ["pool", "assess"], ["jsa", "sra"], ["assess", "sra"], ["sra", "card"], ["card", "sraok"],
+    ["aspire", "sraok"], ["sraok", "assess", "Semak semula", true], ["sraok", "trc", "Disahkan"],
+    ["trc", "hcc"], ["hcc", "card", "Pinda", true], ["hcc", "preidp", "Lulus"],
+    ["preidp", "idp"], ["idp", "idpok"], ["idpok", "idp", "Pinda", true], ["idpok", "doidp", "Lulus"],
+    ["doidp", "track"], ["track", "dash"], ["track", "monitor"], ["monitor", "review"], ["dash", "review"],
+    ["review", "update"], ["update", "tex"], ["tex", "risk"], ["risk", "next"], ["tex", "next"]
   ];
 
   const statuses = [
-    { s: 5, c: ["DRAF"] }, { s: 6, c: ["DIHANTAR"] }, { s: 7, c: ["DISOKONG_HOD", "DIKEMBALIKAN|neg"] },
-    { s: 11, c: ["DIKALIBRASI"] }, { s: 12, c: ["DILULUSKAN", "DITOLAK|neg"] },
-    { s: 14, c: ["IDP: DRAF"] }, { s: 15, c: ["IDP: DILULUSKAN"] }, { s: 16, c: ["DALAM_PELAKSANAAN"] }, { s: 18, c: ["SELESAI"] }
+    { s: 3, c: [["DICALONKAN", "p-mute"]] }, { s: 4, c: [["DALAM POOL", "p-mute"]] },
+    { s: 6, c: [["R0", "p-ok"], ["R1 · R2 · R3", "p-warn"]] },
+    { s: 8, c: [["DISAHKAN HOD", "p-ok"], ["SEMAK SEMULA", "p-warn"]] },
+    { s: 10, c: [["DILULUSKAN", "p-ok"], ["DIPINDA", "p-warn"]] },
+    { s: 12, c: [["IDP: DRAF", "p-mute"]] }, { s: 13, c: [["IDP: DILULUSKAN", "p-ok"]] },
+    { s: 14, c: [["DALAM PELAKSANAAN", "p-mute"]] }, { s: 16, c: [["SEMAKAN H1 / H2", "p-mute"]] }
   ];
 
   const W = SLOTS * SLOT_W, H = HEAD_H + lanes.length * LANE_H + STATUS_H;
-  const diagram = document.getElementById("diagram");
-  const svg = document.getElementById("svg");
-  const labels = document.getElementById("labels");
-  const cw = document.getElementById("cw");
+  const diagram = document.getElementById("diagram"), svg = document.getElementById("svg");
+  const labels = document.getElementById("labels"), cw = document.getElementById("cw");
   diagram.style.width = W + "px"; diagram.style.height = H + "px";
   svg.setAttribute("width", W); svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   const NS = "http://www.w3.org/2000/svg";
   const laneTop = l => HEAD_H + l * LANE_H;
   const colX = s => s * SLOT_W;
   const el = (tag, cls, parent) => { const e = document.createElement(tag); if (cls) e.className = cls; (parent || diagram).appendChild(e); return e; };
+  const icon = id => `<svg class="ico"><use href="#${id}"/></svg>`;
 
-  // Label column
+  // Labels
   const lh = el("div", "head", labels); lh.style.height = HEAD_H + "px"; lh.textContent = "Peranan";
-  lanes.forEach((ln, i) => {
+  const laneBtns = lanes.map((ln, i) => {
     const b = el("button", "lane-label", labels);
-    b.type = "button"; b.style.height = LANE_H + "px"; b.style.setProperty("--c", `var(--lane-${i})`);
-    b.innerHTML = `<strong>${ln.name}</strong><span>${ln.sub}</span>`;
+    b.type = "button"; b.style.height = LANE_H + "px"; b.setAttribute("aria-pressed", "false");
+    b.innerHTML = `${icon(ln.ico)}<span><strong>${ln.name}</strong><span>${ln.sub}</span></span>`;
     b.addEventListener("click", () => setFocus(i));
+    return b;
   });
   const sh = el("div", "status-head", labels); sh.style.height = STATUS_H + "px"; sh.textContent = "Status";
 
-  // Bands, phases, separators
-  lanes.forEach((_, i) => { const b = el("div", "band"); b.style.top = laneTop(i) + "px"; b.style.height = LANE_H + "px"; b.style.setProperty("--c", `var(--lane-${i})`); });
+  lanes.forEach((_, i) => { const b = el("div", "band" + (i % 2 ? " alt" : "")); b.style.top = laneTop(i) + "px"; b.style.height = LANE_H + "px"; });
   phases.forEach((p, i) => {
     const d = el("div", "phase"); d.style.left = colX(p.s) + "px"; d.style.width = (p.e - p.s + 1) * SLOT_W + "px"; d.style.height = HEAD_H + "px";
     if (i === 0) d.style.borderLeft = "0";
-    d.innerHTML = `<b>${p.k}</b><em>${p.t}</em>`;
+    d.id = "ph-" + i;
+    d.innerHTML = `<span class="flow-num">${i + 1}</span><b>${p.t}</b>`;
     if (i > 0) { const v = el("div", "vsep"); v.style.left = colX(p.s) + "px"; v.style.top = HEAD_H + "px"; v.style.height = (H - HEAD_H) + "px"; }
   });
 
-  // Nodes
   const byId = {};
   nodes.forEach(n => {
     const x = colX(n.s) + COL_PAD, y = laneTop(n.l) + (LANE_H - NODE_H) / 2;
     Object.assign(n, { x, y, r: x + NODE_W, b: y + NODE_H, cx: x + NODE_W / 2, cy: y + NODE_H / 2 });
     byId[n.id] = n;
-    const cls = { task: "", sys: "sys", dec: "dec", term: "term", endneg: "term end-neg" }[n.t];
-    const d = el("div", "node " + cls);
-    d.dataset.lane = n.l;
-    d.style.cssText = `left:${x}px;top:${y}px;width:${NODE_W}px;height:${NODE_H}px;--c:var(--lane-${n.l})`;
+    const d = el("div", "node " + (n.t === "task" ? "" : n.t));
+    d.style.cssText = `left:${x}px;top:${y}px;width:${NODE_W}px;height:${NODE_H}px`;
     d.innerHTML = `<span>${n.txt}${n.tag ? `<span class="tag">${n.tag}</span>` : ""}</span>`;
     n.el = d;
   });
 
-  // Occupancy check for horizontal runs inside a lane
   const occupied = (lane, s) => nodes.some(n => n.l === lane && n.s === s);
   const clearBetween = (lane, s1, s2) => { for (let s = Math.min(s1, s2) + 1; s < Math.max(s1, s2); s++) if (occupied(lane, s)) return false; return true; };
 
@@ -296,7 +504,7 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 
 
   const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || svg).appendChild(e); return e; };
   const defs = svgEl("defs", {});
-  [["arr", "var(--edge)"], ["arrb", "var(--back)"]].forEach(([id, c]) => {
+  [["arr", "var(--edge)"], ["arrb", "var(--warn)"]].forEach(([id, c]) => {
     const m = svgEl("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
     svgEl("path", { d: "M0,0 L10,5 L0,10 z", style: `fill:${c}` }, m);
   });
@@ -304,10 +512,9 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 
   const edgeEls = [];
   edges.forEach(([f, t, label, back]) => {
     const a = byId[f], b = byId[t], pts = route(a, b, back);
-    const p = svgEl("path", { d: "M" + pts.map(p => p.join(",")).join(" L"), class: "edge" + (back ? " back" : ""), "marker-end": `url(#${back ? "arrb" : "arr"})` });
+    const p = svgEl("path", { d: "M" + pts.map(q => q.join(",")).join(" L"), class: "edge" + (back ? " back" : ""), "marker-end": `url(#${back ? "arrb" : "arr"})` });
     const rec = { p, lanes: [a.l, b.l] };
     if (label) {
-      // put label on the longest segment
       let best = 0, bi = 0;
       for (let i = 0; i < pts.length - 1; i++) { const len = Math.abs(pts[i + 1][0] - pts[i][0]) + Math.abs(pts[i + 1][1] - pts[i][1]); if (len > best) { best = len; bi = i; } }
       const mx = (pts[bi][0] + pts[bi + 1][0]) / 2, my = (pts[bi][1] + pts[bi + 1][1]) / 2;
@@ -320,38 +527,59 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 
     edgeEls.push(rec);
   });
 
-  // Status rail
   const stTop = HEAD_H + lanes.length * LANE_H;
   statuses.forEach(st => {
     const d = el("div", "status");
     d.style.cssText = `left:${colX(st.s)}px;top:${stTop}px;width:${SLOT_W}px;height:${STATUS_H}px`;
-    d.innerHTML = st.c.map(c => { const [t, k] = c.split("|"); return `<code class="${k || ""}">${t}</code>`; }).join("");
+    d.innerHTML = st.c.map(([t, k]) => `<span class="pill ${k}">${t}</span>`).join("");
   });
 
-  // Toolbar + focus
-  const tb = document.getElementById("toolbar");
-  const btns = lanes.map((ln, i) => {
+  // Focus chips
+  const scope = document.getElementById("scope");
+  const chips = lanes.map((ln, i) => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "chip-btn"; b.id = "focus-" + i; b.setAttribute("aria-pressed", "false");
-    b.style.setProperty("--c", `var(--lane-${i})`);
-    b.innerHTML = `<span class="dot"></span>${ln.name}`;
-    b.addEventListener("click", () => setFocus(i));
-    tb.appendChild(b); return b;
+    b.textContent = ln.name; b.addEventListener("click", () => setFocus(i));
+    scope.appendChild(b); return b;
   });
   let focus = null;
   function setFocus(i) {
     focus = focus === i ? null : i;
-    btns.forEach((b, j) => b.setAttribute("aria-pressed", String(j === focus)));
+    chips.forEach((b, j) => b.setAttribute("aria-pressed", String(j === focus)));
+    laneBtns.forEach((b, j) => b.setAttribute("aria-pressed", String(j === focus)));
     if (focus === null) cw.removeAttribute("data-focus"); else cw.setAttribute("data-focus", focus);
     nodes.forEach(n => n.el.classList.toggle("on", n.l === focus));
     edgeEls.forEach(e => { const on = e.lanes.includes(focus); e.p.classList.toggle("on", on); if (e.g) e.g.classList.toggle("on", on); });
   }
 
-  // Role notes
-  const rg = document.getElementById("roles");
-  lanes.forEach((ln, i) => {
-    const d = document.createElement("div"); d.style.setProperty("--c", `var(--lane-${i})`);
-    d.innerHTML = `<dt>${ln.name}</dt><dd>${ln.duty}</dd>`; rg.appendChild(d);
+  // Stepper
+  const jr = document.getElementById("journey");
+  phases.forEach((p, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<button type="button"><span class="j-dot">${i + 1}</span><span class="j-body"><b>${p.t}</b><span class="j-sub">${p.d}</span></span></button>`;
+    li.querySelector("button").addEventListener("click", () => {
+      cw.scrollLeft = Math.max(0, colX(p.s) - 8);
+      cw.scrollIntoView({ block: "nearest" });
+    });
+    jr.appendChild(li);
   });
+
+  // Roles view
+  const rg = document.getElementById("roleGrid");
+  lanes.forEach(ln => {
+    const d = document.createElement("div"); d.className = "panel role-card";
+    d.innerHTML = `<div class="role-head">${icon(ln.ico)}<div><h2>${ln.name}</h2><small>${ln.sub}</small></div></div><ul>${ln.duty.map(x => `<li>${x}</li>`).join("")}</ul>`;
+    rg.appendChild(d);
+  });
+
+  // Hash views
+  const views = ["aliran", "rujukan", "peranan"];
+  function show() {
+    const v = views.includes(location.hash.slice(1)) ? location.hash.slice(1) : "aliran";
+    views.forEach(k => { document.getElementById("view-" + k).hidden = k !== v; });
+    document.querySelectorAll("nav a").forEach(a => { if (a.dataset.view === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  }
+  window.addEventListener("hashchange", show);
+  show();
 })();
 </script>
