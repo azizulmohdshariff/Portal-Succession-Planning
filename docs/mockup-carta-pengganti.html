@@ -647,7 +647,7 @@ table.idp { min-width: 1120px; }
       noSheets: "no MASTERLIST MCP or MASTERLIST OCP sheet found",
       scope: "Scope", deptAll: "All departments", catAll: "MCP & OCP", catMCP: "MCP only", catOCP: "OCP only", search: "Search successor name…",
       scale: "Scale", scCur: "Current", scNew: "Proposed",
-      chartTitle: d => `Succession chart · ${d} 2026`, vChart: "Chart", vTable: "Table", sendTrc: "Send to TRC",
+      chartTitle: d => `Succession chart · ${d} 2026`, vChart: "Chart", vTable: "Table", sendTrc: "Send to HCC",
       mcpNote: "Reports directly to the GMD & CEO", ocpNote: "Division Heads, grade TH9 and above",
       emptyScope: "No critical positions in this scope.",
       thPos: "Critical position", thCat: "Cat.", thSucc: "Successor", thExp: "Experience<br>10%", thFit: "Job fit<br>40%", thFun: "Functional<br>50%", thTot: "Total", thLvl: "Level", thStat: "Status",
@@ -666,7 +666,7 @@ table.idp { min-width: 1120px; }
       incumbent: "Incumbent", vacantIn: n => `Vacant in <b>${n}</b> months`, overdue: n => `Past end date by <b>${n}</b> months`, vacantNow: "<b>Vacant now</b>", noEnd: "End date not stated",
       vacantName: "VACANT", vacantSub: "No incumbent",
       internal: "Internal successors", reps: "Replacement candidates", none: "No internal successor",
-      removed: "Removed by TRC", shortRunway: "short runway", shortTitle: "Retires or contract ends less than 24 months after the position falls vacant",
+      removed: "Removed by HCC", shortRunway: "short runway", shortTitle: "Retires or contract ends less than 24 months after the position falls vacant",
       noMeetFlag: "✗ criteria", stat: { ok: "Validated by HOD", new: "New · awaiting SRA", struck: "Removed", rep: "Replacement", meet: "Meets criteria", nomeet: "Does not meet criteria" },
       noMatch: q => `No successor matches "${q}".`,
       nHigh: (p, e) => `<b>${p}</b>: ${e} and there is no R0 successor. Speed up the IDP or identify an external candidate.`,
@@ -694,7 +694,7 @@ table.idp { min-width: 1120px; }
       openCard: "Open employee card", openIdp: "Open IDP",
       mock: { dash: "Dashboard", rv: "Readiness Validation", idp: "IDP", card: "Employee Card" },
       mockToast: s => `The ${s} screen is not built in this mockup yet.`,
-      trcToast: d => `${d} succession chart marked ready for TRC review (mockup).`,
+      trcToast: d => `${d} succession chart marked ready for HCC review (mockup).`,
       prog: { run: "IDP in progress", none: "IDP not started", ok: "IDP approved", draft: "IDP draft" },
       mapTitle: "How the masterlist maps to the portal", mapNote: "Columns are matched by header name, so the order of columns in the file can change. The sheet MASTERLIST OCP -2026 (2) is a duplicate and is not read.",
       mapCol: "Masterlist column", mapField: "Used in the portal for",
@@ -776,7 +776,7 @@ table.idp { min-width: 1120px; }
       noSheets: "helaian MASTERLIST MCP atau MASTERLIST OCP tidak dijumpai",
       scope: "Skop", deptAll: "Semua jabatan", catAll: "MCP & OCP", catMCP: "MCP sahaja", catOCP: "OCP sahaja", search: "Cari nama pengganti…",
       scale: "Skala", scCur: "Semasa", scNew: "Cadangan",
-      chartTitle: d => `Carta pengganti · ${d} 2026`, vChart: "Carta", vTable: "Jadual", sendTrc: "Hantar ke TRC",
+      chartTitle: d => `Carta pengganti · ${d} 2026`, vChart: "Carta", vTable: "Jadual", sendTrc: "Hantar ke HCC",
       mcpNote: "Melapor terus kepada GMD & CEO", ocpNote: "Ketua Bahagian, gred TH9 ke atas",
       emptyScope: "Tiada jawatan kritikal dalam skop ini.",
       thPos: "Jawatan kritikal", thCat: "Kat.", thSucc: "Pengganti", thExp: "Pengalaman<br>10%", thFit: "Job fit<br>40%", thFun: "Fungsian<br>50%", thTot: "Jumlah", thLvl: "Tahap", thStat: "Status",
@@ -795,7 +795,7 @@ table.idp { min-width: 1120px; }
       incumbent: "Penyandang", vacantIn: n => `Kosong dalam <b>${n}</b> bulan`, overdue: n => `Lepas tarikh tamat <b>${n}</b> bulan`, vacantNow: "<b>Kosong sekarang</b>", noEnd: "Tarikh tamat tidak dinyatakan",
       vacantName: "KOSONG", vacantSub: "Tiada penyandang",
       internal: "Pengganti dalaman", reps: "Calon penggantian", none: "Tiada pengganti dalaman",
-      removed: "Digugurkan oleh TRC", shortRunway: "runway pendek", shortTitle: "Bersara atau tamat kontrak kurang 24 bulan selepas jawatan kosong",
+      removed: "Digugurkan oleh HCC", shortRunway: "runway pendek", shortTitle: "Bersara atau tamat kontrak kurang 24 bulan selepas jawatan kosong",
       noMeetFlag: "✗ kriteria", stat: { ok: "Disahkan HOD", new: "Baru · menunggu SRA", struck: "Digugurkan", rep: "Penggantian", meet: "Memenuhi kriteria", nomeet: "Tidak memenuhi kriteria" },
       noMatch: q => `Tiada pengganti sepadan dengan carian "${q}".`,
       nHigh: (p, e) => `<b>${p}</b>: ${e} dan tiada pengganti R0. Percepatkan IDP atau kenal pasti calon luar.`,
@@ -823,7 +823,7 @@ table.idp { min-width: 1120px; }
       openCard: "Buka kad pekerja", openIdp: "Buka IDP",
       mock: { dash: "Dashboard", rv: "Readiness Validation", idp: "IDP", card: "Kad Pekerja" },
       mockToast: s => `Skrin ${s} belum dibina dalam mockup ini.`,
-      trcToast: d => `Carta pengganti ${d} ditanda sedia untuk semakan TRC (mockup).`,
+      trcToast: d => `Carta pengganti ${d} ditanda sedia untuk semakan HCC (mockup).`,
       prog: { run: "IDP dalam pelaksanaan", none: "IDP belum dibina", ok: "IDP diluluskan", draft: "IDP draf" },
       mapTitle: "Pemetaan masterlist kepada portal", mapNote: "Lajur dipadankan ikut nama tajuk, jadi susunan lajur dalam fail boleh berubah. Helaian MASTERLIST OCP -2026 (2) ialah salinan dan tidak dibaca.",
       mapCol: "Lajur masterlist", mapField: "Digunakan dalam portal untuk",
@@ -1114,7 +1114,7 @@ table.idp { min-width: 1120px; }
 
   // ---------- State + helpers ----------
   let DATA = sampleData();
-  let dept = "HAJJ";
+  let dept = "";
   const ym = s => { const [y, m] = s.split("-").map(Number); return { y, m }; };
   const monthsTo = s => { if (!s) return null; const d = ym(s); return (d.y - NOW.y) * 12 + (d.m - NOW.m); };
   const fmtYM = s => { if (!s) return "–"; const d = ym(s); return L().months12[d.m - 1] + " " + d.y; };
@@ -1748,7 +1748,7 @@ table.idp { min-width: 1120px; }
     en: {
       tier: "Talent, Succession & Leadership Pipeline", title: "Succession Planning 2026 · MCP & OCP",
       lead: "Ready successors for every critical position: identified, assessed, validated, then developed.",
-      flow: ["Identify", "Assess (SRA)", "Validate (HOD · TRC)", "Develop (IDP)"],
+      flow: ["Identify", "Assess (SRA)", "Validate (HOD · HCC)", "Develop (IDP)"],
       stats: ["critical positions", "successors", "departments"],
       goalLabel: "Programme goal", goal: "A strong successor pool that keeps critical roles filled and the business running.",
       cards: [["check", "Position-focused", "Assessed against one target role"], ["x", "Not a promotion", "No automatic appointment or entitlement"], ["shield", "Develop & review", "IDP for every successor · reviewed twice a year"]],
@@ -1759,21 +1759,21 @@ table.idp { min-width: 1120px; }
       critTitle: "Who can be a successor",
       crit: [["layers", "TH7–TH11", "Grade · OCP TH7–TH10"], ["briefcase", "Confirmed", "Permanent, or contract ≥ 1 yr"], ["cap", "Degree", "Bachelor's or higher"], ["calendar", "≤ 55", "Age, subject to readiness"], ["award", "Excellent × 2", "PMS, 2 years in a row"], ["shield", "Clean 5 yrs", "No disciplinary action"]],
       procTitle: "Six-stage process", procNote: "Status for the 2026 cycle", st: { done: "Done", now: "In progress", next: "Next" },
-      stages: [["Build the talent pool", ["Criteria", "MCP & OCP", "Annual cycle"]], ["Assess leadership capability", ["Harrison JSA", "PMS"]], ["Discuss readiness, name successors", ["TRC", "SRA results"]], ["Close gaps with an IDP", ["IDP", "Coaching", "Mobility"]], ["Keep the successor pool strong", ["Dashboard", "Bi-annual review"]], ["Keep HiPos engaged", ["TEX", "Rewards", "Engagement"]]],
+      stages: [["Build the talent pool", ["Criteria", "MCP & OCP", "Annual cycle"]], ["Assess leadership capability", ["Harrison JSA", "PMS"]], ["Discuss readiness, name successors", ["HCC", "SRA results"]], ["Close gaps with an IDP", ["IDP", "Coaching", "Mobility"]], ["Keep the successor pool strong", ["Dashboard", "Bi-annual review"]], ["Keep HiPos engaged", ["TEX", "Rewards", "Engagement"]]],
       sraTitle: "How readiness is scored", sraNote: "Successor Readiness Assessment 2026",
       sra: [["40%", "Job fit", "Harrison JSA", "user", "Successor"], ["10%", "Job experience", "Scale 0–2", "tie", "HOD"], ["50%", "Functional competencies", "Scale 1–4", "tie", "HOD"]],
       gaugeTitle: "Readiness scale", gauge: [["Not ready", "≤39%"], ["R2", "2–4 yrs"], ["R1", "1–2 yrs"], ["R0", "Ready now"]], proposed: "Proposed R0 (MCP)",
       devTitle: "Development mix", devNote: "Every SRA gap becomes an IDP action",
       dev: [["70%", "briefcase", "On-the-job", ["Stretch projects", "Job rotation", "Acting role", "Board papers"]], ["20%", "chat", "Coaching & mentoring", ["Executive coaching", "Mentoring", "GROW feedback"]], ["10%", "book", "Training", ["Exec education", "Certification", "E-learning"]]],
       rolesTitle: "Who does what",
-      roles: [["user", "Successor", "JSA · IDP"], ["tie", "HOD", "Assess · validate · approve IDP"], ["org", "Talent Mgmt", "Run the cycle · TRC papers"], ["users", "TRC / HCC", "Review · approve"], ["cpu", "Portal", "Screen · score · track"]],
+      roles: [["user", "Successor", "JSA · IDP"], ["tie", "HOD", "Assess · validate · approve IDP"], ["org", "Talent Mgmt", "Run the cycle · HCC papers"], ["users", "HCC", "Review · approve"], ["cpu", "Portal", "Screen · score · track"]],
       guideTitle: "Using this portal", open: "Open",
       guide: [["dash", "chart", "Dashboard", "Coverage, 9-Box, metrics"], ["sum", "doc", "Summary", "One-pager · PDF · PowerPoint"], ["chart", "sitemap", "Succession Chart", "Positions and successors"], ["rv", "clipboard", "Readiness Validation", "SRA scores with the HOD"], ["idp", "trend", "IDP", "70 · 20 · 10 plans"], ["card", "user", "Employee Card", "Profile, SRA and gaps"]]
     },
     ms: {
       tier: "Talent, Succession & Leadership Pipeline", title: "Succession Planning 2026 · MCP & OCP",
       lead: "Pengganti yang sedia untuk setiap jawatan kritikal: dikenal pasti, dinilai, disahkan, kemudian dibangunkan.",
-      flow: ["Kenal pasti", "Nilai (SRA)", "Sahkan (HOD · TRC)", "Bangun (IDP)"],
+      flow: ["Kenal pasti", "Nilai (SRA)", "Sahkan (HOD · HCC)", "Bangun (IDP)"],
       stats: ["jawatan kritikal", "pengganti", "jabatan"],
       goalLabel: "Matlamat program", goal: "Kumpulan pengganti yang kukuh supaya jawatan kritikal sentiasa terisi dan perniagaan terus berjalan.",
       cards: [["check", "Ikut jawatan", "Dinilai berbanding satu jawatan sasaran"], ["x", "Bukan kenaikan pangkat", "Tiada lantikan automatik atau hak"], ["shield", "Bangun & semak", "IDP untuk setiap pengganti · disemak dua kali setahun"]],
@@ -1784,14 +1784,14 @@ table.idp { min-width: 1120px; }
       critTitle: "Siapa boleh jadi pengganti",
       crit: [["layers", "TH7–TH11", "Gred · OCP TH7–TH10"], ["briefcase", "Disahkan", "Tetap, atau kontrak ≥ 1 thn"], ["cap", "Ijazah", "Sarjana muda atau lebih"], ["calendar", "≤ 55", "Umur, tertakluk kesediaan"], ["award", "Cemerlang × 2", "PMS, 2 tahun berturut"], ["shield", "Bersih 5 thn", "Tiada tindakan tatatertib"]],
       procTitle: "Proses enam peringkat", procNote: "Status kitaran 2026", st: { done: "Selesai", now: "Sedang berjalan", next: "Seterusnya" },
-      stages: [["Bina talent pool", ["Kriteria", "MCP & OCP", "Kitaran tahunan"]], ["Nilai keupayaan kepimpinan", ["Harrison JSA", "PMS"]], ["Bincang kesediaan, namakan pengganti", ["TRC", "Keputusan SRA"]], ["Tutup jurang dengan IDP", ["IDP", "Coaching", "Mobiliti"]], ["Kekalkan kumpulan pengganti kukuh", ["Dashboard", "Semakan dwi-tahunan"]], ["Kekalkan penglibatan HiPo", ["TEX", "Ganjaran", "Engagement"]]],
+      stages: [["Bina talent pool", ["Kriteria", "MCP & OCP", "Kitaran tahunan"]], ["Nilai keupayaan kepimpinan", ["Harrison JSA", "PMS"]], ["Bincang kesediaan, namakan pengganti", ["HCC", "Keputusan SRA"]], ["Tutup jurang dengan IDP", ["IDP", "Coaching", "Mobiliti"]], ["Kekalkan kumpulan pengganti kukuh", ["Dashboard", "Semakan dwi-tahunan"]], ["Kekalkan penglibatan HiPo", ["TEX", "Ganjaran", "Engagement"]]],
       sraTitle: "Cara kesediaan diskor", sraNote: "Successor Readiness Assessment 2026",
       sra: [["40%", "Job fit", "Harrison JSA", "user", "Pengganti"], ["10%", "Pengalaman kerja", "Skala 0–2", "tie", "HOD"], ["50%", "Kompetensi fungsian", "Skala 1–4", "tie", "HOD"]],
       gaugeTitle: "Skala kesediaan", gauge: [["Belum sedia", "≤39%"], ["R2", "2–4 thn"], ["R1", "1–2 thn"], ["R0", "Sedia sekarang"]], proposed: "Cadangan R0 (MCP)",
       devTitle: "Campuran pembangunan", devNote: "Setiap jurang SRA menjadi tindakan IDP",
       dev: [["70%", "briefcase", "On-the-job", ["Projek stretch", "Job rotation", "Memangku", "Kertas Lembaga"]], ["20%", "chat", "Coaching & mentoring", ["Executive coaching", "Mentoring", "GROW feedback"]], ["10%", "book", "Latihan", ["Pendidikan eksekutif", "Pensijilan", "E-learning"]]],
       rolesTitle: "Siapa buat apa",
-      roles: [["user", "Pengganti", "JSA · IDP"], ["tie", "HOD", "Nilai · sahkan · lulus IDP"], ["org", "Talent Mgmt", "Urus kitaran · kertas TRC"], ["users", "TRC / HCC", "Semak · lulus"], ["cpu", "Portal", "Tapis · skor · jejak"]],
+      roles: [["user", "Pengganti", "JSA · IDP"], ["tie", "HOD", "Nilai · sahkan · lulus IDP"], ["org", "Talent Mgmt", "Urus kitaran · kertas HCC"], ["users", "HCC", "Semak · lulus"], ["cpu", "Portal", "Tapis · skor · jejak"]],
       guideTitle: "Cara guna portal ini", open: "Buka",
       guide: [["dash", "chart", "Dashboard", "Liputan, 9-Box, metrik"], ["sum", "doc", "Ringkasan", "Satu halaman · PDF · PowerPoint"], ["chart", "sitemap", "Carta Pengganti", "Jawatan dan pengganti"], ["rv", "clipboard", "Readiness Validation", "Skor SRA bersama HOD"], ["idp", "trend", "IDP", "Pelan 70 · 20 · 10"], ["card", "user", "Kad Pekerja", "Profil, SRA dan jurang"]]
     }
@@ -2087,14 +2087,14 @@ table.idp { min-width: 1120px; }
       try {
         const wb = XLSX.read(new Uint8Array(rd.result), { type: "array", cellDates: true });
         DATA = parseWorkbook(wb, f.name); initVal();
-        dept = DATA.depts.some(([k]) => k === "HAJJ") ? "HAJJ" : (DATA.depts[0] ? DATA.depts[0][0] : "");
+        dept = "";
         render();
       } catch (err) { $("loadErr").textContent = L().loadErr(err.message || String(err)); $("loadErr").hidden = false; }
       e.target.value = "";
     };
     rd.readAsArrayBuffer(f);
   });
-  $("useSample").addEventListener("click", () => { SCALES = JSON.parse(JSON.stringify(DEFAULT_SCALES)); DATA = sampleData(); initVal(); dept = "HAJJ"; render(); });
+  $("useSample").addEventListener("click", () => { SCALES = JSON.parse(JSON.stringify(DEFAULT_SCALES)); DATA = sampleData(); initVal(); dept = ""; render(); });
   $("sendTrc").addEventListener("click", () => toast(L().trcToast(dept ? deptLabel(dept) : L().deptAll)));
   $("fDept").addEventListener("change", e => { dept = e.target.value; render(); });
   $("fCat").addEventListener("change", render);
