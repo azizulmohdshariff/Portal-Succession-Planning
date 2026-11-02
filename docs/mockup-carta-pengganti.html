@@ -34,6 +34,7 @@
   color-scheme: dark;
 }
 
+[hidden] { display: none !important; }
 *, *::before, *::after { box-sizing: border-box; }
 body {
   margin: 0; border-top: 4px solid var(--brand); background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px;
@@ -191,6 +192,26 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 .actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 20; max-width: calc(100vw - 32px); }
+.stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+.dist { display: grid; gap: 14px; }
+.dist-row { display: grid; gap: 6px; font-size: 13px; }
+.stackbar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; background: var(--sunken); }
+.stackbar div { display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 600; min-width: 0; overflow: hidden; white-space: nowrap; }
+.stackbar .r0 { background: var(--r0); color: var(--r0-fg); } .stackbar .r1 { background: var(--r1); color: var(--r1-fg); } .stackbar .r2 { background: var(--r2); color: var(--r2-fg); } .stackbar .r3 { background: var(--r3); color: var(--r3-fg); }
+.bar-fill.hot { background: var(--bad); } .bar-fill.warm { background: var(--warn); }
+.risk-list { display: grid; gap: 8px; }
+.risk-item { display: grid; gap: 2px; text-align: left; border: 1px solid var(--line); border-left: 3px solid var(--bad); border-radius: 8px; padding: 8px 10px; background: var(--surface); cursor: pointer; width: 100%; }
+.risk-item:hover { background: var(--sunken); }
+.risk-item b { font-size: 13px; } .risk-item span { font-size: 12px; color: var(--muted); }
+.rv td { vertical-align: top; }
+.rv td.role { background: var(--pos-head); font-weight: 600; min-width: 170px; }
+.rv select { border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; background: var(--surface); max-width: 170px; }
+.rv-sum { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.gaps-cell { font-size: 12px; line-height: 1.4; min-width: 180px; max-width: 300px; }
+.lnk { border: 0; background: none; padding: 0; color: inherit; cursor: pointer; text-align: left; font: inherit; font-weight: 500; }
+.lnk:hover { color: var(--accent); text-decoration: underline; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
@@ -203,9 +224,9 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
         <button type="button" id="lgMS" data-lang="ms" aria-pressed="false">BM</button>
       </div>
       <nav id="nav">
-        <button type="button" data-mock="dash" data-i="navDash"></button>
-        <button type="button" aria-current="page" data-i="navChart"></button>
-        <button type="button" data-mock="rv" data-i="navRV"></button>
+        <button type="button" data-view="dash" data-i="navDash"></button>
+        <button type="button" data-view="chart" aria-current="page" data-i="navChart"></button>
+        <button type="button" data-view="rv" data-i="navRV"></button>
         <button type="button" data-mock="idp" data-i="navIDP"></button>
         <button type="button" data-mock="card" data-i="navCard"></button>
       </nav>
@@ -245,7 +266,33 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 
   <div class="kpis" id="kpis"></div>
 
-  <section class="panel">
+  <section id="view-dash" class="stack" hidden>
+    <div class="grid2">
+      <div class="panel"><div class="section-head"><h2 data-i="distTitle"></h2><span class="note" id="distNote"></span></div><div id="dist" class="dist"></div></div>
+      <div class="panel"><h2 data-i="tlTitle"></h2><div id="tl" class="bars"></div></div>
+    </div>
+    <div class="panel">
+      <div class="section-head"><h2 data-i="byDeptTitle"></h2><span class="note" data-i="byDeptNote"></span></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th data-i="thDept"></th><th class="num" data-i="thPositions"></th><th class="num" data-i="thCov"></th><th class="num" data-i="thR0"></th><th class="num" data-i="thHigh"></th><th class="num" data-i="thVac"></th><th class="num" data-i="thNoMeet"></th></tr></thead>
+        <tbody id="deptRows"></tbody>
+      </table></div>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h2 data-i="riskTitle"></h2><div id="riskList" class="risk-list"></div></div>
+      <div class="panel"><h2 data-i="critBarsTitle"></h2><div id="critBars" class="bars"></div></div>
+    </div>
+  </section>
+
+  <section id="view-rv" class="panel" hidden>
+    <div class="section-head"><div><h2 id="rvTitle"></h2><p data-i="rvNote"></p></div><div class="rv-sum" id="rvSum"></div></div>
+    <div class="table-scroll"><table class="rv">
+      <thead><tr><th data-i="thPos"></th><th data-i="thSucc"></th><th class="num" data-i="thExp"></th><th class="num" data-i="thFit"></th><th class="num" data-i="thFun"></th><th class="num" data-i="thTot"></th><th data-i="thLvl"></th><th data-i="thGaps"></th><th data-i="thVal"></th></tr></thead>
+      <tbody id="rvRows"></tbody>
+    </table></div>
+  </section>
+
+  <section class="panel" id="chartPanel">
     <div class="section-head">
       <div><h2 id="chartTitle"></h2><p id="scaleNote"></p></div>
       <div class="head-actions">
@@ -274,7 +321,7 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="notesPanel">
     <h2 data-i="notesTitle"></h2>
     <ul class="notes" id="notes"></ul>
   </section>
@@ -362,6 +409,16 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
       prog: { run: "IDP in progress", none: "IDP not started", ok: "IDP approved", draft: "IDP draft" },
       mapTitle: "How the masterlist maps to the portal", mapNote: "Columns are matched by header name, so the order of columns in the file can change. The sheet MASTERLIST OCP -2026 (2) is a duplicate and is not read.",
       mapCol: "Masterlist column", mapField: "Used in the portal for",
+      distTitle: "Readiness distribution", distNote: s => `Internal successors · ${s}`, distCat: (c, n) => `${c} · ${n} successors`,
+      tlTitle: "When positions fall vacant", tl: ["Vacant now or past end date", "Within 12 months", "13–24 months", "25–36 months", "More than 3 years", "No date"],
+      byDeptTitle: "By department", byDeptNote: "All departments. Click a row to open its succession chart.",
+      thDept: "Department", thPositions: "Positions", thCov: "Coverage", thR0: "With R0", thHigh: "High risk", thVac: "Vacant", thNoMeet: "Not meeting criteria",
+      riskTitle: "Positions needing attention", riskEmpty: "No high-risk positions in this scope.",
+      critBarsTitle: "Selection criteria not met", critNone: "All successors in this scope meet the selection criteria.", critNoData: "Criteria checks come from the masterlist. Load it to see this breakdown.",
+      rvTitle: d => `Readiness validation · ${d} 2026`, rvNote: "SRA results to validate with each HOD. Validation choices are kept in this browser tab only and are cleared when the page reloads.",
+      thGaps: "Priority gaps", thVal: "SRA validation by HOD", gapsNone: "From the SRA session",
+      val: { pending: "Pending", ok: "Validated", rep: "Replacement list", rev: "Revise score" },
+      rvProgress: (a, b) => `${a} of ${b} validated`,
       months12: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
     },
     ms: {
@@ -428,6 +485,16 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
       prog: { run: "IDP dalam pelaksanaan", none: "IDP belum dibina", ok: "IDP diluluskan", draft: "IDP draf" },
       mapTitle: "Pemetaan masterlist kepada portal", mapNote: "Lajur dipadankan ikut nama tajuk, jadi susunan lajur dalam fail boleh berubah. Helaian MASTERLIST OCP -2026 (2) ialah salinan dan tidak dibaca.",
       mapCol: "Lajur masterlist", mapField: "Digunakan dalam portal untuk",
+      distTitle: "Taburan tahap kesediaan", distNote: s => `Pengganti dalaman · ${s}`, distCat: (c, n) => `${c} · ${n} pengganti`,
+      tlTitle: "Bila jawatan akan kosong", tl: ["Kosong sekarang atau lepas tarikh tamat", "Dalam 12 bulan", "13–24 bulan", "25–36 bulan", "Lebih 3 tahun", "Tiada tarikh"],
+      byDeptTitle: "Ikut jabatan", byDeptNote: "Semua jabatan. Klik baris untuk buka carta penggantinya.",
+      thDept: "Jabatan", thPositions: "Jawatan", thCov: "Liputan", thR0: "Ada R0", thHigh: "Risiko tinggi", thVac: "Kosong", thNoMeet: "Tak penuhi kriteria",
+      riskTitle: "Jawatan yang perlu perhatian", riskEmpty: "Tiada jawatan berisiko tinggi dalam skop ini.",
+      critBarsTitle: "Kriteria pemilihan tidak dipenuhi", critNone: "Semua pengganti dalam skop ini memenuhi kriteria pemilihan.", critNoData: "Semakan kriteria datang daripada masterlist. Muatkan fail untuk lihat pecahan ini.",
+      rvTitle: d => `Readiness validation · ${d} 2026`, rvNote: "Keputusan SRA untuk disahkan bersama setiap HOD. Pilihan pengesahan disimpan dalam tab pelayar ini sahaja dan hilang bila halaman dimuat semula.",
+      thGaps: "Jurang utama", thVal: "Pengesahan SRA oleh HOD", gapsNone: "Daripada sesi SRA",
+      val: { pending: "Belum disahkan", ok: "Disahkan", rep: "Senarai penggantian", rev: "Semak semula skor" },
+      rvProgress: (a, b) => `${a} daripada ${b} disahkan`,
       months12: ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogo","Sep","Okt","Nov","Dis"]
     }
   };
@@ -697,6 +764,8 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
     $("useSample").hidden = !file;
     $("fDept").innerHTML = `<option value="">${L().deptAll}</option>` + DATA.depts.map(([k, lab]) => `<option value="${esc(k)}"${k === dept ? " selected" : ""}>${esc(tx(lab))}</option>`).join("");
     $("chartTitle").textContent = L().chartTitle(dept ? deptLabel(dept) : L().deptAll);
+    $("rvTitle").textContent = L().rvTitle(dept ? deptLabel(dept) : L().deptAll);
+    document.querySelectorAll("nav [data-view]").forEach(b => { if (b.dataset.view === page) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
     $("mapRows").innerHTML = MAP.map(([c, f]) => `<tr><td>${esc(c)}</td><td>${esc(tx(f))}</td></tr>`).join("");
   }
 
@@ -807,9 +876,77 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
     out.push(L().nIdp);
     $("notes").innerHTML = out.map(x => `<li>${x}</li>`).join("");
   }
+  // ---------- Dashboard ----------
+  const uc = t => t.charAt(0).toUpperCase() + t.slice(1);
+  function whyText(p, a) {
+    const inc = p.inc;
+    return inc.vacant ? L().nHighWhy.vac : a.mo < 0 ? L().nHighWhy.past(L().end[inc.et], fmtYM(inc.end)) : L().nHighWhy.soon(L().end[inc.et], fmtYM(inc.end), a.mo);
+  }
+  function renderDash() {
+    const ps = visible();
+    $("distNote").textContent = L().distNote(L().scaleName[scale]);
+    $("dist").innerHTML = ["MCP", "OCP"].filter(c => ps.some(p => p.cat === c)).map(c => {
+      const lv = ps.filter(p => p.cat === c).flatMap(p => p.succ.filter(isInternal).map(s => level(total(s), c)));
+      const labs = SCALES[scale][c].map(b => b[1]);
+      return `<div class="dist-row"><b>${L().distCat(c, lv.length)}</b><div class="stackbar">${labs.map(l => { const n = lv.filter(x => x === l).length; return n ? `<div class="${lvCls(l)}" style="flex:${n}" title="${l}: ${n}">${l} · ${n}</div>` : ""; }).join("")}</div></div>`;
+    }).join("") || `<p class="note">${L().emptyScope}</p>`;
+    const b = [0, 0, 0, 0, 0, 0];
+    ps.forEach(p => { const mo = analyse(p).mo; b[p.inc.vacant || (mo != null && mo <= 0) ? 0 : mo == null ? 5 : mo <= 12 ? 1 : mo <= 24 ? 2 : mo <= 36 ? 3 : 4]++; });
+    const mx = Math.max(1, ...b);
+    $("tl").innerHTML = L().tl.map((lab, i) => `<div class="bar-row"><span>${lab}</span><span class="n">${b[i]}</span><div class="bar-track"><div class="bar-fill${i === 0 ? " hot" : i <= 2 ? " warm" : ""}" style="width:${b[i] / mx * 100}%"></div></div></div>`).join("");
+    const catF = $("fCat").value, pc = (a, n) => Math.round(a / n * 100) + "%";
+    $("deptRows").innerHTML = DATA.depts.map(([k, lab]) => {
+      const dp = DATA.positions.filter(p => p.dept === k && (!catF || p.cat === catF)); if (!dp.length) return "";
+      const an = dp.map(analyse), cov = an.filter(a => a.internal.length).length, r0 = an.filter(a => a.hasR0).length, hi = an.filter(a => a.risk === "high").length;
+      const vac = dp.filter(p => p.inc.vacant).length, nm = dp.reduce((n, p) => n + p.succ.filter(s => s.st === "nomeet").length, 0);
+      return `<tr class="clk" data-dept="${esc(k)}"><td><b>${esc(tx(lab))}</b></td><td class="num">${dp.length}</td><td class="num">${pc(cov, dp.length)}</td><td class="num">${r0} <span class="sub">(${pc(r0, dp.length)})</span></td><td class="num">${hi ? `<span class="pill p-bad">${hi}</span>` : "0"}</td><td class="num">${vac}</td><td class="num">${nm}</td></tr>`;
+    }).join("");
+    const hi = ps.map(p => [p, analyse(p)]).filter(([, a]) => a.risk === "high");
+    $("riskList").innerHTML = hi.length ? hi.map(([p, a]) => `<button type="button" class="risk-item" data-goto="${esc(p.dept)}"><b>${esc(tx(p.t))}</b><span>${esc(deptLabel(p.dept))} · ${p.cat} · ${esc(uc(whyText(p, a)))}</span></button>`).join("") : `<p class="note">${L().riskEmpty}</p>`;
+    if (DATA.source !== "file") { $("critBars").innerHTML = `<p class="note">${L().critNoData}</p>`; return; }
+    const c = {}; let tot = 0;
+    ps.forEach(p => p.succ.forEach(s => { tot++; failed(s).forEach(k => c[k] = (c[k] || 0) + 1); }));
+    const keys = Object.keys(L().crit), cm = Math.max(1, ...keys.map(k => c[k] || 0));
+    $("critBars").innerHTML = keys.some(k => c[k]) ? keys.map(k => `<div class="bar-row"><span>${L().crit[k]}</span><span class="n">${c[k] || 0}<small> / ${tot}</small></span><div class="bar-track"><div class="bar-fill${c[k] ? " hot" : ""}" style="width:${(c[k] || 0) / cm * 100}%"></div></div></div>`).join("") : `<p class="note">${L().critNone}</p>`;
+  }
+
+  // ---------- Readiness validation ----------
+  let VAL = {};
+  function initVal() { VAL = {}; DATA.positions.forEach(p => p.succ.forEach((s, i) => { VAL[p.id + "|" + i] = s.st === "ok" ? "ok" : s.st === "rep" ? "rep" : "pending"; })); }
+  function renderRV() {
+    const term = q(); let html = "", tot = 0, done = 0; const lv = {};
+    visible().forEach(p => {
+      const ss = p.succ.map((s, i) => [s, i]).filter(([s]) => s.st !== "struck" && (!term || s.p.n.toLowerCase().includes(term)));
+      ss.forEach(([s, i], j) => {
+        const t = total(s), l = level(t, p.cat), key = p.id + "|" + i, v = VAL[key] || "pending";
+        tot++; if (v === "ok" || v === "rep") done++; lv[l] = (lv[l] || 0) + 1;
+        const f = failed(s);
+        const gaps = s.gaps == null ? (f.length ? `<span class="flag bad">${L().noMeetFlag}: ${f.map(k => L().critShort[k]).join(", ")}</span>` : `<span class="sub">${L().gapsNone}</span>`) : (s.gaps.length ? s.gaps.map(g => esc(tx(g))).join(" · ") : `<span class="sub">${L().notAssessed}</span>`);
+        html += `<tr>${j === 0 ? `<td class="role" rowspan="${ss.length}">${esc(tx(p.t))}${p.g ? ` (${esc(p.g)})` : ""}<div class="sub">${p.cat}${!dept ? " · " + esc(deptLabel(p.dept)) : ""}</div></td>` : ""}
+          <td><button type="button" class="lnk" data-p="${p.id}" data-x="${i}">${esc(s.p.n)}</button> <span class="sub">${esc(s.p.g)}</span>${s.st === "rep" ? ` <span class="pill p-warn">${L().stat.rep}</span>` : ""}</td>
+          <td class="num">${s.exp.toFixed(1)}%</td><td class="num">${s.fit.toFixed(1)}%</td><td class="num">${s.fun.toFixed(1)}%</td><td class="num"><b>${t.toFixed(1)}%</b></td>
+          <td><span class="rd ${lvCls(l)}">${l}</span></td><td class="gaps-cell">${gaps}</td>
+          <td><select data-val="${key}" aria-label="${L().thVal}">${Object.entries(L().val).map(([k, lab]) => `<option value="${k}"${k === v ? " selected" : ""}>${lab}</option>`).join("")}</select></td></tr>`;
+      });
+    });
+    $("rvRows").innerHTML = html || `<tr><td colspan="9" class="sub" style="text-align:center;padding:24px">${esc(term ? L().noMatch(term) : L().emptyScope)}</td></tr>`;
+    $("rvSum").innerHTML = Object.keys(lv).sort().map(l => `<span class="rd ${lvCls(l)}">${l} · ${lv[l]}</span>`).join("") + `<span class="pill ${tot && done === tot ? "p-ok" : "p-mute"}">${L().rvProgress(done, tot)}</span>`;
+  }
+
+  // ---------- Pages ----------
+  let page = "chart";
+  const FROM_HASH = { dashboard: "dash", chart: "chart", readiness: "rv" }, TO_HASH = { dash: "dashboard", chart: "chart", rv: "readiness" };
+  const readHash = () => { page = FROM_HASH[location.hash.slice(1)] || "chart"; };
+  function go(pg) { if (TO_HASH[pg] === location.hash.slice(1)) { page = pg; render(); } else location.hash = TO_HASH[pg]; }
+
   function render() {
-    renderStatic(); renderLegend(); renderKpis();
-    if (view === "chart") renderChart(); else renderTable();
+    renderStatic(); renderLegend();
+    $("view-dash").hidden = page !== "dash"; $("view-rv").hidden = page !== "rv"; $("chartPanel").hidden = page !== "chart";
+    $("notesPanel").hidden = page === "rv"; $("kpis").hidden = page === "rv";
+    if (page !== "rv") renderKpis();
+    if (page === "dash") renderDash();
+    if (page === "rv") renderRV();
+    if (page === "chart") { if (view === "chart") renderChart(); else renderTable(); }
     renderNotes();
     if ($("dlg").open && openRef) openDetail(openRef[0], openRef[1]);
   }
@@ -862,6 +999,10 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
   document.addEventListener("click", e => {
     const lg = e.target.closest("[data-lang]");
     if (lg) { lang = lg.dataset.lang; try { localStorage.setItem("sp-lang", lang); } catch (er) {} render(); return; }
+    const nv = e.target.closest("[data-view]");
+    if (nv) { go(nv.dataset.view); return; }
+    const dg = e.target.closest("[data-dept],[data-goto]");
+    if (dg) { dept = dg.dataset.dept || dg.dataset.goto; go("chart"); window.scrollTo({ top: 0 }); return; }
     const m = e.target.closest("[data-mock]");
     if (m) { toast(L().mockToast(L().mock[m.dataset.mock])); return; }
     const s = e.target.closest("[data-p]");
@@ -875,7 +1016,7 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
     rd.onload = () => {
       try {
         const wb = XLSX.read(new Uint8Array(rd.result), { type: "array", cellDates: true });
-        DATA = parseWorkbook(wb, f.name);
+        DATA = parseWorkbook(wb, f.name); initVal();
         dept = DATA.depts.some(([k]) => k === "HAJJ") ? "HAJJ" : (DATA.depts[0] ? DATA.depts[0][0] : "");
         render();
       } catch (err) { $("loadErr").textContent = L().loadErr(err.message || String(err)); $("loadErr").hidden = false; }
@@ -883,7 +1024,7 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
     };
     rd.readAsArrayBuffer(f);
   });
-  $("useSample").addEventListener("click", () => { SCALES = JSON.parse(JSON.stringify(DEFAULT_SCALES)); DATA = sampleData(); dept = "HAJJ"; render(); });
+  $("useSample").addEventListener("click", () => { SCALES = JSON.parse(JSON.stringify(DEFAULT_SCALES)); DATA = sampleData(); initVal(); dept = "HAJJ"; render(); });
   $("sendTrc").addEventListener("click", () => toast(L().trcToast(dept ? deptLabel(dept) : L().deptAll)));
   $("fDept").addEventListener("change", e => { dept = e.target.value; render(); });
   $("fCat").addEventListener("change", render);
@@ -895,6 +1036,13 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
   $("vChart").addEventListener("click", () => setView("chart"));
   $("vTable").addEventListener("click", () => setView("table"));
 
+  document.addEventListener("change", e => {
+    const sel = e.target.closest("select[data-val]"); if (!sel) return;
+    VAL[sel.dataset.val] = sel.value; renderRV();
+    const again = document.querySelector(`select[data-val="${sel.dataset.val}"]`); if (again) again.focus();
+  });
+  window.addEventListener("hashchange", () => { readHash(); render(); });
+  initVal(); readHash();
   render();
 })();
 </script>
