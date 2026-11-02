@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: ETP-portal shell; scope bar, KPI row, then the succession chart (MCP full-width card, OCP card grid) or a table view; detail opens in a dialog.
+/* Layout: ETP-portal shell with EN/BM switch; scope bar, KPI row, then the succession chart (MCP full-width card, OCP card grid) or a table view; detail opens in a dialog.
    Palette mirrors the ETP portal tokens. R0/R1/R2 colours follow the readiness legend in the SRA documents. */
 :root {
   --bg: #f8fcf6; --surface: #ffffff; --sunken: #f0f9ec; --line: #e6e6e6; --fg: #2a2b2e; --muted: #6a6b6d;
@@ -41,13 +41,16 @@ body {
 .wrap { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 h1 { font-size: 20px; font-weight: 600; margin: 0; }
 h2 { font-size: 15px; font-weight: 600; margin: 0; text-wrap: balance; }
-h3 { font-size: 13px; font-weight: 600; margin: 0; }
 button, input, select { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 .brand { display: grid; gap: 2px; }
 .brand small { color: var(--muted); }
+.top-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; min-width: 0; max-width: 100%; }
+.lang { display: inline-flex; background: var(--sunken); border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 2px; flex: none; }
+.lang button { border: 0; background: none; padding: 6px 10px; border-radius: 6px; color: var(--muted); font-weight: 600; font-size: 12px; cursor: pointer; letter-spacing: .04em; }
+.lang button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
 nav { display: flex; gap: 4px; background: var(--sunken); border: 1px solid var(--line); border-radius: 8px; padding: 3px; overflow-x: auto; max-width: 100%; }
 nav button { border: 0; background: none; padding: 6px 12px; border-radius: 6px; color: var(--muted); font-weight: 500; white-space: nowrap; cursor: pointer; }
 nav button[aria-current="page"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
@@ -58,6 +61,7 @@ nav button[aria-current="page"] { background: var(--surface); color: var(--fg); 
 .note { color: var(--muted); font-size: 12px; }
 .section-head { display: flex; justify-content: space-between; align-items: center; gap: 8px 16px; flex-wrap: wrap; }
 .section-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; max-width: 72ch; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .btn { border: 1px solid var(--line); background: var(--surface); padding: 7px 12px; border-radius: 7px; cursor: pointer; font-weight: 500; }
 .btn:hover { background: var(--sunken); }
@@ -78,7 +82,6 @@ nav button[aria-current="page"] { background: var(--surface); color: var(--fg); 
 .p-ok { color: var(--ok); background: var(--ok-bg); } .p-warn { color: var(--warn); background: var(--warn-bg); } .p-bad { color: var(--bad); background: var(--bad-bg); } .p-mute { color: var(--muted); background: var(--mute-bg); }
 .p-new { color: var(--accent); background: var(--surface); border: 1px solid var(--accent); padding: 1px 7px; }
 
-/* KPI */
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 760px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .kpi { border-left: 3px solid var(--line); gap: 4px; }
@@ -86,14 +89,12 @@ nav button[aria-current="page"] { background: var(--surface); color: var(--fg); 
 .kpi .value { font-family: var(--mono); font-size: 28px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .kpi .value small { font-size: 14px; color: var(--muted); }
 
-/* Legend */
 .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 12px; color: var(--muted); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .sw { width: 22px; height: 14px; border-radius: 3px; display: inline-block; }
 .sw.r0 { background: var(--r0); } .sw.r1 { background: var(--r1); } .sw.r2 { background: var(--r2); } .sw.r3 { background: var(--r3); }
 .sw.rep { border: 1.5px dashed var(--muted); }
 
-/* Position card */
 .cat-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .cat-head .tag { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--accent); }
 .mcp-wrap { display: grid; justify-items: center; }
@@ -132,7 +133,6 @@ nav button[aria-current="page"] { background: var(--surface); color: var(--fg); 
 .flag { color: var(--warn); font-weight: 600; }
 .empty-succ { font-size: 12px; color: var(--bad); padding: 6px 0; }
 
-/* Table */
 .table-scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: middle; font-size: 13px; }
@@ -144,10 +144,8 @@ tbody tr.clk { cursor: pointer; } tbody tr.clk:hover { background: var(--sunken)
 .rd.r0 { background: var(--r0); color: var(--r0-fg); } .rd.r1 { background: var(--r1); color: var(--r1-fg); } .rd.r2 { background: var(--r2); color: var(--r2-fg); } .rd.r3 { background: var(--r3); color: var(--r3-fg); }
 .sub { color: var(--muted); font-size: 12px; }
 
-/* Notes */
 .notes { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13px; line-height: 1.5; }
 
-/* Dialog */
 dialog { border: 1px solid var(--line); border-radius: 12px; padding: 0; width: min(680px, calc(100vw - 32px)); max-height: calc(100vh - 32px); background: var(--surface); color: var(--fg); }
 dialog::backdrop { background: rgba(10, 16, 24, .45); }
 .dlg { display: grid; gap: 14px; padding: 18px; }
@@ -180,28 +178,34 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 
 <div class="wrap">
   <div class="top">
-    <div class="brand"><h1>Succession Planning Portal</h1><small>Kitaran 2026 · MCP &amp; OCP · Data setakat 2 Nov 2026</small></div>
-    <nav aria-label="Bahagian portal" id="nav">
-      <button type="button" data-mock="Dashboard">Dashboard</button>
-      <button type="button" aria-current="page">Carta Pengganti</button>
-      <button type="button" data-mock="Readiness Validation">Readiness Validation</button>
-      <button type="button" data-mock="IDP">IDP</button>
-      <button type="button" data-mock="Kad Pekerja">Kad Pekerja</button>
-    </nav>
+    <div class="brand"><h1>Succession Planning Portal</h1><small data-i="sub"></small></div>
+    <div class="top-right">
+      <div class="lang" role="group" aria-label="Language / Bahasa">
+        <button type="button" id="lgEN" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" id="lgMS" data-lang="ms" aria-pressed="false">BM</button>
+      </div>
+      <nav id="nav">
+        <button type="button" data-mock="dash" data-i="navDash"></button>
+        <button type="button" aria-current="page" data-i="navChart"></button>
+        <button type="button" data-mock="rv" data-i="navRV"></button>
+        <button type="button" data-mock="idp" data-i="navIDP"></button>
+        <button type="button" data-mock="card" data-i="navCard"></button>
+      </nav>
+    </div>
   </div>
 
-  <div class="banner"><b>Mockup.</b> Semua nama, gred dan skor di skrin ini ialah data rekaan untuk menunjukkan susun atur.</div>
+  <div class="banner" data-i="banner"></div>
 
   <div class="scope">
-    <span class="lbl">Skop</span>
-    <select id="fDept" aria-label="Jabatan"><option>Jabatan Haji</option></select>
-    <select id="fCat" aria-label="Kategori"><option value="">MCP &amp; OCP</option><option value="MCP">MCP sahaja</option><option value="OCP">OCP sahaja</option></select>
-    <input type="search" id="fSearch" placeholder="Cari nama pengganti…" aria-label="Cari nama pengganti">
+    <span class="lbl" data-i="scope"></span>
+    <select id="fDept"><option data-i="dept"></option></select>
+    <select id="fCat"><option value="" data-i="catAll"></option><option value="MCP" data-i="catMCP"></option><option value="OCP" data-i="catOCP"></option></select>
+    <input type="search" id="fSearch">
     <div class="push">
-      <span class="lbl">Skala</span>
-      <div class="seg" role="group" aria-label="Skala kesediaan">
-        <button type="button" id="scCur" aria-pressed="true">Semasa</button>
-        <button type="button" id="scNew" aria-pressed="false">Cadangan</button>
+      <span class="lbl" data-i="scale"></span>
+      <div class="seg" role="group" id="scaleGrp">
+        <button type="button" id="scCur" aria-pressed="true" data-i="scCur"></button>
+        <button type="button" id="scNew" aria-pressed="false" data-i="scNew"></button>
       </div>
     </div>
   </div>
@@ -210,34 +214,34 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 
   <section class="panel">
     <div class="section-head">
-      <div><h2>Carta pengganti · Jabatan Haji 2026</h2><p id="scaleNote"></p></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <div class="seg" role="group" aria-label="Paparan">
-          <button type="button" id="vChart" aria-pressed="true">Carta</button>
-          <button type="button" id="vTable" aria-pressed="false">Jadual</button>
+      <div><h2 data-i="chartTitle"></h2><p id="scaleNote"></p></div>
+      <div class="head-actions">
+        <div class="seg" role="group" id="viewGrp">
+          <button type="button" id="vChart" aria-pressed="true" data-i="vChart"></button>
+          <button type="button" id="vTable" aria-pressed="false" data-i="vTable"></button>
         </div>
-        <button type="button" class="btn primary" id="sendTrc">Hantar ke TRC</button>
+        <button type="button" class="btn primary" id="sendTrc" data-i="sendTrc"></button>
       </div>
     </div>
     <div class="legend" id="legend"></div>
 
     <div id="chartView" style="display:grid;gap:20px">
-      <div class="cat-head"><h2>MCP</h2><span class="tag">C-1</span><span class="note">Melapor terus kepada GMD &amp; CEO</span></div>
+      <div class="cat-head" id="mcpHead"><h2>MCP</h2><span class="tag">C-1</span><span class="note" data-i="mcpNote"></span></div>
       <div class="mcp-wrap" id="mcp"></div>
-      <div class="cat-head"><h2>OCP</h2><span class="tag">C-2</span><span class="note">Ketua Bahagian, gred TH9 ke atas</span></div>
+      <div class="cat-head" id="ocpHead"><h2>OCP</h2><span class="tag">C-2</span><span class="note" data-i="ocpNote"></span></div>
       <div class="ocp-grid" id="ocp"></div>
     </div>
 
     <div id="tableView" hidden>
       <div class="table-scroll"><table>
-        <thead><tr><th>Jawatan kritikal</th><th>Kat.</th><th>Pengganti</th><th class="num">Pengalaman<br>10%</th><th class="num">Job fit<br>40%</th><th class="num">Fungsian<br>50%</th><th class="num">Jumlah</th><th>Tahap</th><th>Status</th></tr></thead>
+        <thead><tr><th data-i="thPos"></th><th data-i="thCat"></th><th data-i="thSucc"></th><th class="num" data-i="thExp"></th><th class="num" data-i="thFit"></th><th class="num" data-i="thFun"></th><th class="num" data-i="thTot"></th><th data-i="thLvl"></th><th data-i="thStat"></th></tr></thead>
         <tbody id="rows"></tbody>
       </table></div>
     </div>
   </section>
 
   <section class="panel">
-    <h2>Nota automatik</h2>
+    <h2 data-i="notesTitle"></h2>
     <ul class="notes" id="notes"></ul>
   </section>
 </div>
@@ -247,84 +251,198 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 
 <script>
 (function () {
-  const NOW = { y: 2026, m: 11 };
-  const SCALES = {
-    cur: { name: "Semasa (TRC 01/2023(2))", bands: [[70, "R0"], [50, "R1"], [40, "R2"], [0, "-"]] },
-    neu: { name: "Cadangan (belum diluluskan)", bands: [[90, "R0"], [75, "R1"], [60, "R2"], [0, "R3"]] }
+  // ---------- Strings (EN primary, BM secondary) ----------
+  const T = {
+    en: {
+      sub: "2026 cycle · MCP & OCP · Data as at 2 Nov 2026",
+      navDash: "Dashboard", navChart: "Succession Chart", navRV: "Readiness Validation", navIDP: "IDP", navCard: "Employee Card",
+      banner: "<b>Mockup.</b> All names, grades and scores on this screen are fictional and only show the layout.",
+      scope: "Scope", dept: "Hajj Department", catAll: "MCP & OCP", catMCP: "MCP only", catOCP: "OCP only", search: "Search successor name…",
+      scale: "Scale", scCur: "Current", scNew: "Proposed",
+      chartTitle: "Succession chart · Hajj Department 2026", vChart: "Chart", vTable: "Table", sendTrc: "Send to TRC",
+      mcpNote: "Reports directly to the GMD & CEO", ocpNote: "Division Heads, grade TH9 and above",
+      thPos: "Critical position", thCat: "Cat.", thSucc: "Successor", thExp: "Experience<br>10%", thFit: "Job fit<br>40%", thFun: "Functional<br>50%", thTot: "Total", thLvl: "Level", thStat: "Status",
+      notesTitle: "Automatic notes",
+      scaleName: { cur: "Current (TRC 01/2023(2))", neu: "Proposed (not yet approved)" },
+      scaleNote: s => `Readiness is calculated on the ${s} scale. Click a successor's name to see the SRA scores.`,
+      desc: { R0: "Ready Now", R1: "Ready in 1–2 years", R2: "Ready in 2–4 years", R3: "Ready in more than 5 years", "-": "Low role fit, not ready" },
+      descNewR2: "Ready in 3–4 years",
+      notReady: "Not ready", repLegend: "Replacement candidate", newLegend: "Nominated in 2026", newPill: "New",
+      kPos: "Critical positions", kPosN: n => `${n} unique successors`,
+      kCov: "Successor coverage", kCovN: (a, b) => `${a} / ${b} have an internal successor`,
+      kR0: "Has an R0 successor", kR0N: (a, b) => `${a} / ${b} positions`,
+      kHigh: "High risk", kHighN: "No R0 and vacant within 24 months",
+      risk: { high: "High risk", med: "Medium risk", low: "Low risk" },
+      end: { contract: "contract ends", retire: "retires" }, endCap: { contract: "Contract ends", retire: "Retires" },
+      incumbent: "Incumbent", vacantIn: n => `Vacant in <b>${n}</b> months`,
+      internal: "Internal successors", reps: "Replacement candidates", none: "No internal successor",
+      removed: "Removed by TRC", shortRunway: "short runway", shortTitle: "Retires or contract ends less than 24 months after the position falls vacant",
+      stat: { ok: "Validated by HOD", new: "New · awaiting SRA", struck: "Removed", rep: "Replacement" },
+      noMatch: q => `No successor matches "${q}".`,
+      nHigh: (p, e, d, m) => `<b>${p}</b>: the incumbent ${e} ${d} (${m} months away) and there is no R0 successor. Speed up the IDP or identify an external candidate.`,
+      nRunway: (n, p, e, d, g) => `<b>${n}</b> (${p}): ${e} ${d}, ${g >= 0 ? g + " months after" : Math.abs(g) + " months before"} the position falls vacant. Limited runway.`,
+      nMulti: (n, k, list) => `<b>${n}</b> is mapped to ${k} positions: ${list}. Check for overlapping successor risk.`,
+      nChain: n => `<b>${n}</b> is an incumbent of a critical position and also a successor. Promoting them opens a chain vacancy.`,
+      nIdp: "IDPs are set for 2 years (2027–2028) to close the gaps. SRA assessment date: October 2026.",
+      dType: { int: "Internal successor", rep: "Replacement candidate" },
+      close: "Close", target: "Target position", position: "Position", vacant: "Vacant", months: "months", pms: "PMS 2024 · 2025",
+      sra: "SRA 2026 result", bExp: "Job experience · 10%", bFit: "Job fit (Harrison JSA) · 40%", bFun: "Functional competencies · 50%", total: "Total",
+      curScale: "Current scale", newScale: "Proposed scale",
+      runwayCallout: (e, d, g) => `<b>Short runway.</b> ${e} ${d}, ${g >= 0 ? g + " months after" : Math.abs(g) + " months before"} the target position falls vacant.`,
+      gaps: "Priority gaps", notAssessed: "Not yet assessed", asp: "Career aspiration",
+      aspL: ["Interested in leadership progression", "Aspires to be prepared for a critical role", "Aspires to undergo structured development", "Willing to invest time & effort long term", "Willing to take on stretch / expanded roles"],
+      openCard: "Open employee card", openIdp: "Open IDP",
+      mock: { dash: "Dashboard", rv: "Readiness Validation", idp: "IDP", card: "Employee Card" },
+      mockToast: s => `The ${s} screen is not built in this mockup yet.`,
+      trcToast: "Hajj Department succession chart marked ready for TRC review (mockup).",
+      prog: { run: "IDP in progress", none: "IDP not started", ok: "IDP approved", draft: "IDP draft" },
+      months12: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    },
+    ms: {
+      sub: "Kitaran 2026 · MCP & OCP · Data setakat 2 Nov 2026",
+      navDash: "Dashboard", navChart: "Carta Pengganti", navRV: "Readiness Validation", navIDP: "IDP", navCard: "Kad Pekerja",
+      banner: "<b>Mockup.</b> Semua nama, gred dan skor di skrin ini ialah data rekaan untuk menunjukkan susun atur.",
+      scope: "Skop", dept: "Jabatan Haji", catAll: "MCP & OCP", catMCP: "MCP sahaja", catOCP: "OCP sahaja", search: "Cari nama pengganti…",
+      scale: "Skala", scCur: "Semasa", scNew: "Cadangan",
+      chartTitle: "Carta pengganti · Jabatan Haji 2026", vChart: "Carta", vTable: "Jadual", sendTrc: "Hantar ke TRC",
+      mcpNote: "Melapor terus kepada GMD & CEO", ocpNote: "Ketua Bahagian, gred TH9 ke atas",
+      thPos: "Jawatan kritikal", thCat: "Kat.", thSucc: "Pengganti", thExp: "Pengalaman<br>10%", thFit: "Job fit<br>40%", thFun: "Fungsian<br>50%", thTot: "Jumlah", thLvl: "Tahap", thStat: "Status",
+      notesTitle: "Nota automatik",
+      scaleName: { cur: "Semasa (TRC 01/2023(2))", neu: "Cadangan (belum diluluskan)" },
+      scaleNote: s => `Tahap dikira ikut skala ${s}. Klik nama pengganti untuk lihat skor SRA.`,
+      desc: { R0: "Ready Now", R1: "Sedia 1–2 tahun", R2: "Sedia 2–4 tahun", R3: "Sedia lebih 5 tahun", "-": "Role fit rendah, belum sedia" },
+      descNewR2: "Sedia 3–4 tahun",
+      notReady: "Belum sedia", repLegend: "Calon penggantian (replacement)", newLegend: "Dicalonkan 2026", newPill: "Baru",
+      kPos: "Jawatan kritikal", kPosN: n => `${n} pengganti unik`,
+      kCov: "Liputan pengganti", kCovN: (a, b) => `${a} / ${b} ada pengganti dalaman`,
+      kR0: "Ada pengganti R0", kR0N: (a, b) => `${a} / ${b} jawatan`,
+      kHigh: "Risiko tinggi", kHighN: "Tiada R0 dan kosong ≤24 bulan",
+      risk: { high: "Risiko tinggi", med: "Risiko sederhana", low: "Risiko rendah" },
+      end: { contract: "tamat kontrak", retire: "bersara" }, endCap: { contract: "Tamat kontrak", retire: "Bersara" },
+      incumbent: "Penyandang", vacantIn: n => `Kosong dalam <b>${n}</b> bulan`,
+      internal: "Pengganti dalaman", reps: "Calon penggantian", none: "Tiada pengganti dalaman",
+      removed: "Digugurkan oleh TRC", shortRunway: "runway pendek", shortTitle: "Bersara atau tamat kontrak kurang 24 bulan selepas jawatan kosong",
+      stat: { ok: "Disahkan HOD", new: "Baru · menunggu SRA", struck: "Digugurkan", rep: "Penggantian" },
+      noMatch: q => `Tiada pengganti sepadan dengan carian "${q}".`,
+      nHigh: (p, e, d, m) => `<b>${p}</b>: penyandang ${e} ${d} (${m} bulan lagi) dan tiada pengganti R0. Percepatkan IDP atau kenal pasti calon luar.`,
+      nRunway: (n, p, e, d, g) => `<b>${n}</b> (${p}): ${e} ${d}, ${g >= 0 ? g + " bulan selepas" : Math.abs(g) + " bulan sebelum"} jawatan kosong. Runway terhad.`,
+      nMulti: (n, k, list) => `<b>${n}</b> dipetakan kepada ${k} jawatan: ${list}. Semak risiko pengganti bertindih.`,
+      nChain: n => `<b>${n}</b> ialah penyandang jawatan kritikal dan juga pengganti. Kenaikan beliau akan membuka kekosongan berantai.`,
+      nIdp: "IDP ditetapkan 2 tahun (2027–2028) untuk tutup jurang. Tarikh penilaian SRA: Oktober 2026.",
+      dType: { int: "Pengganti dalaman", rep: "Calon penggantian" },
+      close: "Tutup", target: "Jawatan sasaran", position: "Jawatan", vacant: "Kosong", months: "bulan", pms: "PMS 2024 · 2025",
+      sra: "Keputusan SRA 2026", bExp: "Pengalaman kerja · 10%", bFit: "Job fit (Harrison JSA) · 40%", bFun: "Kompetensi fungsian · 50%", total: "Jumlah",
+      curScale: "Skala semasa", newScale: "Skala cadangan",
+      runwayCallout: (e, d, g) => `<b>Runway pendek.</b> ${e} ${d}, ${g >= 0 ? g + " bulan selepas" : Math.abs(g) + " bulan sebelum"} jawatan sasaran kosong.`,
+      gaps: "Jurang utama", notAssessed: "Belum dinilai", asp: "Aspirasi kerjaya",
+      aspL: ["Berminat maju ke peranan kepimpinan", "Beraspirasi disediakan untuk jawatan kritikal", "Beraspirasi jalani pembangunan berstruktur", "Sanggup labur masa & usaha jangka panjang", "Sanggup ambil peranan stretch / diperluas"],
+      openCard: "Buka kad pekerja", openIdp: "Buka IDP",
+      mock: { dash: "Dashboard", rv: "Readiness Validation", idp: "IDP", card: "Kad Pekerja" },
+      mockToast: s => `Skrin ${s} belum dibina dalam mockup ini.`,
+      trcToast: "Carta pengganti Jabatan Haji ditanda sedia untuk semakan TRC (mockup).",
+      prog: { run: "IDP dalam pelaksanaan", none: "IDP belum dibina", ok: "IDP diluluskan", draft: "IDP draf" },
+      months12: ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogo","Sep","Okt","Nov","Dis"]
+    }
   };
-  const DESC = { R0: "Ready Now", R1: "Sedia 1–2 tahun", R2: "Sedia 2–4 tahun", R3: "Sedia lebih 5 tahun", "-": "Role fit rendah, belum sedia" };
-  const DESC_NEW = { R2: "Sedia 3–4 tahun" };
+  let lang = "en";
+  try { const s = localStorage.getItem("sp-lang"); if (s === "en" || s === "ms") lang = s; } catch (e) {}
+  const L = () => T[lang];
+  const tx = v => Array.isArray(v) ? v[lang === "en" ? 0 : 1] : v; // [EN, BM] pairs
+
+  // ---------- Data (fictional) ----------
+  const NOW = { y: 2026, m: 11 };
+  const BANDS = { cur: [[70, "R0"], [50, "R1"], [40, "R2"], [0, "-"]], neu: [[90, "R0"], [75, "R1"], [60, "R2"], [0, "R3"]] };
   let scale = "cur", view = "chart";
 
-  // People (fictional)
   const P = {
-    kamal:   { n: "Kamal Ariffin bin Yusof", g: "TH12", pos: "Pengarah Haji", end: "2028-11", endType: "Tamat kontrak" },
-    faizal:  { n: "Faizal bin Rahman", g: "TH11", pos: "Ketua Pegawai Strategi Deposit", end: "2029-06", endType: "Bersara", pms: "88.9% · 80.6%", asp: [1,1,1,1,0] },
-    hafiz:   { n: "Hafiz bin Osman", g: "TH10", pos: "Ketua Bahagian Pengurusan Haji", end: "2035-07", endType: "Bersara", pms: "85.5% · 91.2%", asp: [1,1,1,1,1] },
-    aina:    { n: "Nurul Aina binti Zakaria", g: "TH9", pos: "Timbalan Ketua Bahagian Perancangan", end: "2038-03", endType: "Bersara", pms: "90.1% · 89.4%", asp: [1,1,1,1,1] },
-    rosli:   { n: "Rosli bin Ahmad", g: "TH11", pos: "Ketua Pegawai Operasi Serantau", end: "2027-12", endType: "Bersara", pms: "86.0% · 84.2%", asp: [1,0,0,0,0] },
-    azman:   { n: "Azman bin Salleh", g: "TH9", pos: "Ketua Bahagian Agensi Haji", end: "2031-04", endType: "Bersara" },
-    syafiq:  { n: "Syafiq bin Hamdan", g: "TH8", pos: "Pengurus Kanan Agensi", end: "2040-01", endType: "Bersara", pms: "91.0% · 90.3%", asp: [1,1,1,1,1] },
-    zul:     { n: "Zulkifli bin Idris", g: "TH7", pos: "Pengurus Akreditasi Agensi", end: "2045-09", endType: "Bersara", pms: "88.2% · 92.0%", asp: [1,1,1,1,1] },
-    imran:   { n: "Imran bin Ghazali", g: "TH9", pos: "Pengurus Besar Logistik", end: "2033-02", endType: "Bersara" },
-    amirul:  { n: "Amirul bin Hakim", g: "TH9", pos: "Konsul Haji", end: "2036-05", endType: "Bersara", pms: "89.7% · 90.8%", asp: [1,1,1,1,1] },
-    shahrul: { n: "Shahrul bin Nordin", g: "TH9", pos: "Ketua Bahagian Bimbingan Haji", end: "2027-08", endType: "Bersara" },
-    aisyah:  { n: "Aisyah binti Karim", g: "TH8", pos: "Pengurus Kanan Kurikulum Bimbingan", end: "2039-10", endType: "Bersara", pms: "87.5% · 88.1%", asp: [1,1,1,0,1] },
-    zahid:   { n: "Zahid bin Hussin", g: "TH8", pos: "Pengurus Kanan Bimbingan Negeri", end: "2034-06", endType: "Bersara", pms: "86.3% · 87.0%", asp: [1,1,1,1,0] },
-    hazim:   { n: "Hazim bin Ali", g: "TH8", pos: "Pengurus Kandungan Digital", end: "2046-02", endType: "Bersara", pms: "90.4% · 91.5%", asp: [1,1,1,1,1] },
-    rozita:  { n: "Rozita binti Omar", g: "TH9", pos: "Ketua Bahagian R&D Haji", end: "2030-09", endType: "Bersara" },
-    khairul: { n: "Khairul bin Bakar", g: "TH8", pos: "Pengurus Kanan Penyelidikan", end: "2041-11", endType: "Bersara", pms: "89.0% · 90.2%", asp: [1,1,1,1,1] },
-    zailan:  { n: "Zailan bin Ghafur", g: "TH8", pos: "Pengurus Kanan Analitik", end: "2037-04", endType: "Bersara", pms: "85.1% · 86.4%", asp: [1,1,0,1,1] },
-    mustafa: { n: "Mustafa bin Latif", g: "TH8", pos: "Pengurus Kanan Konsulat", end: "2038-08", endType: "Bersara", pms: "86.8% · 85.9%", asp: [1,1,1,1,0] },
-    nazri:   { n: "Mohd Nazri bin Kassim", g: "TH9", pos: "Ketua Bahagian Operasi Domestik", end: "2032-01", endType: "Bersara" },
-    ashraf:  { n: "Ashraf bin Shamsudin", g: "TH8", pos: "Pengurus Kanan Operasi Negeri", end: "2042-12", endType: "Bersara", pms: "88.4% · 87.7%", asp: [1,1,1,1,1] }
+    kamal:   { n: "Kamal Ariffin bin Yusof", g: "TH12", pos: ["Director of Hajj", "Pengarah Haji"], end: "2028-11", et: "contract" },
+    faizal:  { n: "Faizal bin Rahman", g: "TH11", pos: ["Chief Deposit Strategy Officer", "Ketua Pegawai Strategi Deposit"], end: "2029-06", et: "retire", pms: "88.9% · 80.6%", asp: [1,1,1,1,0] },
+    hafiz:   { n: "Hafiz bin Osman", g: "TH10", pos: ["Head of Hajj Management Division", "Ketua Bahagian Pengurusan Haji"], end: "2035-07", et: "retire", pms: "85.5% · 91.2%", asp: [1,1,1,1,1] },
+    aina:    { n: "Nurul Aina binti Zakaria", g: "TH9", pos: ["Deputy Head of Planning Division", "Timbalan Ketua Bahagian Perancangan"], end: "2038-03", et: "retire", pms: "90.1% · 89.4%", asp: [1,1,1,1,1] },
+    azman:   { n: "Azman bin Salleh", g: "TH9", pos: ["Head of Hajj Agency Division", "Ketua Bahagian Agensi Haji"], end: "2031-04", et: "retire" },
+    syafiq:  { n: "Syafiq bin Hamdan", g: "TH8", pos: ["Senior Manager, Agency", "Pengurus Kanan Agensi"], end: "2040-01", et: "retire", pms: "91.0% · 90.3%", asp: [1,1,1,1,1] },
+    zul:     { n: "Zulkifli bin Idris", g: "TH7", pos: ["Manager, Agency Accreditation", "Pengurus Akreditasi Agensi"], end: "2045-09", et: "retire", pms: "88.2% · 92.0%", asp: [1,1,1,1,1] },
+    imran:   { n: "Imran bin Ghazali", g: "TH9", pos: ["General Manager, Logistics", "Pengurus Besar Logistik"], end: "2033-02", et: "retire" },
+    amirul:  { n: "Amirul bin Hakim", g: "TH9", pos: ["Hajj Consul", "Konsul Haji"], end: "2036-05", et: "retire", pms: "89.7% · 90.8%", asp: [1,1,1,1,1] },
+    shahrul: { n: "Shahrul bin Nordin", g: "TH9", pos: ["Head of Hajj Guidance Division", "Ketua Bahagian Bimbingan Haji"], end: "2027-08", et: "retire" },
+    aisyah:  { n: "Aisyah binti Karim", g: "TH8", pos: ["Senior Manager, Guidance Curriculum", "Pengurus Kanan Kurikulum Bimbingan"], end: "2039-10", et: "retire", pms: "87.5% · 88.1%", asp: [1,1,1,0,1] },
+    zahid:   { n: "Zahid bin Hussin", g: "TH8", pos: ["Senior Manager, State Guidance", "Pengurus Kanan Bimbingan Negeri"], end: "2034-06", et: "retire", pms: "86.3% · 87.0%", asp: [1,1,1,1,0] },
+    hazim:   { n: "Hazim bin Ali", g: "TH8", pos: ["Manager, Digital Content", "Pengurus Kandungan Digital"], end: "2046-02", et: "retire", pms: "90.4% · 91.5%", asp: [1,1,1,1,1] },
+    rozita:  { n: "Rozita binti Omar", g: "TH9", pos: ["Head of Hajj R&D Division", "Ketua Bahagian R&D Haji"], end: "2030-09", et: "retire" },
+    khairul: { n: "Khairul bin Bakar", g: "TH8", pos: ["Senior Manager, Research", "Pengurus Kanan Penyelidikan"], end: "2041-11", et: "retire", pms: "89.0% · 90.2%", asp: [1,1,1,1,1] },
+    zailan:  { n: "Zailan bin Ghafur", g: "TH8", pos: ["Senior Manager, Analytics", "Pengurus Kanan Analitik"], end: "2037-04", et: "retire", pms: "85.1% · 86.4%", asp: [1,1,0,1,1] },
+    mustafa: { n: "Mustafa bin Latif", g: "TH8", pos: ["Senior Manager, Consulate", "Pengurus Kanan Konsulat"], end: "2038-08", et: "retire", pms: "86.8% · 85.9%", asp: [1,1,1,1,0] },
+    nazri:   { n: "Mohd Nazri bin Kassim", g: "TH9", pos: ["Head of Domestic Operations Division", "Ketua Bahagian Operasi Domestik"], end: "2032-01", et: "retire" },
+    ashraf:  { n: "Ashraf bin Shamsudin", g: "TH8", pos: ["Senior Manager, State Operations", "Pengurus Kanan Operasi Negeri"], end: "2042-12", et: "retire", pms: "88.4% · 87.7%", asp: [1,1,1,1,1] }
   };
-
-  // Nominations: [person, exp(0-10), fit(0-40), fun(0-50), status, gaps]
-  // status: ok | new | struck | rep
+  const G = {
+    infl: ["Leadership: Influencing, Pressure Tolerance", "Kepimpinan: Influencing, Pressure Tolerance"],
+    digi: ["Technical: Pilgrim Digital Services (2/4)", "Teknikal: Perkhidmatan Digital Jemaah (2/4)"],
+    intl: ["International authority experience (1/2)", "Pengalaman pihak berkuasa antarabangsa (1/2)"],
+    plan: ["Leadership: Planning, Authoritative", "Kepimpinan: Planning, Authoritative"],
+    ops24: ["Technical: Hajj Operations Strategy (2/4)", "Teknikal: Strategi Operasi Haji (2/4)"],
+    g912: ["Grade gap TH9 to TH12", "Jurang gred TH9 ke TH12"],
+    planSelf: ["Leadership: Planning, Self-Acceptance", "Kepimpinan: Planning, Self-Acceptance"],
+    saudi: ["Technical: Saudi Authority Liaison (3/4)", "Teknikal: Diplomasi Pihak Berkuasa Saudi (3/4)"],
+    retire7: ["Retires 7 months after the incumbent's contract ends", "Bersara 7 bulan selepas penyandang tamat kontrak"],
+    deleg: ["Leadership: Delegation", "Kepimpinan: Delegation"],
+    contract34: ["Technical: Agency Contract Management (3/4)", "Teknikal: Pengurusan Kontrak Agensi (3/4)"],
+    press: ["Leadership: Pressure Tolerance", "Kepimpinan: Pressure Tolerance"],
+    g79: ["Grade gap TH7 to TH9", "Jurang gred TH7 ke TH9"],
+    logi: ["Technical: Global Logistics (3/4)", "Teknikal: Logistik Global (3/4)"],
+    g810: ["Grade gap TH8 to TH10", "Jurang gred TH8 ke TH10"],
+    season: ["Technical: Season Operations Planning (2/4)", "Teknikal: Perancangan Operasi Musim (2/4)"],
+    inflOnly: ["Leadership: Influencing", "Kepimpinan: Influencing"],
+    large: ["Technical: Large-scale Programme Management (2/4)", "Teknikal: Pengurusan Program Berskala Besar (2/4)"],
+    chall: ["Leadership: Wants Challenge, Self-Improvement", "Kepimpinan: Wants Challenge, Self-Improvement"],
+    divExp: ["Division management experience (0/2)", "Pengalaman pengurusan bahagian (0/2)"],
+    curr: ["Technical: Guidance Curriculum (2/4)", "Teknikal: Kurikulum Bimbingan (2/4)"],
+    research: ["Technical: Research Design (2/4)", "Teknikal: Reka Bentuk Kajian (2/4)"],
+    inflPlan: ["Leadership: Influencing, Planning", "Kepimpinan: Influencing, Planning"],
+    diplo: ["Diplomatic experience (1/2)", "Pengalaman diplomatik (1/2)"],
+    authInfl: ["Leadership: Authoritative, Influencing", "Kepimpinan: Authoritative, Influencing"],
+    abroad: ["Overseas experience (0/2)", "Pengalaman di luar negara (0/2)"],
+    complex: ["Technical: Complex Hajj Operations (3/4)", "Teknikal: Operasi Kompleks Haji (3/4)"]
+  };
+  // [person, exp(0-10), fit(0-40), fun(0-50), status ok|new|struck|rep, gap keys]
   const POS = [
-    { id: "dir", cat: "MCP", t: "Pengarah Haji", g: "TH12", inc: "kamal", succ: [
-      ["hafiz", 7, 33.6, 40, "ok", ["Kepimpinan: Influencing, Pressure Tolerance", "Teknikal: Perkhidmatan Digital Jemaah (2/4)", "Pengalaman pihak berkuasa antarabangsa (1/2)"]],
-      ["aina", 6, 28, 30, "new", ["Kepimpinan: Planning, Authoritative", "Teknikal: Strategi Operasi Haji (2/4)", "Jurang gred TH9 ke TH12"]],
-      ["faizal", 9, 34, 40, "rep", ["Kepimpinan: Planning, Self-Acceptance", "Teknikal: Diplomasi Pihak Berkuasa Saudi (3/4)", "Bersara 7 bulan selepas penyandang tamat kontrak"]]
-    ]},
-    { id: "agn", cat: "OCP", t: "Ketua Bahagian Agensi Haji", g: "TH9", inc: "azman", succ: [
-      ["syafiq", 8, 30, 38, "ok", ["Kepimpinan: Delegation", "Teknikal: Pengurusan Kontrak Agensi (3/4)"]],
-      ["zul", 5, 25, 28, "new", ["Kepimpinan: Pressure Tolerance", "Jurang gred TH7 ke TH9"]]
-    ]},
-    { id: "mgt", cat: "OCP", t: "Ketua Bahagian Pengurusan Haji", g: "TH10", inc: "hafiz", succ: [
-      ["amirul", 8, 29, 35, "ok", ["Teknikal: Logistik Global (3/4)"]],
+    { id: "dir", cat: "MCP", t: ["Director of Hajj", "Pengarah Haji"], g: "TH12", inc: "kamal", succ: [
+      ["hafiz", 7, 33.6, 40, "ok", ["infl", "digi", "intl"]],
+      ["aina", 6, 28, 30, "new", ["plan", "ops24", "g912"]],
+      ["faizal", 9, 34, 40, "rep", ["planSelf", "saudi", "retire7"]] ]},
+    { id: "agn", cat: "OCP", t: ["Head of Hajj Agency Division", "Ketua Bahagian Agensi Haji"], g: "TH9", inc: "azman", succ: [
+      ["syafiq", 8, 30, 38, "ok", ["deleg", "contract34"]],
+      ["zul", 5, 25, 28, "new", ["press", "g79"]] ]},
+    { id: "mgt", cat: "OCP", t: ["Head of Hajj Management Division", "Ketua Bahagian Pengurusan Haji"], g: "TH10", inc: "hafiz", succ: [
+      ["amirul", 8, 29, 35, "ok", ["logi"]],
       ["imran", 7, 27, 30, "struck", []],
-      ["syafiq", 6, 25, 30, "ok", ["Jurang gred TH8 ke TH10", "Teknikal: Perancangan Operasi Musim (2/4)"]]
-    ]},
-    { id: "bim", cat: "OCP", t: "Ketua Bahagian Bimbingan Haji", g: "TH9", inc: "shahrul", succ: [
-      ["aisyah", 6, 27, 30, "ok", ["Kepimpinan: Influencing", "Teknikal: Pengurusan Program Berskala Besar (2/4)"]],
-      ["zahid", 6, 22, 27, "ok", ["Kepimpinan: Wants Challenge, Self-Improvement"]],
-      ["hazim", 3, 20, 21, "new", ["Pengalaman pengurusan bahagian (0/2)", "Teknikal: Kurikulum Bimbingan (2/4)"]]
-    ]},
-    { id: "rnd", cat: "OCP", t: "Ketua Bahagian R&D Haji", g: "TH9", inc: "rozita", succ: [
-      ["khairul", 8, 28, 35, "ok", ["Kepimpinan: Pressure Tolerance"]],
-      ["zailan", 4, 20, 22, "ok", ["Teknikal: Reka Bentuk Kajian (2/4)", "Kepimpinan: Influencing, Planning"]]
-    ]},
-    { id: "kon", cat: "OCP", t: "Konsul Haji", g: "TH9", inc: "amirul", succ: [
-      ["khairul", 7, 29, 38, "ok", ["Pengalaman diplomatik (1/2)"]],
-      ["mustafa", 4, 18, 20, "new", ["Kepimpinan: Authoritative, Influencing", "Pengalaman di luar negara (0/2)"]]
-    ]},
-    { id: "dom", cat: "OCP", t: "Ketua Bahagian Operasi Domestik", g: "TH10", inc: "nazri", succ: [
-      ["amirul", 9, 31, 38, "ok", ["Teknikal: Operasi Kompleks Haji (3/4)"]],
-      ["ashraf", 6, 24, 27, "ok", ["Jurang gred TH8 ke TH10", "Kepimpinan: Delegation"]]
-    ]}
+      ["syafiq", 6, 25, 30, "ok", ["g810", "season"]] ]},
+    { id: "bim", cat: "OCP", t: ["Head of Hajj Guidance Division", "Ketua Bahagian Bimbingan Haji"], g: "TH9", inc: "shahrul", succ: [
+      ["aisyah", 6, 27, 30, "ok", ["inflOnly", "large"]],
+      ["zahid", 6, 22, 27, "ok", ["chall"]],
+      ["hazim", 3, 20, 21, "new", ["divExp", "curr"]] ]},
+    { id: "rnd", cat: "OCP", t: ["Head of Hajj R&D Division", "Ketua Bahagian R&D Haji"], g: "TH9", inc: "rozita", succ: [
+      ["khairul", 8, 28, 35, "ok", ["press"]],
+      ["zailan", 4, 20, 22, "ok", ["research", "inflPlan"]] ]},
+    { id: "kon", cat: "OCP", t: ["Hajj Consul", "Konsul Haji"], g: "TH9", inc: "amirul", succ: [
+      ["khairul", 7, 29, 38, "ok", ["diplo"]],
+      ["mustafa", 4, 18, 20, "new", ["authInfl", "abroad"]] ]},
+    { id: "dom", cat: "OCP", t: ["Head of Domestic Operations Division", "Ketua Bahagian Operasi Domestik"], g: "TH10", inc: "nazri", succ: [
+      ["amirul", 9, 31, 38, "ok", ["complex"]],
+      ["ashraf", 6, 24, 27, "ok", ["g810", "deleg"]] ]}
   ];
-  const PROG = { hafiz: "IDP dalam pelaksanaan", aina: "IDP belum dibina", faizal: "IDP dalam pelaksanaan", syafiq: "IDP dalam pelaksanaan", zul: "IDP belum dibina", amirul: "IDP dalam pelaksanaan", aisyah: "IDP diluluskan", zahid: "IDP diluluskan", hazim: "IDP belum dibina", khairul: "IDP dalam pelaksanaan", zailan: "IDP draf", mustafa: "IDP belum dibina", ashraf: "IDP diluluskan" };
+  const PROG = { hafiz: "run", aina: "none", faizal: "run", syafiq: "run", zul: "none", amirul: "run", aisyah: "ok", zahid: "ok", hazim: "none", khairul: "run", zailan: "draft", mustafa: "none", ashraf: "ok" };
 
+  // ---------- Helpers ----------
   const ym = s => { const [y, m] = s.split("-").map(Number); return { y, m }; };
   const monthsTo = s => { const d = ym(s); return (d.y - NOW.y) * 12 + (d.m - NOW.m); };
-  const fmtYM = s => { const d = ym(s); return ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogo","Sep","Okt","Nov","Dis"][d.m - 1] + " " + d.y; };
+  const fmtYM = s => { const d = ym(s); return L().months12[d.m - 1] + " " + d.y; };
   const total = n => +(n[1] + n[2] + n[3]).toFixed(1);
-  const level = (t, sc = scale) => SCALES[sc].bands.find(([min]) => t >= min)[1];
+  const level = (t, sc = scale) => BANDS[sc].find(([min]) => t >= min)[1];
   const lvCls = l => l === "-" ? "r3" : l.toLowerCase();
-  const desc = (l, sc = scale) => (sc === "neu" && DESC_NEW[l]) || DESC[l];
+  const desc = (l, sc = scale) => (sc === "neu" && l === "R2") ? L().descNewR2 : L().desc[l];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const $ = id => document.getElementById(id);
 
   function analyse(p) {
     const live = p.succ.filter(s => s[4] !== "struck");
@@ -332,166 +450,172 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
     const mo = monthsTo(P[p.inc].end);
     const hasR0 = internal.some(s => level(total(s)) === "R0");
     const risk = (!hasR0 && mo <= 24) ? "high" : (!hasR0 || mo <= 24) ? "med" : "low";
-    return { live, internal, mo, hasR0, risk };
+    return { internal, mo, hasR0, risk };
   }
-  const runwayShort = (pid, p) => monthsTo(P[pid].end) - monthsTo(P[p.inc].end) < 24;
+  const runwayGap = (pid, p) => monthsTo(P[pid].end) - monthsTo(P[p.inc].end);
+  const runwayShort = (pid, p) => runwayGap(pid, p) < 24;
+  const q = () => $("fSearch").value.trim().toLowerCase();
+  const visible = () => POS.filter(p => !$("fCat").value || p.cat === $("fCat").value);
 
-  const els = id => document.getElementById(id);
-  const q = () => els("fSearch").value.trim().toLowerCase();
-  const visible = () => POS.filter(p => !els("fCat").value || p.cat === els("fCat").value);
+  // ---------- Render ----------
+  function renderStatic() {
+    document.documentElement.lang = lang === "en" ? "en" : "ms";
+    document.querySelectorAll("[data-i]").forEach(e => { const v = L()[e.dataset.i]; if (typeof v === "string") e.innerHTML = v; });
+    $("fSearch").placeholder = L().search; $("fSearch").setAttribute("aria-label", L().search);
+    $("fDept").setAttribute("aria-label", lang === "en" ? "Department" : "Jabatan");
+    $("fCat").setAttribute("aria-label", lang === "en" ? "Category" : "Kategori");
+    $("scaleGrp").setAttribute("aria-label", lang === "en" ? "Readiness scale" : "Skala kesediaan");
+    $("viewGrp").setAttribute("aria-label", lang === "en" ? "View" : "Paparan");
+    $("nav").setAttribute("aria-label", lang === "en" ? "Portal sections" : "Bahagian portal");
+    $("lgEN").setAttribute("aria-pressed", String(lang === "en"));
+    $("lgMS").setAttribute("aria-pressed", String(lang === "ms"));
+  }
 
   function renderLegend() {
-    const b = SCALES[scale].bands;
+    const b = BANDS[scale];
     const range = i => i === 0 ? `≥${b[0][0]}%` : i === b.length - 1 ? `≤${b[i - 1][0] - 1}%` : `${b[i][0]}–${b[i - 1][0] - 1}%`;
-    els("legend").innerHTML = b.map(([_, l], i) => `<span><i class="sw ${lvCls(l)}"></i>${l === "-" ? "Belum sedia" : l + " " + desc(l)} <span class="note">${range(i)}</span></span>`).join("") +
-      `<span><i class="sw rep"></i>Calon penggantian (replacement)</span><span><span class="pill p-new">Baru</span>Dicalonkan 2026</span>`;
-    els("scaleNote").textContent = "Tahap dikira ikut skala " + SCALES[scale].name + ". Klik nama pengganti untuk lihat skor SRA.";
+    $("legend").innerHTML = b.map(([, l], i) => `<span><i class="sw ${lvCls(l)}"></i>${l === "-" ? L().notReady : l + " " + desc(l)} <span class="note">${range(i)}</span></span>`).join("") +
+      `<span><i class="sw rep"></i>${L().repLegend}</span><span><span class="pill p-new">${L().newPill}</span>${L().newLegend}</span>`;
+    $("scaleNote").textContent = L().scaleNote(L().scaleName[scale]);
   }
 
-  function kpis() {
+  function renderKpis() {
     const ps = visible(), an = ps.map(analyse);
-    const cov = an.filter(a => a.internal.length).length;
-    const r0 = an.filter(a => a.hasR0).length;
-    const high = an.filter(a => a.risk === "high").length;
+    const cov = an.filter(a => a.internal.length).length, r0 = an.filter(a => a.hasR0).length, high = an.filter(a => a.risk === "high").length;
     const succN = new Set(ps.flatMap(p => p.succ.filter(s => s[4] !== "struck").map(s => s[0]))).size;
     const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
-    els("kpis").innerHTML = `
-      <div class="panel kpi accent"><span class="label">Jawatan kritikal</span><span class="value">${ps.length}</span><span class="note">${succN} pengganti unik</span></div>
-      <div class="panel kpi ok"><span class="label">Liputan pengganti</span><span class="value">${pct(cov, ps.length)}<small>%</small></span><span class="note">${cov} / ${ps.length} ada pengganti dalaman</span></div>
-      <div class="panel kpi ${r0 === ps.length ? "ok" : "warn"}"><span class="label">Ada pengganti R0</span><span class="value">${pct(r0, ps.length)}<small>%</small></span><span class="note">${r0} / ${ps.length} jawatan</span></div>
-      <div class="panel kpi ${high ? "bad" : "ok"}"><span class="label">Risiko tinggi</span><span class="value">${high}</span><span class="note">Tiada R0 dan kosong ≤24 bulan</span></div>`;
+    $("kpis").innerHTML = `
+      <div class="panel kpi accent"><span class="label">${L().kPos}</span><span class="value">${ps.length}</span><span class="note">${L().kPosN(succN)}</span></div>
+      <div class="panel kpi ok"><span class="label">${L().kCov}</span><span class="value">${pct(cov, ps.length)}<small>%</small></span><span class="note">${L().kCovN(cov, ps.length)}</span></div>
+      <div class="panel kpi ${r0 === ps.length ? "ok" : "warn"}"><span class="label">${L().kR0}</span><span class="value">${pct(r0, ps.length)}<small>%</small></span><span class="note">${L().kR0N(r0, ps.length)}</span></div>
+      <div class="panel kpi ${high ? "bad" : "ok"}"><span class="label">${L().kHigh}</span><span class="value">${high}</span><span class="note">${L().kHighN}</span></div>`;
   }
 
-  const RISK = { high: ["p-bad", "Risiko tinggi"], med: ["p-warn", "Risiko sederhana"], low: ["p-ok", "Risiko rendah"] };
-
+  const RISKC = { high: "p-bad", med: "p-warn", low: "p-ok" };
   function succBtn(p, s, idx) {
     const per = P[s[0]], t = total(s), l = level(t), st = s[4], term = q();
     const hit = term && per.n.toLowerCase().includes(term), dim = term && !hit;
-    if (st === "struck") return `<div class="succ struck${dim ? " dim" : ""}"><div class="succ-main"><span class="succ-name">${esc(per.n)} (${per.g})</span><span class="succ-sub">Digugurkan oleh TRC</span></div></div>`;
-    const flag = runwayShort(s[0], p) ? `<span class="flag" title="Bersara atau tamat kontrak kurang 24 bulan selepas jawatan kosong">⚠ runway pendek</span>` : "";
-    return `<button type="button" class="succ${st === "rep" ? " rep" : ""}${hit ? " hit" : ""}${dim ? " dim" : ""}" data-p="${p.id}" data-i="${idx}">
+    if (st === "struck") return `<div class="succ struck${dim ? " dim" : ""}"><div class="succ-main"><span class="succ-name">${esc(per.n)} (${per.g})</span><span class="succ-sub">${L().removed}</span></div></div>`;
+    const flag = runwayShort(s[0], p) ? `<span class="flag" title="${L().shortTitle}">⚠ ${L().shortRunway}</span>` : "";
+    return `<button type="button" class="succ${st === "rep" ? " rep" : ""}${hit ? " hit" : ""}${dim ? " dim" : ""}" data-p="${p.id}" data-x="${idx}">
       <span class="succ-main"><span class="succ-name">${esc(per.n)} (${per.g})</span>
-      <span class="succ-sub"><span class="num">${t.toFixed(1)}%</span>${st === "new" ? '<span class="pill p-new">Baru</span>' : ""}${flag}</span></span>
+      <span class="succ-sub"><span class="num">${t.toFixed(1)}%</span>${st === "new" ? `<span class="pill p-new">${L().newPill}</span>` : ""}${flag}</span></span>
       <span class="chip ${lvCls(l)}">${l}</span></button>`;
   }
-
   function posCard(p) {
-    const a = analyse(p), inc = P[p.inc], [rc, rt] = RISK[a.risk];
-    const internal = p.succ.map((s, i) => [s, i]).filter(([s]) => s[4] !== "rep");
-    const reps = p.succ.map((s, i) => [s, i]).filter(([s]) => s[4] === "rep");
+    const a = analyse(p), inc = P[p.inc];
+    const items = p.succ.map((s, i) => [s, i]);
+    const internal = items.filter(([s]) => s[4] !== "rep"), reps = items.filter(([s]) => s[4] === "rep");
     return `<article class="pos${a.risk === "high" ? " risk-high" : ""}">
-      <div class="pos-head"><b>${esc(p.t)} (${p.g})</b></div>
-      <div class="pos-inc">${esc(inc.n)}<small>Penyandang · ${inc.endType.toLowerCase()} ${fmtYM(inc.end)}</small></div>
-      <div class="pos-meta"><span>Kosong dalam <b>${a.mo}</b> bulan</span><span class="pill ${rc}">${rt}</span></div>
+      <div class="pos-head"><b>${esc(tx(p.t))} (${p.g})</b></div>
+      <div class="pos-inc">${esc(inc.n)}<small>${L().incumbent} · ${L().end[inc.et]} ${fmtYM(inc.end)}</small></div>
+      <div class="pos-meta"><span>${L().vacantIn(a.mo)}</span><span class="pill ${RISKC[a.risk]}">${L().risk[a.risk]}</span></div>
       <div class="pos-body">
-        <div class="grp">Pengganti dalaman</div>
-        ${internal.length ? internal.map(([s, i]) => succBtn(p, s, i)).join("") : '<div class="empty-succ">Tiada pengganti dalaman</div>'}
-        ${reps.length ? `<div class="grp">Calon penggantian</div>${reps.map(([s, i]) => succBtn(p, s, i)).join("")}` : ""}
+        <div class="grp">${L().internal}</div>
+        ${internal.length ? internal.map(([s, i]) => succBtn(p, s, i)).join("") : `<div class="empty-succ">${L().none}</div>`}
+        ${reps.length ? `<div class="grp">${L().reps}</div>${reps.map(([s, i]) => succBtn(p, s, i)).join("")}` : ""}
       </div></article>`;
   }
-
   function renderChart() {
-    const ps = visible();
-    const m = ps.filter(p => p.cat === "MCP"), o = ps.filter(p => p.cat === "OCP");
-    els("mcp").innerHTML = m.map(posCard).join("");
-    els("ocp").innerHTML = o.map(posCard).join("");
-    const show = (sel, on) => { document.querySelectorAll(sel).forEach(e => e.hidden = !on); };
-    els("mcp").previousElementSibling.hidden = !m.length; els("mcp").hidden = !m.length;
-    els("ocp").previousElementSibling.hidden = !o.length; els("ocp").hidden = !o.length;
+    const ps = visible(), m = ps.filter(p => p.cat === "MCP"), o = ps.filter(p => p.cat === "OCP");
+    $("mcp").innerHTML = m.map(posCard).join(""); $("ocp").innerHTML = o.map(posCard).join("");
+    $("mcpHead").hidden = $("mcp").hidden = !m.length;
+    $("ocpHead").hidden = $("ocp").hidden = !o.length;
   }
-
   function renderTable() {
-    const term = q();
-    const STAT = { ok: ["p-ok", "Disahkan HOD"], new: ["p-mute", "Baru · menunggu SRA"], struck: ["p-bad", "Digugurkan"], rep: ["p-warn", "Penggantian"] };
-    els("rows").innerHTML = visible().flatMap(p => p.succ.map((s, i) => {
+    const term = q(), SC = { ok: "p-ok", new: "p-mute", struck: "p-bad", rep: "p-warn" };
+    $("rows").innerHTML = visible().flatMap(p => p.succ.map((s, i) => {
       const per = P[s[0]];
       if (term && !per.n.toLowerCase().includes(term)) return "";
-      const t = total(s), l = level(t), [sc, stx] = STAT[s[4]], struck = s[4] === "struck";
-      return `<tr class="${struck ? "" : "clk"}" ${struck ? "" : `data-p="${p.id}" data-i="${i}"`}>
-        <td><b>${esc(p.t)}</b> <span class="sub">${p.g}</span></td><td>${p.cat}</td>
+      const t = total(s), l = level(t), struck = s[4] === "struck";
+      return `<tr class="${struck ? "" : "clk"}" ${struck ? "" : `data-p="${p.id}" data-x="${i}"`}>
+        <td><b>${esc(tx(p.t))}</b> <span class="sub">${p.g}</span></td><td>${p.cat}</td>
         <td>${esc(per.n)} <span class="sub">${per.g}</span></td>
         <td class="num">${s[1].toFixed(1)}%</td><td class="num">${s[2].toFixed(1)}%</td><td class="num">${s[3].toFixed(1)}%</td>
         <td class="num"><b>${t.toFixed(1)}%</b></td><td>${struck ? "–" : `<span class="rd ${lvCls(l)}">${l}</span>`}</td>
-        <td><span class="pill ${sc}">${stx}</span></td></tr>`;
-    })).join("") || `<tr><td colspan="9" class="sub" style="text-align:center;padding:24px">Tiada pengganti sepadan dengan carian "${esc(term)}".</td></tr>`;
+        <td><span class="pill ${SC[s[4]]}">${L().stat[s[4]]}</span></td></tr>`;
+    })).join("") || `<tr><td colspan="9" class="sub" style="text-align:center;padding:24px">${esc(L().noMatch(term))}</td></tr>`;
   }
-
   function renderNotes() {
-    const out = [];
-    visible().forEach(p => {
+    const out = [], vis = visible();
+    vis.forEach(p => {
       const a = analyse(p), inc = P[p.inc];
-      if (a.risk === "high") out.push(`<b>${esc(p.t)}</b>: penyandang ${inc.endType.toLowerCase()} ${fmtYM(inc.end)} (${a.mo} bulan lagi) dan tiada pengganti R0. Percepatkan IDP atau kenal pasti calon luar.`);
+      if (a.risk === "high") out.push(L().nHigh(esc(tx(p.t)), L().end[inc.et], fmtYM(inc.end), a.mo));
       p.succ.forEach(s => {
-        if (s[4] === "struck") return;
-        if (runwayShort(s[0], p)) {
-          const gap = monthsTo(P[s[0]].end) - a.mo;
-          out.push(`<b>${esc(P[s[0]].n)}</b> (${esc(p.t)}): ${P[s[0]].endType.toLowerCase()} ${fmtYM(P[s[0]].end)}, ${gap >= 0 ? gap + " bulan selepas" : Math.abs(gap) + " bulan sebelum"} jawatan kosong. Runway terhad.`);
-        }
+        if (s[4] === "struck" || !runwayShort(s[0], p)) return;
+        const per = P[s[0]];
+        out.push(L().nRunway(esc(per.n), esc(tx(p.t)), L().end[per.et], fmtYM(per.end), runwayGap(s[0], p)));
       });
-      const multi = {};
     });
     const counts = {};
-    visible().forEach(p => p.succ.forEach(s => { if (s[4] !== "struck") (counts[s[0]] = counts[s[0]] || []).push(p.t); }));
-    Object.entries(counts).filter(([, v]) => v.length > 1).forEach(([k, v]) => out.push(`<b>${esc(P[k].n)}</b> dipetakan kepada ${v.length} jawatan: ${v.map(esc).join(", ")}. Semak risiko pengganti bertindih.`));
-    Object.keys(P).forEach(k => { if (counts[k] && POS.some(p => p.inc === k && visible().includes(p))) out.push(`<b>${esc(P[k].n)}</b> ialah penyandang jawatan kritikal dan juga pengganti. Kenaikan beliau akan membuka kekosongan berantai.`); });
-    out.push(`IDP ditetapkan 2 tahun (2027–2028) untuk tutup jurang. Tarikh penilaian SRA: Oktober 2026.`);
-    els("notes").innerHTML = out.map(x => `<li>${x}</li>`).join("");
+    vis.forEach(p => p.succ.forEach(s => { if (s[4] !== "struck") (counts[s[0]] = counts[s[0]] || []).push(tx(p.t)); }));
+    Object.entries(counts).filter(([, v]) => v.length > 1).forEach(([k, v]) => out.push(L().nMulti(esc(P[k].n), v.length, v.map(esc).join(", "))));
+    Object.keys(counts).forEach(k => { if (vis.some(p => p.inc === k)) out.push(L().nChain(esc(P[k].n))); });
+    out.push(L().nIdp);
+    $("notes").innerHTML = out.map(x => `<li>${x}</li>`).join("");
+  }
+  function render() {
+    renderStatic(); renderLegend(); renderKpis();
+    if (view === "chart") renderChart(); else renderTable();
+    renderNotes();
+    if ($("dlg").open && openRef) openDetail(openRef[0], openRef[1]);
   }
 
-  function render() { renderLegend(); kpis(); if (view === "chart") renderChart(); else renderTable(); renderNotes(); }
-
-  // Dialog
-  const ASP = ["Berminat maju ke peranan kepimpinan", "Beraspirasi disediakan untuk jawatan kritikal", "Beraspirasi jalani pembangunan berstruktur", "Sanggup labur masa & usaha jangka panjang", "Sanggup ambil peranan stretch / diperluas"];
+  // ---------- Dialog ----------
+  let openRef = null;
   function openDetail(pid, i) {
-    const p = POS.find(x => x.id === pid), s = p.succ[i], per = P[s[0]], t = total(s);
-    const lc = level(t, "cur"), ln = level(t, "neu");
+    openRef = [pid, i];
+    const p = POS.find(x => x.id === pid), s = p.succ[i], per = P[s[0]], t = total(s), lc = level(t, "cur"), ln = level(t, "neu");
     const bar = (lab, v, max) => `<div class="bar-row"><span>${lab}</span><span class="n">${v.toFixed(1)}<small> / ${max}</small></span><div class="bar-track"><div class="bar-fill" style="width:${v / max * 100}%"></div></div></div>`;
-    const short = runwayShort(s[0], p), gap = monthsTo(per.end) - monthsTo(P[p.inc].end);
-    els("dlgBody").innerHTML = `
-      <div class="dlg-head"><div><div class="label">${p.cat} · ${s[4] === "rep" ? "Calon penggantian" : "Pengganti dalaman"}</div><h2 id="dName">${esc(per.n)} (${per.g})</h2><div class="note">${esc(per.pos)}</div></div>
-        <button type="button" class="btn sm" id="dClose" aria-label="Tutup">Tutup</button></div>
+    const gap = runwayGap(s[0], p), inc = P[p.inc];
+    $("dlgBody").innerHTML = `
+      <div class="dlg-head"><div><div class="label">${p.cat} · ${s[4] === "rep" ? L().dType.rep : L().dType.int}</div><h2 id="dName">${esc(per.n)} (${per.g})</h2><div class="note">${esc(tx(per.pos))}</div></div>
+        <button type="button" class="btn sm" id="dClose">${L().close}</button></div>
       <div class="dlg-grid">
-        <div class="box"><span class="label">Jawatan sasaran</span>
-          <dl class="kv"><dt>Jawatan</dt><dd><b>${esc(p.t)} (${p.g})</b></dd><dt>Penyandang</dt><dd>${esc(P[p.inc].n)}</dd><dt>Kosong</dt><dd>${fmtYM(P[p.inc].end)} · ${monthsTo(P[p.inc].end)} bulan</dd>
-          <dt>${per.endType}</dt><dd>${fmtYM(per.end)}</dd><dt>PMS 2024 · 2025</dt><dd>${per.pms || "–"}</dd><dt>IDP</dt><dd>${PROG[s[0]] || "–"}</dd></dl></div>
-        <div class="box"><span class="label">Keputusan SRA 2026</span>
-          <div class="bars">${bar("Pengalaman kerja · 10%", s[1], 10)}${bar("Job fit (Harrison JSA) · 40%", s[2], 40)}${bar("Kompetensi fungsian · 50%", s[3], 50)}</div>
-          <div class="total"><span>Jumlah</span><b>${t.toFixed(1)}%</b></div>
-          <div class="kv" style="grid-template-columns:auto 1fr">
-            <span class="note">Skala semasa</span><span><span class="rd ${lvCls(lc)}">${lc}</span> ${desc(lc, "cur")}</span>
-            <span class="note">Skala cadangan</span><span><span class="rd ${lvCls(ln)}">${ln}</span> ${desc(ln, "neu")}</span>
+        <div class="box"><span class="label">${L().target}</span>
+          <dl class="kv"><dt>${L().position}</dt><dd><b>${esc(tx(p.t))} (${p.g})</b></dd><dt>${L().incumbent}</dt><dd>${esc(inc.n)}</dd>
+          <dt>${L().vacant}</dt><dd>${fmtYM(inc.end)} · ${monthsTo(inc.end)} ${L().months}</dd>
+          <dt>${L().endCap[per.et]}</dt><dd>${fmtYM(per.end)}</dd><dt>${L().pms}</dt><dd>${per.pms || "–"}</dd><dt>IDP</dt><dd>${PROG[s[0]] ? L().prog[PROG[s[0]]] : "–"}</dd></dl></div>
+        <div class="box"><span class="label">${L().sra}</span>
+          <div class="bars">${bar(L().bExp, s[1], 10)}${bar(L().bFit, s[2], 40)}${bar(L().bFun, s[3], 50)}</div>
+          <div class="total"><span>${L().total}</span><b>${t.toFixed(1)}%</b></div>
+          <div class="kv">
+            <span class="note">${L().curScale}</span><span><span class="rd ${lvCls(lc)}">${lc}</span> ${desc(lc, "cur")}</span>
+            <span class="note">${L().newScale}</span><span><span class="rd ${lvCls(ln)}">${ln}</span> ${desc(ln, "neu")}</span>
           </div></div>
       </div>
-      ${short ? `<div class="callout"><b>Runway pendek.</b> ${per.endType} ${fmtYM(per.end)}, ${gap >= 0 ? gap + " bulan selepas" : Math.abs(gap) + " bulan sebelum"} jawatan sasaran kosong.</div>` : ""}
+      ${runwayShort(s[0], p) ? `<div class="callout">${L().runwayCallout(L().endCap[per.et], fmtYM(per.end), gap)}</div>` : ""}
       <div class="dlg-grid">
-        <div class="box"><span class="label">Jurang utama</span>${s[5].length ? `<ul class="gaps">${s[5].map(g => `<li>${esc(g)}</li>`).join("")}</ul>` : '<span class="note">Belum dinilai</span>'}</div>
-        <div class="box"><span class="label">Aspirasi kerjaya</span><ul class="asp">${ASP.map((a, k) => { const y = per.asp && per.asp[k]; return `<li><span class="tick ${y ? "y" : "n"}">${y ? "✓" : "✗"}</span><span>${a}</span></li>`; }).join("")}</ul></div>
+        <div class="box"><span class="label">${L().gaps}</span>${s[5].length ? `<ul class="gaps">${s[5].map(k => `<li>${esc(tx(G[k]))}</li>`).join("")}</ul>` : `<span class="note">${L().notAssessed}</span>`}</div>
+        <div class="box"><span class="label">${L().asp}</span><ul class="asp">${L().aspL.map((a, k) => { const y = per.asp && per.asp[k]; return `<li><span class="tick ${y ? "y" : "n"}">${y ? "✓" : "✗"}</span><span>${a}</span></li>`; }).join("")}</ul></div>
       </div>
-      <div class="actions"><button type="button" class="btn" data-mock="Kad Pekerja">Buka kad pekerja</button><button type="button" class="btn primary" data-mock="IDP">Buka IDP</button></div>`;
-    els("dlg").showModal();
-    els("dClose").addEventListener("click", () => els("dlg").close());
+      <div class="actions"><button type="button" class="btn" data-mock="card">${L().openCard}</button><button type="button" class="btn primary" data-mock="idp">${L().openIdp}</button></div>`;
+    if (!$("dlg").open) $("dlg").showModal();
+    $("dClose").addEventListener("click", () => $("dlg").close());
   }
-  els("dlg").addEventListener("click", e => { if (e.target === els("dlg")) els("dlg").close(); });
+  $("dlg").addEventListener("click", e => { if (e.target === $("dlg")) $("dlg").close(); });
+  $("dlg").addEventListener("close", () => { openRef = null; });
 
-  // Toast
+  // ---------- Events ----------
   let tt;
-  function toast(msg) { const t = els("toast"); t.textContent = msg; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2600); }
-
+  function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2600); }
   document.addEventListener("click", e => {
+    const lg = e.target.closest("[data-lang]");
+    if (lg) { lang = lg.dataset.lang; try { localStorage.setItem("sp-lang", lang); } catch (er) {} render(); return; }
     const m = e.target.closest("[data-mock]");
-    if (m) { toast(`Skrin ${m.dataset.mock} belum dibina dalam mockup ini.`); return; }
+    if (m) { toast(L().mockToast(L().mock[m.dataset.mock])); return; }
     const s = e.target.closest("[data-p]");
-    if (s) openDetail(s.dataset.p, +s.dataset.i);
+    if (s) openDetail(s.dataset.p, +s.dataset.x);
   });
-  els("sendTrc").addEventListener("click", () => toast("Carta pengganti Jabatan Haji ditanda sedia untuk semakan TRC (mockup)."));
-  els("fCat").addEventListener("change", render);
-  els("fSearch").addEventListener("input", render);
-  const setScale = s => { scale = s; els("scCur").setAttribute("aria-pressed", String(s === "cur")); els("scNew").setAttribute("aria-pressed", String(s === "neu")); render(); };
-  els("scCur").addEventListener("click", () => setScale("cur"));
-  els("scNew").addEventListener("click", () => setScale("neu"));
-  const setView = v => { view = v; els("vChart").setAttribute("aria-pressed", String(v === "chart")); els("vTable").setAttribute("aria-pressed", String(v === "table")); els("chartView").hidden = v !== "chart"; els("tableView").hidden = v !== "table"; render(); };
-  els("vChart").addEventListener("click", () => setView("chart"));
-  els("vTable").addEventListener("click", () => setView("table"));
+  $("sendTrc").addEventListener("click", () => toast(L().trcToast));
+  $("fCat").addEventListener("change", render);
+  $("fSearch").addEventListener("input", render);
+  const setScale = v => { scale = v; $("scCur").setAttribute("aria-pressed", String(v === "cur")); $("scNew").setAttribute("aria-pressed", String(v === "neu")); render(); };
+  $("scCur").addEventListener("click", () => setScale("cur"));
+  $("scNew").addEventListener("click", () => setScale("neu"));
+  const setView = v => { view = v; $("vChart").setAttribute("aria-pressed", String(v === "chart")); $("vTable").setAttribute("aria-pressed", String(v === "table")); $("chartView").hidden = v !== "chart"; $("tableView").hidden = v !== "table"; render(); };
+  $("vChart").addEventListener("click", () => setView("chart"));
+  $("vTable").addEventListener("click", () => setView("table"));
 
   render();
 })();
