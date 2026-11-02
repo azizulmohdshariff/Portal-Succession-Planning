@@ -212,6 +212,37 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 .gaps-cell { font-size: 12px; line-height: 1.4; min-width: 180px; max-width: 300px; }
 .lnk { border: 0; background: none; padding: 0; color: inherit; cursor: pointer; text-align: left; font: inherit; font-weight: 500; }
 .lnk:hover { color: var(--accent); text-decoration: underline; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 860px) { .grid3 { grid-template-columns: 1fr; } }
+.picker { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; min-width: 0; max-width: 100%; flex: 0 1 auto; }
+.picker .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.picker select { border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; background: var(--surface); flex: 1 1 auto; min-width: 0; width: 100%; max-width: 460px; }
+.prof-head { grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 16px 24px; }
+@media (max-width: 640px) { .prof-head { grid-template-columns: 1fr; } }
+.prof-id { display: grid; gap: 6px; min-width: 0; }
+.prof-name { font-size: 22px; line-height: 1.25; overflow-wrap: anywhere; }
+.prof-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.prof-chips .pill { white-space: normal; }
+.prof-kpi { display: grid; gap: 6px; justify-items: start; min-width: 160px; }
+.prof-rating { font-family: var(--mono); font-size: 34px; font-weight: 500; line-height: 1; }
+.prof-rating small { font-size: 15px; color: var(--muted); }
+.panel ul.gaps { margin: 0; }
+textarea { font: inherit; color: inherit; }
+.fb { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--surface); resize: vertical; }
+.idp-head { grid-template-columns: minmax(0, 1fr) auto; gap: 16px 24px; align-items: start; }
+@media (max-width: 640px) { .idp-head { grid-template-columns: 1fr; } }
+.idp-status { display: grid; gap: 8px; justify-items: end; }
+@media (max-width: 640px) { .idp-status { justify-items: start; } }
+table.idp { min-width: 1120px; }
+.idp select[data-f="cat"] { min-width: 200px; } .idp select[data-f="st"] { min-width: 120px; }
+.idp td { vertical-align: top; padding: 6px 4px; }
+.idp textarea, .idp input, .idp select { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 5px 7px; background: var(--surface); font-size: 12.5px; }
+.idp textarea { resize: vertical; min-height: 52px; }
+.idp .w { display: flex; align-items: center; gap: 4px; }
+.idp .w input { width: 64px; }
+.idp select.cat-tr { color: var(--accent2); font-weight: 600; } .idp select.cat-ojt { color: var(--warn); font-weight: 600; } .idp select.cat-cm { color: var(--bad); font-weight: 600; }
+.bar-fill.cat-ojt { background: var(--warn); } .bar-fill.cat-cm { background: var(--bad); } .bar-fill.cat-tr { background: var(--accent2); }
+.track { background: var(--fg); color: var(--bg); border-radius: 8px; padding: 10px 14px; font-size: 13px; text-align: center; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
@@ -227,8 +258,8 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
         <button type="button" data-view="dash" data-i="navDash"></button>
         <button type="button" data-view="chart" aria-current="page" data-i="navChart"></button>
         <button type="button" data-view="rv" data-i="navRV"></button>
-        <button type="button" data-mock="idp" data-i="navIDP"></button>
-        <button type="button" data-mock="card" data-i="navCard"></button>
+        <button type="button" data-view="idp" data-i="navIDP"></button>
+        <button type="button" data-view="card" data-i="navCard"></button>
       </nav>
     </div>
   </div>
@@ -290,6 +321,16 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
       <thead><tr><th data-i="thPos"></th><th data-i="thSucc"></th><th class="num" data-i="thExp"></th><th class="num" data-i="thFit"></th><th class="num" data-i="thFun"></th><th class="num" data-i="thTot"></th><th data-i="thLvl"></th><th data-i="thGaps"></th><th data-i="thVal"></th></tr></thead>
       <tbody id="rvRows"></tbody>
     </table></div>
+  </section>
+
+  <section id="view-card" class="stack" hidden>
+    <div class="panel"><div class="section-head"><h2 data-i="cardTitle"></h2><label class="picker"><span class="lbl" data-i="cardPick"></span><select id="cardSel"></select></label></div></div>
+    <div id="cardBody" class="stack"></div>
+  </section>
+
+  <section id="view-idp" class="stack" hidden>
+    <div class="panel"><div class="section-head"><h2 data-i="idpTitle"></h2><label class="picker"><span class="lbl" data-i="idpPick"></span><select id="idpSel"></select></label></div></div>
+    <div id="idpBody" class="stack"></div>
   </section>
 
   <section class="panel" id="chartPanel">
@@ -419,6 +460,25 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
       thGaps: "Priority gaps", thVal: "SRA validation by HOD", gapsNone: "From the SRA session",
       val: { pending: "Pending", ok: "Validated", rep: "Replacement list", rev: "Revise score" },
       rvProgress: (a, b) => `${a} of ${b} validated`,
+      cardTitle: "Employee card", cardPick: "Successor", idpTitle: "Individual Development Plan (IDP)", idpPick: "Successor · target position",
+      emptyPick: "No successors in this scope. Change the department, category or search.",
+      bestSra: "Highest SRA 2026", profile: "Successor profile", sraByRole: "SRA 2026 result by target position", thRole: "Target position",
+      leadGaps: "Leadership gaps (Harrison)", funcGaps: "Functional / technical gaps", noGaps: "No gaps recorded.",
+      derivedNote: "Gaps derived from the SRA scores in the masterlist (below 80% of each component's weight). Detailed Harrison traits and competency ratings come from the SRA report.",
+      hodFb: "HOD feedback", hodFbPh: "Notes from the SRA discussion with the HOD…", keptLocal: "Kept in this browser tab only.", openIdpFor: "Open IDP",
+      gFit: v => `Job fit (Harrison JSA) ${v} / 40, below 80% of the weight`, gFun: v => `Functional competencies ${v} / 50, below 80% of the weight`, gExp: v => `Job experience ${v} / 10, below 80% of the weight`,
+      secA: "A. Leadership / soft skills", secB: "B. Functional / technical / certification",
+      thArea: "Area of improvement (SRA finding)", thInter: "Proposed intervention", thCatI: "Category", thW: "Weightage", thTl: "Timeline", thSt: "Status", thRem: "Remarks",
+      addRow: "Add row", del: "Remove row", noRows: "No interventions yet. Add a row.",
+      cats: { ojt: "On-the-Job / Shadowing (70%)", cm: "Coaching & Mentoring (20%)", tr: "Training (10%)" },
+      rowSt: { ns: "Not started", ip: "In progress", dn: "Done" },
+      mixTitle: "70 · 20 · 10 mix", mixByCount: "Share by number of interventions. Enter weightages to use them instead.", mixByW: "Share by weightage.",
+      idpSt: { draft: "Draft", sub: "Submitted to HOD", app: "Approved by HOD" },
+      idpAct: { sub: "Submit to HOD", app: "Approve (HOD)", draft: "Back to draft" },
+      idpToast: { sub: "IDP submitted to the HOD (mockup).", app: "IDP approved by the HOD (mockup).", draft: "IDP returned to draft." },
+      idpNote: "Draft generated from the SRA gaps with suggested interventions. Edit any cell. Changes are kept in this browser tab only.",
+      mappedRole: "Mapped role", incEnd: "Incumbent", readiness: "Readiness", record: "IDP status in record",
+      monitor: "<b>Monitoring / tracking:</b> Individual Development Plan (IDP) & KPI cascading",
       months12: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
     },
     ms: {
@@ -495,6 +555,25 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
       thGaps: "Jurang utama", thVal: "Pengesahan SRA oleh HOD", gapsNone: "Daripada sesi SRA",
       val: { pending: "Belum disahkan", ok: "Disahkan", rep: "Senarai penggantian", rev: "Semak semula skor" },
       rvProgress: (a, b) => `${a} daripada ${b} disahkan`,
+      cardTitle: "Kad pekerja", cardPick: "Pengganti", idpTitle: "Pelan Pembangunan Individu (IDP)", idpPick: "Pengganti · jawatan sasaran",
+      emptyPick: "Tiada pengganti dalam skop ini. Tukar jabatan, kategori atau carian.",
+      bestSra: "SRA 2026 tertinggi", profile: "Profil pengganti", sraByRole: "Keputusan SRA 2026 ikut jawatan sasaran", thRole: "Jawatan sasaran",
+      leadGaps: "Jurang kepimpinan (Harrison)", funcGaps: "Jurang fungsian / teknikal", noGaps: "Tiada jurang direkod.",
+      derivedNote: "Jurang diterbitkan daripada skor SRA dalam masterlist (bawah 80% wajaran setiap komponen). Trait Harrison dan penarafan kompetensi terperinci datang daripada laporan SRA.",
+      hodFb: "Maklum balas HOD", hodFbPh: "Catatan daripada perbincangan SRA bersama HOD…", keptLocal: "Disimpan dalam tab pelayar ini sahaja.", openIdpFor: "Buka IDP",
+      gFit: v => `Job fit (Harrison JSA) ${v} / 40, bawah 80% wajaran`, gFun: v => `Kompetensi fungsian ${v} / 50, bawah 80% wajaran`, gExp: v => `Pengalaman kerja ${v} / 10, bawah 80% wajaran`,
+      secA: "A. Kepimpinan / soft skills", secB: "B. Fungsian / teknikal / pensijilan",
+      thArea: "Bidang penambahbaikan (dapatan SRA)", thInter: "Intervensi dicadangkan", thCatI: "Kategori", thW: "Wajaran", thTl: "Garis masa", thSt: "Status", thRem: "Catatan",
+      addRow: "Tambah baris", del: "Buang baris", noRows: "Belum ada intervensi. Tambah baris.",
+      cats: { ojt: "On-the-Job / Shadowing (70%)", cm: "Coaching & Mentoring (20%)", tr: "Latihan (10%)" },
+      rowSt: { ns: "Belum mula", ip: "Sedang berjalan", dn: "Selesai" },
+      mixTitle: "Campuran 70 · 20 · 10", mixByCount: "Peratus ikut bilangan intervensi. Isi wajaran untuk guna wajaran.", mixByW: "Peratus ikut wajaran.",
+      idpSt: { draft: "Draf", sub: "Dihantar kepada HOD", app: "Diluluskan HOD" },
+      idpAct: { sub: "Hantar kepada HOD", app: "Luluskan (HOD)", draft: "Kembali ke draf" },
+      idpToast: { sub: "IDP dihantar kepada HOD (mockup).", app: "IDP diluluskan oleh HOD (mockup).", draft: "IDP dikembalikan ke draf." },
+      idpNote: "Draf dijana daripada jurang SRA dengan cadangan intervensi. Sunting mana-mana sel. Perubahan disimpan dalam tab pelayar ini sahaja.",
+      mappedRole: "Jawatan dipetakan", incEnd: "Penyandang", readiness: "Tahap kesediaan", record: "Status IDP dalam rekod",
+      monitor: "<b>Pemantauan:</b> Pelan Pembangunan Individu (IDP) & KPI cascading",
       months12: ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogo","Sep","Okt","Nov","Dis"]
     }
   };
@@ -912,7 +991,7 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 
   // ---------- Readiness validation ----------
   let VAL = {};
-  function initVal() { VAL = {}; DATA.positions.forEach(p => p.succ.forEach((s, i) => { VAL[p.id + "|" + i] = s.st === "ok" ? "ok" : s.st === "rep" ? "rep" : "pending"; })); }
+  function initVal() { IDPS = {}; FB = {}; selCard = null; selIdp = null; VAL = {}; DATA.positions.forEach(p => p.succ.forEach((s, i) => { VAL[p.id + "|" + i] = s.st === "ok" ? "ok" : s.st === "rep" ? "rep" : "pending"; })); }
   function renderRV() {
     const term = q(); let html = "", tot = 0, done = 0; const lv = {};
     visible().forEach(p => {
@@ -933,17 +1012,152 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
     $("rvSum").innerHTML = Object.keys(lv).sort().map(l => `<span class="rd ${lvCls(l)}">${l} · ${lv[l]}</span>`).join("") + `<span class="pill ${tot && done === tot ? "p-ok" : "p-mute"}">${L().rvProgress(done, tot)}</span>`;
   }
 
+  // ---------- Shared: successor lists + gaps ----------
+  let selCard = null, selIdp = null, IDPS = {}, FB = {};
+  function pairsInScope() {
+    const term = q();
+    return visible().flatMap(p => p.succ.map((s, i) => ({ p, s, i, key: p.id + "|" + i }))).filter(x => x.s.st !== "struck" && (!term || x.s.p.n.toLowerCase().includes(term)));
+  }
+  function classify(g) {
+    const e = String(Array.isArray(g) ? g[0] : g);
+    return /^Leadership/i.test(e) ? "lead" : /Grade gap/i.test(e) ? "grade" : /^Retires/i.test(e) ? "retire" : /experience/i.test(e) ? "exp" : "tech";
+  }
+  function gapItems(s) {
+    if (s.gaps) return s.gaps.map(g => ({ kind: classify(g), text: g })).filter(g => g.kind !== "retire");
+    const out = [], f = v => v.toFixed(1);
+    if (s.fit < 32) out.push({ kind: "lead", text: [T.en.gFit(f(s.fit)), T.ms.gFit(f(s.fit))] });
+    if (s.fun < 40) out.push({ kind: "tech", text: [T.en.gFun(f(s.fun)), T.ms.gFun(f(s.fun))] });
+    if (s.exp < 8) out.push({ kind: "exp", text: [T.en.gExp(f(s.exp)), T.ms.gExp(f(s.exp))] });
+    return out;
+  }
+  const SUG = {
+    tr:    { c: "tr",  tl: "Q2 2027", t: ["Strategic leadership executive education programme", "Program pendidikan eksekutif kepimpinan strategik"] },
+    lead:  { c: "cm",  tl: "Q1 2027 – Q4 2028", t: ["Executive coaching with 360° feedback (quarterly sessions)", "Executive coaching dengan maklum balas 360° (sesi suku tahunan)"] },
+    tech:  { c: "ojt", tl: "Q3 2027 – Q2 2028", t: ["Stretch assignment or project in this area, with milestone reviews by the HOD", "Tugasan stretch atau projek dalam bidang ini, dengan semakan pencapaian oleh HOD"] },
+    grade: { c: "ojt", tl: "Q3 – Q4 2028", t: ["Relief / acting in the target position during the incumbent's absence", "Memangku jawatan sasaran semasa penyandang tiada"] },
+    exp:   { c: "ojt", tl: "Q1 – Q4 2028", t: ["Job rotation or cross-functional exposure to build this experience", "Job rotation atau pendedahan rentas fungsi untuk bina pengalaman ini"] }
+  };
+  function idpFor(x) {
+    if (!IDPS[x.key]) {
+      const items = gapItems(x.s), rows = [];
+      const lead = items.filter(g => g.kind === "lead");
+      if (lead.length) rows.push({ sec: "A", area: lead[0].text, inter: SUG.tr.t, cat: "tr", w: "", tl: SUG.tr.tl, st: "ns", rem: "" });
+      items.forEach(g => { const sg = SUG[g.kind] || SUG.tech; rows.push({ sec: g.kind === "lead" ? "A" : "B", area: g.text, inter: sg.t, cat: sg.c, w: "", tl: sg.tl, st: "ns", rem: "" }); });
+      IDPS[x.key] = { status: "draft", rows };
+    }
+    return IDPS[x.key];
+  }
+
+  // ---------- Employee card ----------
+  function renderCard() {
+    const ps = pairsInScope(), ppl = new Map();
+    ps.forEach(x => { if (!ppl.has(x.s.key)) ppl.set(x.s.key, { per: x.s.p, list: [] }); ppl.get(x.s.key).list.push(x); });
+    if (!ppl.size) { $("cardSel").innerHTML = ""; $("cardBody").innerHTML = `<div class="panel empty">${L().emptyPick}</div>`; return; }
+    if (!selCard || !ppl.has(selCard)) selCard = ppl.keys().next().value;
+    $("cardSel").setAttribute("aria-label", L().cardPick);
+    $("cardSel").innerHTML = [...ppl.entries()].map(([k, v]) => `<option value="${esc(k)}"${k === selCard ? " selected" : ""}>${esc(v.per.n)}${v.per.g ? ` (${esc(v.per.g)})` : ""}</option>`).join("");
+    const { per, list } = ppl.get(selCard), fromFile = DATA.source === "file";
+    const best = list.reduce((a, x) => total(x.s) > total(a.s) ? x : a, list[0]), bt = total(best.s), bl = level(bt, best.p.cat);
+    const seen = new Set(), items = [];
+    list.forEach(x => gapItems(x.s).forEach(g => { const k = tx(g.text) + (fromFile && list.length > 1 ? " · " + tx(x.p.t) : ""); if (!seen.has(k)) { seen.add(k); items.push({ kind: g.kind, label: k }); } }));
+    const ul = arr => arr.length ? `<ul class="gaps">${arr.map(g => `<li>${esc(g.label)}</li>`).join("")}</ul>` : `<span class="note">${L().noGaps}</span>`;
+    const kv = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : "";
+    const crit = list[0].s.crit;
+    $("cardBody").innerHTML = `
+      <div class="panel prof-head">
+        <div class="prof-id"><div class="label">${L().cardTitle}</div><h2 class="prof-name">${esc(per.n)}${per.g ? ` (${esc(per.g)})` : ""}</h2><div class="note">${esc(tx(per.pos) || "")}</div>
+          <div class="prof-chips">${list.map(x => `<span class="pill p-mute">${x.p.cat} · ${esc(tx(x.p.t))}</span>`).join("")}${list.some(x => x.s.st === "nomeet") ? `<span class="pill p-bad">${L().stat.nomeet}</span>` : ""}</div></div>
+        <div class="prof-kpi"><span class="label">${L().bestSra}</span><span class="prof-rating">${bt.toFixed(1)}<small>%</small></span><span><span class="rd ${lvCls(bl)}">${bl}</span> ${desc(bl)}</span></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h2>${L().profile}</h2><dl class="kv">
+          ${kv(L().staffNo, esc(per.staff))}${kv(L().curTitle, esc(tx(per.pos) || ""))}${kv(L().type, esc(per.type))}${kv(L().svc, esc(per.svc))}
+          ${kv(L().pms, esc(per.pms || "–"))}${kv(L().endCap[per.et] || L().endCap.retire, fmtYM(per.end))}${kv(L().qual, esc(per.qual))}
+          ${!fromFile && best.s.prog ? kv(L().record, L().prog[best.s.prog]) : ""}</dl></div>
+        <div class="panel"><h2>${L().sraByRole}</h2><div class="table-scroll"><table>
+          <thead><tr><th>${L().thRole}</th><th class="num">${L().thExp}</th><th class="num">${L().thFit}</th><th class="num">${L().thFun}</th><th class="num">${L().thTot}</th><th>${L().thLvl}</th></tr></thead>
+          <tbody>${list.map(x => { const t = total(x.s), l = level(t, x.p.cat); return `<tr class="clk" data-p="${x.p.id}" data-x="${x.i}"><td><b>${esc(tx(x.p.t))}</b> <span class="sub">${x.p.cat}</span></td><td class="num">${x.s.exp.toFixed(1)}%</td><td class="num">${x.s.fit.toFixed(1)}%</td><td class="num">${x.s.fun.toFixed(1)}%</td><td class="num"><b>${t.toFixed(1)}%</b></td><td><span class="rd ${lvCls(l)}">${l}</span></td></tr>`; }).join("")}</tbody>
+        </table></div></div>
+      </div>
+      <div class="grid3">
+        <div class="panel"><h2>${L().leadGaps}</h2>${ul(items.filter(g => g.kind === "lead"))}</div>
+        <div class="panel"><h2>${L().funcGaps}</h2>${ul(items.filter(g => g.kind !== "lead"))}</div>
+        <div class="panel"><h2>${crit ? L().critTitle : L().asp}</h2><ul class="asp">${crit
+          ? Object.keys(L().crit).map(k => { const v = crit[k]; return `<li><span class="tick ${v === false ? "n" : "y"}">${v === false ? "✗" : v ? "✓" : "–"}</span><span>${L().crit[k]}</span></li>`; }).join("")
+          : L().aspL.map((a, k) => { const y = per.asp && per.asp[k]; return `<li><span class="tick ${y ? "y" : "n"}">${y ? "✓" : "✗"}</span><span>${a}</span></li>`; }).join("")}</ul></div>
+      </div>
+      ${fromFile ? `<p class="note" style="margin:0">${L().derivedNote}</p>` : ""}
+      <div class="panel"><div class="section-head"><h2>${L().hodFb}</h2><span class="note">${L().keptLocal}</span></div>
+        <textarea class="fb" id="hodFeedback" rows="3" data-fb="${esc(selCard)}" placeholder="${L().hodFbPh}" aria-label="${L().hodFb}">${esc(FB[selCard] || "")}</textarea>
+        <div class="actions"><button type="button" class="btn primary" data-open-idp="${best.key}">${L().openIdpFor}</button></div></div>`;
+  }
+
+  // ---------- IDP ----------
+  function renderMix() {
+    const d = IDPS[selIdp], el = $("mix"); if (!d || !el) return;
+    const useW = d.rows.some(r => +r.w > 0), sum = { ojt: 0, cm: 0, tr: 0 }, TGT = { ojt: 70, cm: 20, tr: 10 };
+    d.rows.forEach(r => { sum[r.cat] += useW ? (+r.w || 0) : 1; });
+    const tot = sum.ojt + sum.cm + sum.tr || 1;
+    el.innerHTML = ["ojt", "cm", "tr"].map(c => { const v = Math.round(sum[c] / tot * 100); return `<div class="bar-row"><span>${L().cats[c]}</span><span class="n">${v}%<small> / ${TGT[c]}%</small></span><div class="bar-track"><div class="bar-fill cat-${c}" style="width:${v}%"></div></div></div>`; }).join("") +
+      `<span class="note">${useW ? L().mixByW : L().mixByCount}</span>`;
+  }
+  function renderIDP() {
+    const ps = pairsInScope();
+    if (!ps.length) { $("idpSel").innerHTML = ""; $("idpBody").innerHTML = `<div class="panel empty">${L().emptyPick}</div>`; return; }
+    if (!selIdp || !ps.some(x => x.key === selIdp)) selIdp = ps[0].key;
+    $("idpSel").setAttribute("aria-label", L().idpPick);
+    $("idpSel").innerHTML = ps.map(x => `<option value="${x.key}"${x.key === selIdp ? " selected" : ""}>${esc(x.s.p.n)} · ${esc(tx(x.p.t))}</option>`).join("");
+    const x = ps.find(y => y.key === selIdp), d = idpFor(x), inc = x.p.inc, t = total(x.s), l = level(t, x.p.cat);
+    const STC = { draft: "p-mute", sub: "p-warn", app: "p-ok" };
+    const acts = { draft: ["sub"], sub: ["app", "draft"], app: ["draft"] }[d.status];
+    const row = (r, idx) => `<tr data-r="${idx}">
+        <td><textarea data-f="area" rows="2" aria-label="${L().thArea}">${esc(tx(r.area))}</textarea></td>
+        <td><textarea data-f="inter" rows="2" aria-label="${L().thInter}">${esc(tx(r.inter))}</textarea></td>
+        <td><select data-f="cat" class="cat-${r.cat}" aria-label="${L().thCatI}">${Object.entries(L().cats).map(([k, v]) => `<option value="${k}"${k === r.cat ? " selected" : ""}>★ ${v}</option>`).join("")}</select></td>
+        <td><span class="w"><input data-f="w" type="number" min="0" max="100" value="${esc(r.w)}" aria-label="${L().thW}">%</span></td>
+        <td><input data-f="tl" value="${esc(r.tl)}" aria-label="${L().thTl}"></td>
+        <td><select data-f="st" aria-label="${L().thSt}">${Object.entries(L().rowSt).map(([k, v]) => `<option value="${k}"${k === r.st ? " selected" : ""}>${v}</option>`).join("")}</select></td>
+        <td><input data-f="rem" value="${esc(r.rem)}" aria-label="${L().thRem}"></td>
+        <td><button type="button" class="btn sm" data-delrow="${idx}" aria-label="${L().del}" title="${L().del}">✕</button></td></tr>`;
+    const section = sec => {
+      const rows = d.rows.map((r, idx) => [r, idx]).filter(([r]) => r.sec === sec);
+      return `<div class="panel"><div class="section-head"><h2>${sec === "A" ? L().secA : L().secB}</h2><button type="button" class="btn sm" data-add="${sec}">+ ${L().addRow}</button></div>
+        <div class="table-scroll"><table class="idp"><thead><tr><th style="width:22%">${L().thArea}</th><th style="width:24%">${L().thInter}</th><th style="width:17%">${L().thCatI}</th><th>${L().thW}</th><th style="width:12%">${L().thTl}</th><th>${L().thSt}</th><th>${L().thRem}</th><th></th></tr></thead>
+        <tbody>${rows.length ? rows.map(([r, idx]) => row(r, idx)).join("") : `<tr><td colspan="8" class="sub" style="text-align:center;padding:16px">${L().noRows}</td></tr>`}</tbody></table></div></div>`;
+    };
+    $("idpBody").innerHTML = `
+      <div class="panel idp-head">
+        <dl class="kv">
+          <dt>${L().thSucc}</dt><dd><b>${esc(x.s.p.n)}${x.s.p.g ? ` (${esc(x.s.p.g)})` : ""}</b></dd>
+          <dt>${L().mappedRole}</dt><dd>${esc(tx(x.p.t))}${x.p.g ? ` (${esc(x.p.g)})` : ""} · ${x.p.cat}</dd>
+          <dt>${L().incEnd}</dt><dd>${inc.vacant ? L().vacantName : `${esc(inc.n)} · ${inc.end ? L().end[inc.et] + " " + fmtYM(inc.end) : L().noEnd}`}</dd>
+          <dt>${L().readiness}</dt><dd><span class="rd ${lvCls(l)}">${l}</span> ${t.toFixed(1)}% · ${desc(l)}</dd>
+          ${DATA.source !== "file" && x.s.prog ? `<dt>${L().record}</dt><dd>${L().prog[x.s.prog]}</dd>` : ""}
+        </dl>
+        <div class="idp-status"><span class="pill ${STC[d.status]}">${L().idpSt[d.status]}</span>
+          <div class="actions">${acts.map(a => `<button type="button" class="btn${a === "draft" ? "" : " primary"} sm" data-idpst="${a}">${L().idpAct[a]}</button>`).join("")}</div></div>
+      </div>
+      <div class="panel"><h2>${L().mixTitle}</h2><div id="mix" class="bars"></div></div>
+      ${section("A")}${section("B")}
+      <p class="note" style="margin:0">${L().idpNote}</p>
+      <div class="track">${L().monitor}</div>`;
+    renderMix();
+  }
+
   // ---------- Pages ----------
   let page = "chart";
-  const FROM_HASH = { dashboard: "dash", chart: "chart", readiness: "rv" }, TO_HASH = { dash: "dashboard", chart: "chart", rv: "readiness" };
+  const FROM_HASH = { dashboard: "dash", chart: "chart", readiness: "rv", idp: "idp", "employee-card": "card" }, TO_HASH = { dash: "dashboard", chart: "chart", rv: "readiness", idp: "idp", card: "employee-card" };
   const readHash = () => { page = FROM_HASH[location.hash.slice(1)] || "chart"; };
   function go(pg) { if (TO_HASH[pg] === location.hash.slice(1)) { page = pg; render(); } else location.hash = TO_HASH[pg]; }
 
   function render() {
     renderStatic(); renderLegend();
-    $("view-dash").hidden = page !== "dash"; $("view-rv").hidden = page !== "rv"; $("chartPanel").hidden = page !== "chart";
-    $("notesPanel").hidden = page === "rv"; $("kpis").hidden = page === "rv";
-    if (page !== "rv") renderKpis();
+    const side = ["rv", "idp", "card"].includes(page);
+    $("view-dash").hidden = page !== "dash"; $("view-rv").hidden = page !== "rv"; $("view-idp").hidden = page !== "idp"; $("view-card").hidden = page !== "card"; $("chartPanel").hidden = page !== "chart";
+    $("notesPanel").hidden = side; $("kpis").hidden = side;
+    if (!side) renderKpis();
+    if (page === "idp") renderIDP();
+    if (page === "card") renderCard();
     if (page === "dash") renderDash();
     if (page === "rv") renderRV();
     if (page === "chart") { if (view === "chart") renderChart(); else renderTable(); }
@@ -986,7 +1200,7 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
         <div class="box"><span class="label">${L().gaps}</span>${s.gaps == null ? `<span class="note">${L().notInFile}</span>` : s.gaps.length ? `<ul class="gaps">${s.gaps.map(g => `<li>${esc(tx(g))}</li>`).join("")}</ul>` : `<span class="note">${L().notAssessed}</span>`}</div>
         ${!fromFile ? `<div class="box"><span class="label">${L().asp}</span><ul class="asp">${L().aspL.map((a, k) => { const y = per.asp && per.asp[k]; return `<li><span class="tick ${y ? "y" : "n"}">${y ? "✓" : "✗"}</span><span>${a}</span></li>`; }).join("")}</ul></div>` : ""}
       </div>
-      <div class="actions"><button type="button" class="btn" data-mock="card">${L().openCard}</button><button type="button" class="btn primary" data-mock="idp">${L().openIdp}</button></div>`;
+      <div class="actions"><button type="button" class="btn" data-open="card">${L().openCard}</button><button type="button" class="btn primary" data-open="idp">${L().openIdp}</button></div>`;
     if (!$("dlg").open) $("dlg").showModal();
     $("dClose").addEventListener("click", () => $("dlg").close());
   }
@@ -999,6 +1213,23 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
   document.addEventListener("click", e => {
     const lg = e.target.closest("[data-lang]");
     if (lg) { lang = lg.dataset.lang; try { localStorage.setItem("sp-lang", lang); } catch (er) {} render(); return; }
+    const op = e.target.closest("[data-open]");
+    if (op && openRef) {
+      const p = DATA.positions.find(x => x.id === openRef[0]), s = p && p.succ[openRef[1]];
+      if (s) { selCard = s.key; selIdp = openRef[0] + "|" + openRef[1]; }
+      $("dlg").close(); go(op.dataset.open); window.scrollTo({ top: 0 }); return;
+    }
+    const oi = e.target.closest("[data-open-idp]");
+    if (oi) { selIdp = oi.dataset.openIdp; go("idp"); window.scrollTo({ top: 0 }); return; }
+    const ad = e.target.closest("[data-add]");
+    if (ad && IDPS[selIdp]) {
+      const d = IDPS[selIdp]; d.rows.push({ sec: ad.dataset.add, area: "", inter: "", cat: ad.dataset.add === "A" ? "cm" : "ojt", w: "", tl: "", st: "ns", rem: "" });
+      renderIDP(); const el = document.querySelector(`#idpBody tr[data-r="${d.rows.length - 1}"] textarea`); if (el) el.focus(); return;
+    }
+    const dr = e.target.closest("[data-delrow]");
+    if (dr && IDPS[selIdp]) { IDPS[selIdp].rows.splice(+dr.dataset.delrow, 1); renderIDP(); return; }
+    const is = e.target.closest("[data-idpst]");
+    if (is && IDPS[selIdp]) { IDPS[selIdp].status = is.dataset.idpst; toast(L().idpToast[is.dataset.idpst]); renderIDP(); return; }
     const nv = e.target.closest("[data-view]");
     if (nv) { go(nv.dataset.view); return; }
     const dg = e.target.closest("[data-dept],[data-goto]");
@@ -1036,7 +1267,20 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
   $("vChart").addEventListener("click", () => setView("chart"));
   $("vTable").addEventListener("click", () => setView("table"));
 
+  document.addEventListener("input", e => {
+    const fb = e.target.closest("[data-fb]");
+    if (fb) { FB[fb.dataset.fb] = fb.value; return; }
+    const f = e.target.closest("#idpBody [data-f]"), tr = f && f.closest("tr[data-r]");
+    if (f && tr && IDPS[selIdp]) {
+      const r = IDPS[selIdp].rows[+tr.dataset.r]; if (!r) return;
+      r[f.dataset.f] = f.value;
+      if (f.dataset.f === "cat") f.className = "cat-" + f.value;
+      if (f.dataset.f === "cat" || f.dataset.f === "w") renderMix();
+    }
+  });
   document.addEventListener("change", e => {
+    if (e.target.id === "cardSel") { selCard = e.target.value; renderCard(); return; }
+    if (e.target.id === "idpSel") { selIdp = e.target.value; renderIDP(); return; }
     const sel = e.target.closest("select[data-val]"); if (!sel) return;
     VAL[sel.dataset.val] = sel.value; renderRV();
     const again = document.querySelector(`select[data-val="${sel.dataset.val}"]`); if (again) again.focus();
