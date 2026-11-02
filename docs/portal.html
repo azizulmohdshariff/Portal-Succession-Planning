@@ -1,0 +1,2157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Carta Pengganti Mockup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+/* Layout: ETP-portal shell with EN/BM switch; local masterlist loader; scope bar, KPI row, then the succession chart (MCP / OCP card grids) or a table; detail opens in a dialog.
+   Palette mirrors the ETP portal tokens. R0/R1/R2 colours follow the readiness legend in the SRA documents. */
+:root {
+  --bg: #f8fcf6; --surface: #ffffff; --sunken: #f0f9ec; --line: #e6e6e6; --fg: #2a2b2e; --muted: #6a6b6d;
+  --accent: #0d6636; --accent-fg: #ffffff; --accent2: #4a9437; --brand: #52de56; --brand-tint: #e3f3da;
+  --ok: #0d6636; --warn: #945800; --bad: #c62828;
+  --ok-bg: #e3f3da; --warn-bg: #fdf0dc; --bad-bg: #fbe4e4; --mute-bg: #eaeaea;
+  --r0: #4a9437; --r0-fg: #ffffff; --r1: #f2d230; --r1-fg: #2a2b2e; --r2: #e06666; --r2-fg: #ffffff; --r3: #c9cbcd; --r3-fg: #2a2b2e;
+  --pos-head: #e9ecef; --inc: #fbeee2;
+  --font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1d1e20; --surface: #2a2b2e; --sunken: #232427; --line: #4d4d4d; --fg: #f4f4f5; --muted: #bfc0c0;
+  --accent: #6ebe46; --accent-fg: #000000; --accent2: #52de56; --brand: #52de56; --brand-tint: #1f3d2a;
+  --ok: #86e889; --warn: #f0a93b; --bad: #ff6b6b;
+  --ok-bg: #1f3d2a; --warn-bg: #3a2a10; --bad-bg: #3d1616; --mute-bg: #3a3b3e;
+  --r0: #5aa844; --r0-fg: #0b1a0e; --r1: #e3c53a; --r1-fg: #1d1e20; --r2: #e57373; --r2-fg: #1d1e20; --r3: #6b6d70; --r3-fg: #f4f4f5;
+  --pos-head: #34363a; --inc: #3a3026;
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #1d1e20; --surface: #2a2b2e; --sunken: #232427; --line: #4d4d4d; --fg: #f4f4f5; --muted: #bfc0c0;
+  --accent: #6ebe46; --accent-fg: #000000; --accent2: #52de56; --brand: #52de56; --brand-tint: #1f3d2a;
+  --ok: #86e889; --warn: #f0a93b; --bad: #ff6b6b;
+  --ok-bg: #1f3d2a; --warn-bg: #3a2a10; --bad-bg: #3d1616; --mute-bg: #3a3b3e;
+  --r0: #5aa844; --r0-fg: #0b1a0e; --r1: #e3c53a; --r1-fg: #1d1e20; --r2: #e57373; --r2-fg: #1d1e20; --r3: #6b6d70; --r3-fg: #f4f4f5;
+  --pos-head: #34363a; --inc: #3a3026;
+  color-scheme: dark;
+}
+
+[hidden] { display: none !important; }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; border-top: 4px solid var(--brand); background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px;
+  padding-block: 20px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+h1 { font-size: 20px; font-weight: 600; margin: 0; }
+h2 { font-size: 15px; font-weight: 600; margin: 0; text-wrap: balance; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand { display: grid; gap: 2px; }
+.brand small { color: var(--muted); }
+.top-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; min-width: 0; max-width: 100%; }
+.lang { display: inline-flex; background: var(--sunken); border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 2px; flex: none; }
+.lang button { border: 0; background: none; padding: 6px 10px; border-radius: 6px; color: var(--muted); font-weight: 600; font-size: 12px; cursor: pointer; letter-spacing: .04em; }
+.lang button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+nav { display: flex; gap: 4px; background: var(--sunken); border: 1px solid var(--line); border-radius: 8px; padding: 3px; overflow-x: auto; max-width: 100%; }
+nav button { border: 0; background: none; padding: 6px 12px; border-radius: 6px; color: var(--muted); font-weight: 500; white-space: nowrap; cursor: pointer; }
+nav button[aria-current="page"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+.banner { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: 9px 12px; font-size: 13px; }
+.banner.file { background: var(--brand-tint); color: var(--fg); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; display: grid; gap: 12px; align-content: start; }
+.label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 500; }
+.note { color: var(--muted); font-size: 12px; }
+.error { color: var(--bad); font-size: 13px; }
+.section-head { display: flex; justify-content: space-between; align-items: center; gap: 8px 16px; flex-wrap: wrap; }
+.section-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; max-width: 72ch; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.localrow { display: flex; gap: 12px 16px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.localtext { display: grid; gap: 4px; flex: 1 1 320px; min-width: 0; }
+.localactions { display: flex; gap: 8px; flex-wrap: wrap; }
+label.btn { display: inline-block; }
+
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 7px 12px; border-radius: 7px; cursor: pointer; font-weight: 500; }
+.btn:hover { background: var(--sunken); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+.btn.sm { padding: 4px 9px; font-size: 12px; }
+.seg { display: inline-flex; background: var(--sunken); border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: none; padding: 5px 10px; border-radius: 6px; color: var(--muted); font-weight: 500; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+.scope { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.scope .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.scope select, .scope input { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; max-width: 100%; }
+.scope select { max-width: 260px; }
+.scope input[type=search] { flex: 1 1 200px; min-width: 0; }
+.scope .push { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+.pill { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .03em; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.p-ok { color: var(--ok); background: var(--ok-bg); } .p-warn { color: var(--warn); background: var(--warn-bg); } .p-bad { color: var(--bad); background: var(--bad-bg); } .p-mute { color: var(--muted); background: var(--mute-bg); }
+.p-new { color: var(--accent); background: var(--surface); border: 1px solid var(--accent); padding: 1px 7px; }
+
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.kpi { border-left: 3px solid var(--line); gap: 4px; }
+.kpi.accent { border-left-color: var(--accent); } .kpi.ok { border-left-color: var(--ok); } .kpi.warn { border-left-color: var(--warn); } .kpi.bad { border-left-color: var(--bad); }
+.kpi .value { font-family: var(--mono); font-size: 28px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.kpi .value small { font-size: 14px; color: var(--muted); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 12px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 22px; height: 14px; border-radius: 3px; display: inline-block; flex: none; }
+.sw.r0 { background: var(--r0); } .sw.r1 { background: var(--r1); } .sw.r2 { background: var(--r2); } .sw.r3 { background: var(--r3); }
+.sw.rep { border: 1.5px dashed var(--muted); }
+
+.cat-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.cat-head .tag { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--accent); }
+.mcp-wrap { display: grid; justify-items: center; }
+.mcp-wrap .pos { width: min(680px, 100%); }
+.pos-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+@media (max-width: 980px) { .pos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .pos-grid { grid-template-columns: 1fr; } }
+
+.pos { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: grid; align-content: start; background: var(--surface); min-width: 0; }
+.pos.risk-high { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad); }
+.pos-head { background: var(--pos-head); padding: 10px 12px; display: grid; gap: 2px; text-align: center; }
+.pos-head b { font-size: 13px; line-height: 1.3; }
+.pos-head small { font-size: 11px; color: var(--muted); }
+.pos-inc { background: var(--inc); padding: 8px 12px; text-align: center; font-weight: 600; font-size: 13px; overflow-wrap: anywhere; }
+.pos-inc.vac { color: var(--bad); }
+.pos-inc small { display: block; font-weight: 400; color: var(--muted); font-size: 11.5px; margin-top: 1px; }
+.pos-meta { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.pos-meta b { font-family: var(--mono); color: var(--fg); font-weight: 500; }
+.pos-body { padding: 10px 12px 12px; display: grid; gap: 6px; }
+.grp { font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+.grp:first-child { margin-top: 0; }
+
+.succ { display: grid; grid-template-columns: minmax(0, 1fr) 38px; align-items: stretch; border: 1px solid var(--fg); border-radius: 4px; overflow: hidden; background: var(--surface); cursor: pointer; text-align: left; padding: 0; width: 100%; }
+.succ:hover .succ-main { background: var(--sunken); }
+.succ-main { padding: 6px 9px; display: grid; gap: 1px; min-width: 0; }
+.succ-name { font-weight: 600; font-size: 12.5px; line-height: 1.3; overflow-wrap: anywhere; }
+.succ-sub { font-size: 11px; color: var(--muted); display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.succ-sub .num { font-family: var(--mono); color: var(--fg); }
+.chip { display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 600; border-left: 1px solid var(--fg); }
+.chip.r0 { background: var(--r0); color: var(--r0-fg); } .chip.r1 { background: var(--r1); color: var(--r1-fg); } .chip.r2 { background: var(--r2); color: var(--r2-fg); } .chip.r3 { background: var(--r3); color: var(--r3-fg); }
+.succ.struck { cursor: default; border-color: var(--line); grid-template-columns: 1fr; }
+.succ.struck .succ-name { text-decoration: line-through; text-decoration-color: var(--bad); color: var(--muted); font-weight: 500; }
+.succ.struck:hover .succ-main { background: none; }
+.succ.rep { border: 1.5px dashed var(--muted); }
+.succ.rep .chip { border-left: 1.5px dashed var(--muted); }
+.succ.dim { opacity: .3; }
+.succ.hit { box-shadow: 0 0 0 2px var(--accent); }
+.flag { color: var(--warn); font-weight: 600; }
+.flag.bad { color: var(--bad); }
+.empty-succ { font-size: 12px; color: var(--bad); padding: 6px 0; }
+.empty { text-align: center; padding: 28px 12px; color: var(--muted); }
+
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: middle; font-size: 13px; }
+th { color: var(--muted); font-weight: 500; font-size: 12px; white-space: nowrap; }
+td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+th.num { font-family: var(--font); }
+tbody tr.clk { cursor: pointer; } tbody tr.clk:hover { background: var(--sunken); }
+.rd { display: inline-grid; place-items: center; min-width: 30px; padding: 2px 6px; border-radius: 5px; font-family: var(--mono); font-weight: 600; font-size: 12px; }
+.rd.r0 { background: var(--r0); color: var(--r0-fg); } .rd.r1 { background: var(--r1); color: var(--r1-fg); } .rd.r2 { background: var(--r2); color: var(--r2-fg); } .rd.r3 { background: var(--r3); color: var(--r3-fg); }
+.sub { color: var(--muted); font-size: 12px; }
+.map td:first-child { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+details.ref { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+details.ref summary { cursor: pointer; font-weight: 600; }
+details.ref[open] summary { margin-bottom: 10px; }
+
+.notes { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13px; line-height: 1.5; }
+
+dialog { border: 1px solid var(--line); border-radius: 12px; padding: 0; width: min(700px, calc(100vw - 32px)); max-height: calc(100vh - 32px); background: var(--surface); color: var(--fg); }
+dialog::backdrop { background: rgba(10, 16, 24, .45); }
+.dlg { display: grid; gap: 14px; padding: 18px; }
+.dlg-head { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.dlg-head h2 { font-size: 18px; }
+.dlg-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 560px) { .dlg-grid { grid-template-columns: 1fr; } }
+.kv { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 5px 12px; font-size: 13px; }
+.kv dt { color: var(--muted); } .kv dd { margin: 0; overflow-wrap: anywhere; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.bars { display: grid; gap: 8px; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 70px; gap: 4px 10px; align-items: center; font-size: 12.5px; }
+.bar-row .n { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.bar-row .n small { color: var(--muted); }
+.bar-track { grid-column: 1 / -1; background: var(--sunken); border-radius: 4px; height: 8px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--accent2); border-radius: 4px; }
+.total { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 8px; }
+.total b { font-family: var(--mono); font-size: 22px; font-weight: 500; }
+.gaps { margin: 0; padding-left: 18px; font-size: 13px; display: grid; gap: 3px; }
+.asp { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 12.5px; }
+.asp li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; }
+.tick { font-family: var(--mono); font-weight: 600; }
+.tick.y { color: var(--ok); } .tick.n { color: var(--bad); }
+.callout { border-left: 3px solid var(--warn); background: var(--warn-bg); border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 13px; }
+.callout.bad { border-left-color: var(--bad); background: var(--bad-bg); }
+.actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 20; max-width: calc(100vw - 32px); }
+.stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+.dist { display: grid; gap: 14px; }
+.dist-row { display: grid; gap: 6px; font-size: 13px; }
+.stackbar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; background: var(--sunken); }
+.stackbar div { display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 600; min-width: 0; overflow: hidden; white-space: nowrap; }
+.stackbar .r0 { background: var(--r0); color: var(--r0-fg); } .stackbar .r1 { background: var(--r1); color: var(--r1-fg); } .stackbar .r2 { background: var(--r2); color: var(--r2-fg); } .stackbar .r3 { background: var(--r3); color: var(--r3-fg); }
+.bar-fill.hot { background: var(--bad); } .bar-fill.warm { background: var(--warn); }
+.sum-title { font-size: 20px; margin-top: 2px; }
+.ov-hero { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+@media (max-width: 860px) { .ov-hero { grid-template-columns: 1fr; } }
+.ov-hero-text { display: grid; gap: 10px; align-content: start; }
+.tier { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.ov-title { font-size: 24px; line-height: 1.2; }
+.ov-lead { margin: 0; color: var(--muted); line-height: 1.6; max-width: 70ch; }
+.ov-stats { display: flex; gap: 8px 24px; flex-wrap: wrap; }
+.ov-stats div { display: grid; }
+.ov-stats b { font-family: var(--mono); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ov-stats span { color: var(--muted); font-size: 12px; }
+.ov-goal { background: var(--brand-tint); border-radius: 8px; padding: 14px 16px; display: grid; gap: 6px; align-content: center; }
+.ov-goal p { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.45; text-wrap: balance; }
+.ov-is { gap: 4px; border-top: 3px solid var(--line); }
+.ov-is.is-ok { border-top-color: var(--ok); } .ov-is.is-bad { border-top-color: var(--bad); } .ov-is.is-acc { border-top-color: var(--accent2); }
+.ov-is .big { font-size: 17px; } .ov-is p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.pipe { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: end; }
+@media (max-width: 860px) { .pipe { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .pipe { grid-template-columns: 1fr; } }
+.pipe-col { display: grid; gap: 8px; align-content: end; padding: 10px; border-radius: 10px; border: 1px dashed transparent; min-width: 0; }
+.pipe-col.focus { border-color: var(--bad); }
+.pipe-name { font-size: 14px; color: var(--accent); }
+.pipe-bar { background: var(--accent2); color: var(--accent-fg); border-radius: 6px 6px 0 0; display: flex; align-items: flex-end; padding: 8px; font-size: 12px; font-weight: 600; }
+.pipe-col:nth-child(1) .pipe-bar { background: var(--accent); } .pipe-col:nth-child(3) .pipe-bar { background: var(--brand-tint); color: var(--fg); } .pipe-col:nth-child(4) .pipe-bar { background: var(--warn); color: #fff; }
+.pipe-col p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+.pipe-cats { display: grid; gap: 3px; }
+.pipe-cats div { display: flex; justify-content: space-between; background: var(--sunken); border-radius: 5px; padding: 4px 8px; font-size: 12px; }
+.pipe-cats b { color: var(--accent); } .pipe-cats span { font-family: var(--mono); font-size: 11.5px; }
+.pipe-flag { font-size: 11px; font-style: italic; color: var(--bad); text-align: center; }
+.cat { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; display: grid; gap: 4px; }
+.cat .g { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.cat p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.crit-list { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 13px; line-height: 1.45; }
+.journey { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.journey li { position: relative; display: grid; gap: 8px; align-content: start; padding-right: 10px; }
+.journey li::before { content: ""; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: var(--line); }
+.journey li.done::before { background: var(--accent2); }
+.journey li:first-child::before { left: 15px; } .journey li:last-child::before { right: auto; width: 15px; }
+.j-dot { position: relative; z-index: 1; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-weight: 500; background: var(--surface); border: 2px solid var(--line); color: var(--muted); }
+.journey li.done .j-dot { background: var(--accent2); border-color: var(--accent2); color: var(--accent-fg); }
+.journey li.now .j-dot { background: var(--warn); border-color: var(--warn); color: #fff; box-shadow: 0 0 0 4px var(--warn-bg); }
+.j-body { display: grid; gap: 3px; font-size: 13px; }
+.j-when { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.journey li.now .j-when { color: var(--warn); font-weight: 600; }
+.j-sub { color: var(--fg); font-size: 12px; line-height: 1.4; }
+.j-en { color: var(--muted); font-size: 11.5px; line-height: 1.4; }
+@media (max-width: 860px) {
+  .journey { grid-template-columns: 1fr; gap: 14px; }
+  .journey li { grid-template-columns: 32px 1fr; gap: 12px; padding: 0; }
+  .journey li::before { top: 32px; bottom: -14px; left: 15px; right: auto; width: 2px; height: auto; }
+  .journey li:first-child::before { left: 15px; } .journey li:last-child::before { display: none; }
+}
+.eq { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
+.eq-box { flex: 1 1 150px; min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 4px; align-content: start; }
+.eq-box small { color: var(--muted); font-size: 12px; line-height: 1.4; }
+.eq-box .who { justify-self: start; margin-top: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--sunken); border: 1px solid var(--line); }
+.eq-box.result { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); text-align: center; align-content: center; flex: 0 1 130px; }
+.eq-big { font-family: var(--mono); font-size: 24px; color: var(--accent); }
+.eq-box.result .eq-big { color: var(--accent-fg); }
+.eq-op { align-self: center; font-size: 22px; font-weight: 700; color: var(--muted); }
+@media (max-width: 640px) { .eq-op { width: 100%; text-align: center; line-height: 1; } .eq-box.result { flex: 1 1 100%; } }
+.scale-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.scale-strip div { padding: 8px 6px; text-align: center; display: grid; gap: 1px; font-size: 11.5px; border-radius: 6px; }
+.scale-strip b { font-family: var(--mono); font-size: 16px; }
+.scale-strip .r0 { background: var(--r0); color: var(--r0-fg); } .scale-strip .r1 { background: var(--r1); color: var(--r1-fg); } .scale-strip .r2 { background: var(--r2); color: var(--r2-fg); } .scale-strip .r3 { background: var(--r3); color: var(--r3-fg); }
+.dev { border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.dev small { font-size: 12.5px; line-height: 1.45; }
+.dev-0 { background: var(--accent); color: var(--accent-fg); } .dev-0 .eq-big { color: var(--accent-fg); }
+.dev-1 { background: var(--accent2); color: var(--accent-fg); } .dev-1 .eq-big { color: var(--accent-fg); }
+.dev-2 { background: var(--brand-tint); color: var(--fg); }
+.cy-edit { display: grid; gap: 4px; margin: 2px 0 4px; }
+.cy-edit select, .cy-edit input { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; background: var(--surface); font-size: 12px; }
+.guide { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 860px) { .guide { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .guide { grid-template-columns: 1fr; } }
+.guide-item { text-align: left; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); cursor: pointer; display: grid; gap: 3px; }
+.guide-item:hover { background: var(--sunken); border-color: var(--accent); }
+.guide-item span { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.guide-item .go { color: var(--accent); font-weight: 600; font-size: 12px; }
+.ico { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.ico-lg { width: 26px; height: 26px; color: var(--accent); }
+.ico-xl { width: 40px; height: 40px; stroke-width: 1.6; }
+.ico-tile { width: 38px; height: 38px; padding: 8px; border-radius: 10px; background: var(--brand-tint); color: var(--accent); }
+.ov-flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ov-step { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 5px 10px 5px 5px; border-radius: 999px; background: var(--sunken); border: 1px solid var(--line); }
+.ov-step b { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-fg); font-family: var(--mono); font-size: 11px; }
+.ov-arrow { width: 18px; height: 12px; background: var(--accent2); clip-path: polygon(0 35%, 60% 35%, 60% 0, 100% 50%, 60% 100%, 60% 65%, 0 65%); flex: none; }
+.ov-stats .ov-stat { display: flex; gap: 10px; align-items: center; }
+.ov-stat span { display: grid; }
+.ov-stat b { font-family: var(--mono); font-size: 22px; font-weight: 500; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.ov-stat small { color: var(--muted); font-size: 12px; }
+.ov-card { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 14px; border-top: 3px solid var(--line); }
+.ov-card b { font-size: 16px; } .ov-card p { margin: 2px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.ov-card.c0 { border-top-color: var(--ok); } .ov-card.c0 .ico { color: var(--ok); }
+.ov-card.c1 { border-top-color: var(--bad); } .ov-card.c1 .ico { color: var(--bad); }
+.ov-card.c2 { border-top-color: var(--accent2); } .ov-card.c2 .ico { color: var(--accent2); }
+.stairs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: end; }
+@media (max-width: 860px) { .stairs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .stairs { grid-template-columns: 1fr; } .stair-bar { height: 44px !important; } }
+.stair { display: grid; gap: 8px; align-content: end; padding: 10px; border-radius: 12px; border: 1.5px dashed transparent; min-width: 0; }
+.stair.focus { border-color: var(--bad); }
+.stair-head { display: flex; align-items: center; gap: 8px; }
+.stair-head b { font-size: 14px; color: var(--accent); line-height: 1.2; }
+.stair-ico { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff; flex: none; }
+.stair-ico .ico { width: 20px; height: 20px; }
+.stair-bar { border-radius: 8px 8px 0 0; display: flex; align-items: flex-end; padding: 8px; font-size: 12px; font-weight: 600; color: #fff; }
+.s0 { background: var(--accent); } .s1 { background: var(--accent2); } .s2 { background: #6ebe46; } .s3 { background: #c05f17; }
+.stair-bar.s2 { color: #0b1a0e; }
+.stair p { margin: 0; font-size: 12.5px; color: var(--muted); }
+.stair-cats { display: grid; gap: 3px; }
+.stair-cats span { background: var(--sunken); border-radius: 5px; padding: 3px 8px; font-size: 11.5px; font-family: var(--mono); }
+.stair-cats b { font-family: var(--font); color: var(--accent); margin-right: 4px; }
+.stair-flag { font-size: 11px; font-style: italic; color: var(--bad); text-align: center; }
+.cp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 480px) { .cp-grid { grid-template-columns: 1fr; } }
+.cp { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.cp-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cp-badge { background: var(--accent); color: var(--accent-fg); font-weight: 700; font-size: 13px; padding: 4px 10px; border-radius: 6px; letter-spacing: .04em; }
+.cp-badge.alt { background: var(--accent2); }
+.cp-g { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.cp > b { font-size: 13px; }
+.ico-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
+.ico-list li { display: flex; gap: 8px; align-items: center; }
+.ico-list .ico { color: var(--accent); }
+.crit-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 640px) { .crit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.crit-item { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.crit-item span { display: grid; min-width: 0; }
+.crit-item b { font-size: 14px; }
+.crit-item small { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
+.journey .j-dot .ico { width: 16px; height: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chips span { font-size: 11px; padding: 2px 7px; border-radius: 999px; background: var(--sunken); border: 1px solid var(--line); color: var(--fg); }
+.sra-viz { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; align-items: center; }
+@media (max-width: 520px) { .sra-viz { grid-template-columns: 1fr; justify-items: center; } }
+.donut { width: 150px; height: 150px; transform: rotate(0deg); }
+.donut circle { fill: none; stroke-width: 7; }
+.dn-bg { stroke: var(--sunken); }
+.dn-0 { stroke: var(--accent2); background: var(--accent2); } .dn-1 { stroke: #a8d98f; background: #a8d98f; } .dn-2 { stroke: var(--accent); background: var(--accent); }
+.dn-t { font: 700 5px var(--font); fill: var(--fg); text-anchor: middle; }
+.dn-s { font: 500 4px var(--mono); fill: var(--muted); text-anchor: middle; }
+.sra-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; width: 100%; }
+.sra-legend li { display: grid; grid-template-columns: 12px 44px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.sw-dn { width: 12px; height: 12px; border-radius: 3px; }
+.sra-legend .pct { font-family: var(--mono); font-size: 16px; color: var(--accent); }
+.sra-legend span b { display: block; font-size: 13px; } .sra-legend small { color: var(--muted); font-size: 11.5px; }
+.sra-legend .by { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--sunken); border: 1px solid var(--line); white-space: nowrap; }
+.sra-legend .by .ico { width: 14px; height: 14px; }
+.gauge { position: relative; padding: 0 0 26px; margin-top: 6px; }
+.g-zones { display: flex; height: 54px; border-radius: 8px; overflow: hidden; }
+.g-zone { display: grid; place-content: center; text-align: center; gap: 1px; min-width: 0; padding: 0 2px; }
+.g-zone b { font-family: var(--mono); font-size: 13px; } .g-zone span { font-size: 10.5px; }
+.g-zone.r0 { background: var(--r0); color: var(--r0-fg); } .g-zone.r1 { background: var(--r1); color: var(--r1-fg); } .g-zone.r2 { background: var(--r2); color: var(--r2-fg); } .g-zone.r3 { background: var(--r3); color: var(--r3-fg); }
+.g-ticks { position: relative; height: 16px; margin-top: 4px; }
+.g-ticks span { position: absolute; transform: translateX(-50%); font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+.g-ticks span:first-child { transform: none; } .g-ticks span:last-child { transform: translateX(-100%); }
+.g-prop { position: absolute; top: -4px; height: 62px; border-left: 2px dashed var(--fg); }
+.g-prop span { position: absolute; top: 84px; right: -2px; white-space: nowrap; font-size: 10.5px; font-weight: 600; color: var(--fg); }
+.g-prop { height: 84px; }
+.mix { display: flex; height: 64px; border-radius: 10px; overflow: hidden; }
+.mix-seg { display: flex; align-items: center; gap: 8px; padding: 0 12px; min-width: 0; overflow: hidden; white-space: nowrap; }
+.mix-seg b { font-family: var(--mono); font-size: 20px; } .mix-seg span { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.mix-seg .ico { width: 22px; height: 22px; }
+.m0.mix-seg { background: var(--accent); color: var(--accent-fg); } .m1.mix-seg { background: var(--accent2); color: var(--accent-fg); } .m2.mix-seg { background: var(--brand-tint); color: var(--fg); padding: 0 8px; }
+.m2.mix-seg span { display: none; }
+@media (max-width: 560px) { .mix-seg span { display: none; } .m2.mix-seg .ico { display: none; } }
+.mix-detail { display: grid; gap: 6px; border-top: 3px solid var(--line); padding-top: 8px; }
+.mix-detail.m0 { border-top-color: var(--accent); } .mix-detail.m1 { border-top-color: var(--accent2); } .mix-detail.m2 { border-top-color: #a8d98f; }
+.roles-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.role-chip { flex: 1 1 140px; display: grid; justify-items: center; text-align: center; gap: 4px; padding: 12px 8px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.role-chip b { font-size: 13px; } .role-chip small { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+@media (max-width: 640px) { .roles-row .ov-arrow { display: none; } }
+.guide-item { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+.gi-txt { display: grid; gap: 1px; min-width: 0; }
+.guide-item .go { font-size: 16px; }
+.sum-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 980px) { .sum-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .sum-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.btn[disabled] { opacity: .55; cursor: progress; }
+.nb-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .nb-layout { grid-template-columns: 1fr; } }
+.nb-wrap { display: grid; grid-template-columns: 20px 58px minmax(0, 1fr); grid-template-rows: auto auto auto; gap: 6px 8px; }
+.nb-y { grid-row: 1; grid-column: 1; display: flex; align-items: center; justify-content: center; }
+.nb-y span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.nb-ylab { grid-row: 1; grid-column: 2; display: grid; grid-template-rows: repeat(3, 1fr); gap: 6px; font-size: 11px; color: var(--muted); text-align: right; }
+.nb-ylab span { display: flex; align-items: center; justify-content: flex-end; }
+.nb-grid { grid-row: 1; grid-column: 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.nb-xlab { grid-row: 2; grid-column: 3; display: grid; grid-template-columns: repeat(3, 1fr); font-size: 11px; color: var(--muted); text-align: center; }
+.nb-x { grid-row: 3; grid-column: 3; text-align: center; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.nb-box { min-height: 96px; min-width: 0; border-radius: 10px; border: 1px solid var(--line); padding: 9px; display: grid; align-content: start; gap: 2px; text-align: left; cursor: pointer; color: var(--fg); background: var(--surface); }
+.nb-box:hover { filter: brightness(0.97); }
+.nb-box[aria-pressed="true"] { outline: 3px solid var(--accent); outline-offset: 1px; }
+.nb-n { font-family: var(--mono); font-size: 24px; font-weight: 500; line-height: 1.1; }
+.nb-name { font-weight: 600; font-size: 12px; line-height: 1.25; }
+.nb-box.t-ok { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.nb-box.t-ok2 { background: var(--brand-tint); border-color: var(--accent2); }
+.nb-box.t-mid { background: var(--sunken); }
+.nb-box.t-warn { background: var(--warn-bg); }
+.nb-box.t-bad { background: var(--bad-bg); }
+@media (max-width: 560px) { .nb-wrap { grid-template-columns: 16px 44px minmax(0, 1fr); } .nb-box { min-height: 80px; padding: 6px; } .nb-n { font-size: 19px; } .nb-name { font-size: 10.5px; } }
+.nb-side { display: grid; gap: 8px; min-width: 0; }
+.eff-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 980px) { .eff-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .eff-grid { grid-template-columns: 1fr; } }
+.eff { border: 1px solid var(--line); border-left: 3px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.eff.ok { border-left-color: var(--ok); } .eff.watch { border-left-color: var(--warn); } .eff.na { border-left-color: var(--line); }
+.eff .t { font-size: 12.5px; font-weight: 600; }
+.eff .v { font-family: var(--mono); font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.eff .v small { font-size: 13px; color: var(--muted); }
+.eff .d { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.eff .row { display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--muted); }
+.risk-list { display: grid; gap: 8px; }
+.risk-item { display: grid; gap: 2px; text-align: left; border: 1px solid var(--line); border-left: 3px solid var(--bad); border-radius: 8px; padding: 8px 10px; background: var(--surface); cursor: pointer; width: 100%; }
+.risk-item:hover { background: var(--sunken); }
+.risk-item b { font-size: 13px; } .risk-item span { font-size: 12px; color: var(--muted); }
+.rv td { vertical-align: top; }
+.rv td.role { background: var(--pos-head); font-weight: 600; min-width: 170px; }
+.rv select { border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; background: var(--surface); max-width: 170px; }
+.rv-sum { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.gaps-cell { font-size: 12px; line-height: 1.4; min-width: 180px; max-width: 300px; }
+.lnk { border: 0; background: none; padding: 0; color: inherit; cursor: pointer; text-align: left; font: inherit; font-weight: 500; }
+.lnk:hover { color: var(--accent); text-decoration: underline; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 860px) { .grid3 { grid-template-columns: 1fr; } }
+.picker { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; min-width: 0; max-width: 100%; flex: 0 1 auto; }
+.picker .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.picker select { border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; background: var(--surface); flex: 1 1 auto; min-width: 0; width: 100%; max-width: 460px; }
+.prof-head { grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 16px 24px; }
+@media (max-width: 640px) { .prof-head { grid-template-columns: 1fr; } }
+.prof-id { display: grid; gap: 6px; min-width: 0; }
+.prof-name { font-size: 22px; line-height: 1.25; overflow-wrap: anywhere; }
+.prof-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.prof-chips .pill { white-space: normal; }
+.prof-kpi { display: grid; gap: 6px; justify-items: start; min-width: 160px; }
+.prof-rating { font-family: var(--mono); font-size: 34px; font-weight: 500; line-height: 1; }
+.prof-rating small { font-size: 15px; color: var(--muted); }
+.panel ul.gaps { margin: 0; }
+textarea { font: inherit; color: inherit; }
+.fb { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--surface); resize: vertical; }
+.idp-head { grid-template-columns: minmax(0, 1fr) auto; gap: 16px 24px; align-items: start; }
+@media (max-width: 640px) { .idp-head { grid-template-columns: 1fr; } }
+.idp-status { display: grid; gap: 8px; justify-items: end; }
+@media (max-width: 640px) { .idp-status { justify-items: start; } }
+table.idp { min-width: 1120px; }
+.idp select[data-f="cat"] { min-width: 200px; } .idp select[data-f="st"] { min-width: 120px; }
+.idp td { vertical-align: top; padding: 6px 4px; }
+.idp textarea, .idp input, .idp select { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 5px 7px; background: var(--surface); font-size: 12.5px; }
+.idp textarea { resize: vertical; min-height: 52px; }
+.idp .w { display: flex; align-items: center; gap: 4px; }
+.idp .w input { width: 64px; }
+.idp select.cat-tr { color: var(--accent2); font-weight: 600; } .idp select.cat-ojt { color: var(--warn); font-weight: 600; } .idp select.cat-cm { color: var(--bad); font-weight: 600; }
+.bar-fill.cat-ojt { background: var(--warn); } .bar-fill.cat-cm { background: var(--bad); } .bar-fill.cat-tr { background: var(--accent2); }
+.track { background: var(--fg); color: var(--bg); border-radius: 8px; padding: 10px 14px; font-size: 13px; text-align: center; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><h1>Succession Planning Portal</h1><small data-i="sub"></small></div>
+    <div class="top-right">
+      <div class="lang" role="group" aria-label="Language / Bahasa">
+        <button type="button" id="lgEN" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" id="lgMS" data-lang="ms" aria-pressed="false">BM</button>
+      </div>
+      <nav id="nav">
+        <button type="button" data-view="ov" data-i="navOv"></button>
+        <button type="button" data-view="dash" data-i="navDash"></button>
+        <button type="button" data-view="sum" data-i="navSum"></button>
+        <button type="button" data-view="chart" aria-current="page" data-i="navChart"></button>
+        <button type="button" data-view="rv" data-i="navRV"></button>
+        <button type="button" data-view="idp" data-i="navIDP"></button>
+        <button type="button" data-view="card" data-i="navCard"></button>
+      </nav>
+    </div>
+  </div>
+
+  <div class="banner" id="banner"></div>
+
+  <section class="panel">
+    <div class="localrow">
+      <div class="localtext">
+        <h2 data-i="loadTitle"></h2>
+        <div class="note" id="loadNote"></div>
+      </div>
+      <div class="localactions">
+        <label class="btn primary" for="fileIn" data-i="chooseFile"></label>
+        <input type="file" id="fileIn" accept=".xlsx,.xls" hidden>
+        <button type="button" class="btn" id="useSample" hidden data-i="useSample"></button>
+      </div>
+    </div>
+    <div class="error" id="loadErr" hidden></div>
+  </section>
+
+  <div class="scope">
+    <span class="lbl" data-i="scope"></span>
+    <select id="fDept"></select>
+    <select id="fCat"><option value="" data-i="catAll"></option><option value="MCP" data-i="catMCP"></option><option value="OCP" data-i="catOCP"></option></select>
+    <input type="search" id="fSearch">
+    <div class="push">
+      <span class="lbl" data-i="scale"></span>
+      <div class="seg" role="group" id="scaleGrp">
+        <button type="button" id="scCur" aria-pressed="true" data-i="scCur"></button>
+        <button type="button" id="scNew" aria-pressed="false" data-i="scNew"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section id="view-dash" class="stack" hidden>
+    <div class="grid2">
+      <div class="panel"><div class="section-head"><h2 data-i="distTitle"></h2><span class="note" id="distNote"></span></div><div id="dist" class="dist"></div></div>
+      <div class="panel"><h2 data-i="tlTitle"></h2><div id="tl" class="bars"></div></div>
+    </div>
+    <div class="panel">
+      <div class="section-head"><div><h2 data-i="nbTitle"></h2><p data-i="nbNote"></p></div><span class="note" id="nbCount"></span></div>
+      <div class="nb-layout">
+        <div class="nb-wrap" id="nbWrap"></div>
+        <div class="nb-side" id="nbList"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="section-head"><div><h2 data-i="effTitle"></h2><p data-i="effNote"></p></div></div>
+      <div class="eff-grid" id="effGrid"></div>
+      <details class="ref"><summary data-i="notYetTitle"></summary><div class="table-scroll"><table><thead><tr><th data-i="thMetric"></th><th data-i="thNeeds"></th></tr></thead><tbody id="notYet"></tbody></table></div></details>
+    </div>
+    <div class="panel">
+      <div class="section-head"><h2 data-i="byDeptTitle"></h2><span class="note" data-i="byDeptNote"></span></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th data-i="thDept"></th><th class="num" data-i="thPositions"></th><th class="num" data-i="thCov"></th><th class="num" data-i="thR0"></th><th class="num" data-i="thHigh"></th><th class="num" data-i="thVac"></th><th class="num" data-i="thNoMeet"></th></tr></thead>
+        <tbody id="deptRows"></tbody>
+      </table></div>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h2 data-i="riskTitle"></h2><div id="riskList" class="risk-list"></div></div>
+      <div class="panel"><h2 data-i="critBarsTitle"></h2><div id="critBars" class="bars"></div></div>
+    </div>
+  </section>
+
+  <section id="view-rv" class="panel" hidden>
+    <div class="section-head"><div><h2 id="rvTitle"></h2><p data-i="rvNote"></p></div><div class="rv-sum" id="rvSum"></div></div>
+    <div class="table-scroll"><table class="rv">
+      <thead><tr><th data-i="thPos"></th><th data-i="thSucc"></th><th class="num" data-i="thExp"></th><th class="num" data-i="thFit"></th><th class="num" data-i="thFun"></th><th class="num" data-i="thTot"></th><th data-i="thLvl"></th><th data-i="thGaps"></th><th data-i="thVal"></th></tr></thead>
+      <tbody id="rvRows"></tbody>
+    </table></div>
+  </section>
+
+  <section id="view-ov" class="stack" hidden></section>
+
+  <section id="view-sum" class="stack" hidden>
+    <div class="panel">
+      <div class="section-head">
+        <div><div class="label" data-i="sumEyebrow"></div><h2 class="sum-title" id="sumTitle"></h2><p id="sumMeta"></p></div>
+        <div class="head-actions" id="exportBox">
+          <button type="button" class="btn" id="exPdf" data-i="exPdf"></button>
+          <button type="button" class="btn primary" id="exPpt" data-i="exPpt"></button>
+        </div>
+      </div>
+      <div class="note" id="exNote"></div>
+    </div>
+    <div class="sum-kpis" id="sumKpis"></div>
+    <div class="grid2">
+      <div class="panel"><h2 data-i="distTitle"></h2><div id="sumDist" class="dist"></div></div>
+      <div class="panel"><h2 data-i="effTitle"></h2><div class="table-scroll"><table><thead><tr><th data-i="thMetric"></th><th class="num" data-i="thValue"></th><th data-i="thTarget"></th><th data-i="thStatus2"></th></tr></thead><tbody id="sumEff"></tbody></table></div></div>
+    </div>
+    <div class="panel"><h2 data-i="riskTitle"></h2><div id="sumRisk" class="risk-list"></div></div>
+    <div class="panel"><h2 data-i="sumPosTitle"></h2><div class="table-scroll"><table><thead><tr><th data-i="thCat"></th><th data-i="thPos"></th><th data-i="thInc"></th><th class="num" data-i="thVacIn"></th><th class="num" data-i="thSuccN"></th><th data-i="thReady"></th><th data-i="thRisk"></th></tr></thead><tbody id="sumPos"></tbody></table></div></div>
+    <div class="panel"><h2 data-i="sumNotesTitle"></h2><ul class="notes" id="sumNotes"></ul></div>
+  </section>
+
+  <section id="view-card" class="stack" hidden>
+    <div class="panel"><div class="section-head"><h2 data-i="cardTitle"></h2><label class="picker"><span class="lbl" data-i="cardPick"></span><select id="cardSel"></select></label></div></div>
+    <div id="cardBody" class="stack"></div>
+  </section>
+
+  <section id="view-idp" class="stack" hidden>
+    <div class="panel"><div class="section-head"><h2 data-i="idpTitle"></h2><label class="picker"><span class="lbl" data-i="idpPick"></span><select id="idpSel"></select></label></div></div>
+    <div id="idpBody" class="stack"></div>
+  </section>
+
+  <section class="panel" id="chartPanel">
+    <div class="section-head">
+      <div><h2 id="chartTitle"></h2><p id="scaleNote"></p></div>
+      <div class="head-actions">
+        <div class="seg" role="group" id="viewGrp">
+          <button type="button" id="vChart" aria-pressed="true" data-i="vChart"></button>
+          <button type="button" id="vTable" aria-pressed="false" data-i="vTable"></button>
+        </div>
+        <button type="button" class="btn primary" id="sendTrc" data-i="sendTrc"></button>
+      </div>
+    </div>
+    <div class="legend" id="legend"></div>
+
+    <div id="chartView" style="display:grid;gap:20px">
+      <div class="cat-head" id="mcpHead"><h2>MCP</h2><span class="tag">C-1</span><span class="note" data-i="mcpNote"></span></div>
+      <div id="mcp"></div>
+      <div class="cat-head" id="ocpHead"><h2>OCP</h2><span class="tag">C-2</span><span class="note" data-i="ocpNote"></span></div>
+      <div class="pos-grid" id="ocp"></div>
+      <div class="empty" id="chartEmpty" hidden data-i="emptyScope"></div>
+    </div>
+
+    <div id="tableView" hidden>
+      <div class="table-scroll"><table>
+        <thead><tr><th data-i="thPos"></th><th data-i="thCat"></th><th data-i="thSucc"></th><th class="num" data-i="thExp"></th><th class="num" data-i="thFit"></th><th class="num" data-i="thFun"></th><th class="num" data-i="thTot"></th><th data-i="thLvl"></th><th data-i="thStat"></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="panel" id="notesPanel">
+    <h2 data-i="notesTitle"></h2>
+    <ul class="notes" id="notes"></ul>
+  </section>
+
+  <section class="panel">
+    <details class="ref">
+      <summary data-i="mapTitle"></summary>
+      <p class="note" style="margin:0 0 10px" data-i="mapNote"></p>
+      <div class="table-scroll"><table class="map">
+        <thead><tr><th data-i="mapCol"></th><th data-i="mapField"></th></tr></thead>
+        <tbody id="mapRows"></tbody>
+      </table></div>
+    </details>
+  </section>
+</div>
+
+<dialog id="dlg" aria-labelledby="dName"><div class="dlg" id="dlgBody"></div></dialog>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  // ---------- Strings (EN primary, BM secondary) ----------
+  const T = {
+    en: {
+      sub: "2026 cycle · MCP & OCP · Data as at 2 Nov 2026",
+      navDash: "Dashboard", navChart: "Succession Chart", navRV: "Readiness Validation", navIDP: "IDP", navCard: "Employee Card",
+      bannerSample: "<b>Sample data.</b> The names, grades and scores below are fictional. Load the MCP/OCP Masterlist to see the real list.",
+      bannerFile: f => `<b>Masterlist loaded:</b> ${f}. Read in this browser only. Refreshing the page clears it.`,
+      loadTitle: "Load the MCP/OCP Masterlist",
+      loadNote: "Choose the Masterlist Excel file (.xlsx) with the sheets MASTERLIST MCP and MASTERLIST OCP. The file is read in your browser only. It is not uploaded or sent anywhere.",
+      loadedNote: (m, o, s, v) => `${m} MCP and ${o} OCP positions, ${s} successor rows, ${v} vacant positions.`,
+      chooseFile: "Choose file…", useSample: "Back to sample data",
+      loadErr: e => `Could not read this file: ${e}. Use the Masterlist Excel with the MASTERLIST MCP / OCP sheets.`,
+      noSheets: "no MASTERLIST MCP or MASTERLIST OCP sheet found",
+      scope: "Scope", deptAll: "All departments", catAll: "MCP & OCP", catMCP: "MCP only", catOCP: "OCP only", search: "Search successor name…",
+      scale: "Scale", scCur: "Current", scNew: "Proposed",
+      chartTitle: d => `Succession chart · ${d} 2026`, vChart: "Chart", vTable: "Table", sendTrc: "Send to HCC",
+      mcpNote: "Reports directly to the GMD & CEO", ocpNote: "Division Heads, grade TH9 and above",
+      emptyScope: "No critical positions in this scope.",
+      thPos: "Critical position", thCat: "Cat.", thSucc: "Successor", thExp: "Experience<br>10%", thFit: "Job fit<br>40%", thFun: "Functional<br>50%", thTot: "Total", thLvl: "Level", thStat: "Status",
+      notesTitle: "Automatic notes",
+      scaleName: { cur: "Current (TRC 01/2023(2))", neu: "Proposed (not yet approved)" },
+      scaleNote: s => `Readiness is calculated on the ${s} scale. Click a successor's name to see the details.`,
+      desc: { R0: "Ready Now", R1: "Ready in 1–2 years", R2: "Ready in 2–4 years", R3: "Ready in more than 5 years", "-": "Low role fit, not ready" },
+      descNewR2: "Ready in 3–4 years",
+      notReady: "Not ready", repLegend: "Replacement candidate", newLegend: "Nominated in 2026", newPill: "New",
+      kPos: "Critical positions", kPosN: (n, v) => `${n} unique successors${v ? ` · ${v} vacant` : ""}`,
+      kCov: "Successor coverage", kCovN: (a, b) => `${a} / ${b} have an internal successor`,
+      kR0: "Has an R0 successor", kR0N: (a, b) => `${a} / ${b} positions`,
+      kHigh: "High risk", kHighN: "No R0 and vacant within 24 months",
+      risk: { high: "High risk", med: "Medium risk", low: "Low risk" },
+      end: { contract: "contract ends", retire: "retires", est: "retires (est.)" }, endCap: { contract: "Contract ends", retire: "Retires", est: "Retires (est.)" },
+      incumbent: "Incumbent", vacantIn: n => `Vacant in <b>${n}</b> months`, overdue: n => `Past end date by <b>${n}</b> months`, vacantNow: "<b>Vacant now</b>", noEnd: "End date not stated",
+      vacantName: "VACANT", vacantSub: "No incumbent",
+      internal: "Internal successors", reps: "Replacement candidates", none: "No internal successor",
+      removed: "Removed by HCC", shortRunway: "short runway", shortTitle: "Retires or contract ends less than 24 months after the position falls vacant",
+      noMeetFlag: "✗ criteria", stat: { ok: "Validated by HOD", new: "New · awaiting SRA", struck: "Removed", rep: "Replacement", meet: "Meets criteria", nomeet: "Does not meet criteria" },
+      noMatch: q => `No successor matches "${q}".`,
+      nHigh: (p, e) => `<b>${p}</b>: ${e} and there is no R0 successor. Speed up the IDP or identify an external candidate.`,
+      nHighWhy: { vac: "the position is vacant", soon: (e, d, m) => `the incumbent ${e} ${d} (${m} months away)`, past: (e, d) => `the incumbent's end date (${e} ${d}) has passed` },
+      nRunway: (n, p, e, d, g) => `<b>${n}</b> (${p}): ${e} ${d}, ${g >= 0 ? g + " months after" : Math.abs(g) + " months before"} the position falls vacant. Limited runway.`,
+      nMulti: (n, k, list) => `<b>${n}</b> is mapped to ${k} positions: ${list}. Check for overlapping successor risk.`,
+      nChain: n => `<b>${n}</b> is an incumbent of a critical position and also a successor. Promoting them opens a chain vacancy.`,
+      nNoMeet: (n, list) => `${n} successor rows do not meet the selection criteria (${list}). Confirm with HR whether they stay on the list.`,
+      nMismatch: n => `${n} rows have a readiness level in the file that differs from the level calculated on the current scale. Check the TOTAL SRA or READINESS column.`,
+      nEst: n => `${n} OCP incumbents have no date in the masterlist. Their vacancy date is estimated from age, assuming retirement at 60.`,
+      nVac: n => `${n} positions are vacant now. Fill from R0 successors first.`,
+      nIdp: "IDPs are set for 2 years (2027–2028) to close the gaps. SRA assessment date: October 2026.",
+      dType: { int: "Internal successor", rep: "Replacement candidate" },
+      close: "Close", target: "Target position", position: "Position", vacant: "Vacant", months: "months", pms: "PMS 2024 · 2025",
+      staffNo: "Staff no.", curTitle: "Current title", svc: "Years of service", qual: "Qualification", type: "Staff type",
+      sra: "SRA 2026 result", bExp: "Job experience · 10%", bFit: "Job fit (Harrison JSA) · 40%", bFun: "Functional competencies · 50%", total: "Total",
+      curScale: "Current scale", newScale: "Proposed scale", fileLvl: "Readiness in file",
+      runwayCallout: (e, d, g) => `<b>Short runway.</b> ${e} ${d}, ${g >= 0 ? g + " months after" : Math.abs(g) + " months before"} the target position falls vacant.`,
+      critTitle: "Selection criteria", crit: { grade: "Mapped role position grade", emp: "Employment status", acad: "Academic qualification", age: "Age", pms: "PMS (Excellent, 2 years)", disc: "Disciplinary record" },
+      critShort: { grade: "grade", emp: "employment status", acad: "qualification", age: "age", pms: "PMS", disc: "disciplinary" },
+      noMeetCallout: list => `<b>Does not meet the selection criteria:</b> ${list}.`,
+      gaps: "Priority gaps", notAssessed: "Not yet assessed", asp: "Career aspiration",
+      notInFile: "Not in the masterlist. This comes from the employee card and the SRA session with the HOD.",
+      aspL: ["Interested in leadership progression", "Aspires to be prepared for a critical role", "Aspires to undergo structured development", "Willing to invest time & effort long term", "Willing to take on stretch / expanded roles"],
+      openCard: "Open employee card", openIdp: "Open IDP",
+      mock: { dash: "Dashboard", rv: "Readiness Validation", idp: "IDP", card: "Employee Card" },
+      mockToast: s => `The ${s} screen is not built in this mockup yet.`,
+      trcToast: d => `${d} succession chart marked ready for HCC review (mockup).`,
+      prog: { run: "IDP in progress", none: "IDP not started", ok: "IDP approved", draft: "IDP draft" },
+      mapTitle: "How the masterlist maps to the portal", mapNote: "Columns are matched by header name, so the order of columns in the file can change. The sheet MASTERLIST OCP -2026 (2) is a duplicate and is not read.",
+      mapCol: "Masterlist column", mapField: "Used in the portal for",
+      distTitle: "Readiness distribution", distNote: s => `Internal successors · ${s}`, distCat: (c, n) => `${c} · ${n} successors`,
+      tlTitle: "When positions fall vacant", tl: ["Vacant now or past end date", "Within 12 months", "13–24 months", "25–36 months", "More than 3 years", "No date"],
+      byDeptTitle: "By department", byDeptNote: "All departments. Click a row to open its succession chart.",
+      thDept: "Department", thPositions: "Positions", thCov: "Coverage", thR0: "With R0", thHigh: "High risk", thVac: "Vacant", thNoMeet: "Not meeting criteria",
+      riskTitle: "Positions needing attention", riskEmpty: "No high-risk positions in this scope.",
+      critBarsTitle: "Selection criteria not met", critNone: "All successors in this scope meet the selection criteria.", critNoData: "Criteria checks come from the masterlist. Load it to see this breakdown.",
+      rvTitle: d => `Readiness validation · ${d} 2026`, rvNote: "SRA results to validate with each HOD. Validation choices are kept in this browser tab only and are cleared when the page reloads.",
+      thGaps: "Priority gaps", thVal: "SRA validation by HOD", gapsNone: "From the SRA session",
+      val: { pending: "Pending", ok: "Validated", rep: "Replacement list", rev: "Revise score" },
+      rvProgress: (a, b) => `${a} of ${b} validated`,
+      navOv: "Overview", navSum: "Summary", sumEyebrow: "Executive summary", sumTitle: d => `Succession summary · ${d} 2026`,
+      sumMeta: (src, sc) => `Source: ${src} · Scale: ${sc} · Data as at 2 Nov 2026`, srcSample: "sample data (fictional)",
+      exPdf: "Download PDF", exPpt: "Download PowerPoint", exWorking: "Preparing…",
+      exNoteSample: "Both files follow the current scope, scale and language. This summary uses fictional sample data.",
+      exNoteFile: "Both files follow the current scope, scale and language. They contain names and scores from the masterlist, so store and share them under the RESTRICTED classification.",
+      exUnavailable: "Downloads are not available in this view. Open the artifact on claude.ai to download.",
+      exSaved: f => `${f} saved.`, exDeclined: "Download cancelled.", exBusy: "A download prompt is already open. Try again in a moment.",
+      exFailed: "The file could not be created. Check your connection and try again.", exLib: "Could not load the export library. Check your connection and try again.",
+      thValue: "Value", thTarget: "Target", thStatus2: "Status", sumPosTitle: "Critical positions", thInc: "Incumbent", thVacIn: "Vacant in (months)", thSuccN: "Successors", thReady: "Readiness mix", thRisk: "Risk",
+      sumNotesTitle: "Key points", kSucc: "Successors", kVac: "Vacant now", vacNow: "Vacant", noDate: "No date",
+      classSample: "Sample data · fictional", classFile: "RESTRICTED",
+      pptKpiTitle: "Key figures", pptEffTitle: "Programme effectiveness", pptRiskTitle: "Positions needing attention", pptPosTitle: "Critical positions", pptNotesTitle: "Key points", cont: "cont.", page: "Page",
+      nbTitle: "9-Box: performance × potential", nbNote: "Proxy until a separate potential rating exists: performance = PMS 2025, potential = SRA readiness on the selected scale. Each successor counted once, at their highest SRA.",
+      nbCount: (n, x) => `${n} successors placed${x ? ` · ${x} without PMS` : ""}`,
+      nbPerf: "Performance (PMS 2025)", nbPot: "Potential (SRA readiness)",
+      nbPerfLab: ["<80%", "80–89%", "≥90%"], nbPotLab: ["R2 / not ready", "R1", "R0"],
+      nbBox: [["Under-performer", "Effective", "Trusted professional"], ["Inconsistent", "Core player", "High performer"], ["Rough diamond", "High potential", "Future leader"]],
+      nbPick: "Click a box to list the successors in it.", nbEmpty: "No successors in this box.", nbList: (b, n) => `${b} · ${n}`,
+      thPms: "PMS 2025", thBest: "Highest SRA",
+      effTitle: "Programme effectiveness", effNote: "Measured on the current scope. Targets are working assumptions for discussion, not approved policy.",
+      eff: {
+        bench: ["Bench strength", "Internal successors per critical position", "Target ≥ 2.0"],
+        two: ["Positions with ≥2 successors", "Depth of the bench", "Target 100%"],
+        ready: ["Ready-now ratio", "R0 successors per critical position", "Target ≥ 1.0"],
+        meet: ["Successors meeting criteria", "All 6 selection criteria passed", "Target 100%"],
+        runway: ["Short runway", "Successors leaving < 24 months after the vacancy", "Target ≤ 10%"],
+        overlap: ["Successors on several positions", "Concentration risk", "Target ≤ 20%"],
+        women: ["Women in successor pool", "Gender diversity of the pipeline", "Reference 30%"],
+        idp: ["IDP in place", "Successors with an approved or running IDP", "Target 100%"]
+      },
+      effSt: { ok: "On track", watch: "Watch", na: "Awaiting data" },
+      effNa: { meet: "Criteria checks come from the masterlist.", women: "No gender data in this source.", idp: "No IDP records yet. Approve IDPs in the IDP tab or connect the IDP system." },
+      notYetTitle: "Metrics that need more data", thMetric: "Metric", thNeeds: "Data needed",
+      notYet: [["Internal fill rate for critical positions", "Appointment history: who filled each critical position and whether they were on the successor list"], ["Readiness movement year on year (R2 → R1 → R0)", "SRA results from the previous cycle"], ["Regretted attrition of successors and HiPos", "Resignation records linked to the successor list"], ["Time to fill critical positions", "Vacancy and appointment dates"], ["IDP completion by 70 · 20 · 10 category", "IDP activity status from the IDP / LMS system"]],
+      cardTitle: "Employee card", cardPick: "Successor", idpTitle: "Individual Development Plan (IDP)", idpPick: "Successor · target position",
+      emptyPick: "No successors in this scope. Change the department, category or search.",
+      bestSra: "Highest SRA 2026", profile: "Successor profile", sraByRole: "SRA 2026 result by target position", thRole: "Target position",
+      leadGaps: "Leadership gaps (Harrison)", funcGaps: "Functional / technical gaps", noGaps: "No gaps recorded.",
+      derivedNote: "Gaps derived from the SRA scores in the masterlist (below 80% of each component's weight). Detailed Harrison traits and competency ratings come from the SRA report.",
+      hodFb: "HOD feedback", hodFbPh: "Notes from the SRA discussion with the HOD…", keptLocal: "Kept in this browser tab only.", openIdpFor: "Open IDP",
+      gFit: v => `Job fit (Harrison JSA) ${v} / 40, below 80% of the weight`, gFun: v => `Functional competencies ${v} / 50, below 80% of the weight`, gExp: v => `Job experience ${v} / 10, below 80% of the weight`,
+      secA: "A. Leadership / soft skills", secB: "B. Functional / technical / certification",
+      thArea: "Area of improvement (SRA finding)", thInter: "Proposed intervention", thCatI: "Category", thW: "Weightage", thTl: "Timeline", thSt: "Status", thRem: "Remarks",
+      addRow: "Add row", del: "Remove row", noRows: "No interventions yet. Add a row.",
+      cats: { ojt: "On-the-Job / Shadowing (70%)", cm: "Coaching & Mentoring (20%)", tr: "Training (10%)" },
+      rowSt: { ns: "Not started", ip: "In progress", dn: "Done" },
+      mixTitle: "70 · 20 · 10 mix", mixByCount: "Share by number of interventions. Enter weightages to use them instead.", mixByW: "Share by weightage.",
+      idpSt: { draft: "Draft", sub: "Submitted to HOD", app: "Approved by HOD" },
+      idpAct: { sub: "Submit to HOD", app: "Approve (HOD)", draft: "Back to draft" },
+      idpToast: { sub: "IDP submitted to the HOD (mockup).", app: "IDP approved by the HOD (mockup).", draft: "IDP returned to draft." },
+      idpNote: "Draft generated from the SRA gaps with suggested interventions. Edit any cell. Changes are kept in this browser tab only.",
+      mappedRole: "Mapped role", incEnd: "Incumbent", readiness: "Readiness", record: "IDP status in record",
+      monitor: "<b>Monitoring / tracking:</b> Individual Development Plan (IDP) & KPI cascading",
+      months12: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    },
+    ms: {
+      sub: "Kitaran 2026 · MCP & OCP · Data setakat 2 Nov 2026",
+      navDash: "Dashboard", navChart: "Carta Pengganti", navRV: "Readiness Validation", navIDP: "IDP", navCard: "Kad Pekerja",
+      bannerSample: "<b>Data contoh.</b> Nama, gred dan skor di bawah ialah rekaan. Muatkan Masterlist MCP/OCP untuk lihat senarai sebenar.",
+      bannerFile: f => `<b>Masterlist dimuatkan:</b> ${f}. Dibaca dalam pelayar ini sahaja. Muat semula halaman untuk kosongkan.`,
+      loadTitle: "Muatkan Masterlist MCP/OCP",
+      loadNote: "Pilih fail Excel Masterlist (.xlsx) yang ada helaian MASTERLIST MCP dan MASTERLIST OCP. Fail dibaca dalam pelayar anda sahaja. Ia tidak dimuat naik atau dihantar ke mana-mana.",
+      loadedNote: (m, o, s, v) => `${m} jawatan MCP dan ${o} jawatan OCP, ${s} baris pengganti, ${v} jawatan kosong.`,
+      chooseFile: "Pilih fail…", useSample: "Kembali ke data contoh",
+      loadErr: e => `Fail ini tidak dapat dibaca: ${e}. Gunakan Excel Masterlist yang ada helaian MASTERLIST MCP / OCP.`,
+      noSheets: "helaian MASTERLIST MCP atau MASTERLIST OCP tidak dijumpai",
+      scope: "Skop", deptAll: "Semua jabatan", catAll: "MCP & OCP", catMCP: "MCP sahaja", catOCP: "OCP sahaja", search: "Cari nama pengganti…",
+      scale: "Skala", scCur: "Semasa", scNew: "Cadangan",
+      chartTitle: d => `Carta pengganti · ${d} 2026`, vChart: "Carta", vTable: "Jadual", sendTrc: "Hantar ke HCC",
+      mcpNote: "Melapor terus kepada GMD & CEO", ocpNote: "Ketua Bahagian, gred TH9 ke atas",
+      emptyScope: "Tiada jawatan kritikal dalam skop ini.",
+      thPos: "Jawatan kritikal", thCat: "Kat.", thSucc: "Pengganti", thExp: "Pengalaman<br>10%", thFit: "Job fit<br>40%", thFun: "Fungsian<br>50%", thTot: "Jumlah", thLvl: "Tahap", thStat: "Status",
+      notesTitle: "Nota automatik",
+      scaleName: { cur: "Semasa (TRC 01/2023(2))", neu: "Cadangan (belum diluluskan)" },
+      scaleNote: s => `Tahap dikira ikut skala ${s}. Klik nama pengganti untuk lihat butiran.`,
+      desc: { R0: "Ready Now", R1: "Sedia 1–2 tahun", R2: "Sedia 2–4 tahun", R3: "Sedia lebih 5 tahun", "-": "Role fit rendah, belum sedia" },
+      descNewR2: "Sedia 3–4 tahun",
+      notReady: "Belum sedia", repLegend: "Calon penggantian (replacement)", newLegend: "Dicalonkan 2026", newPill: "Baru",
+      kPos: "Jawatan kritikal", kPosN: (n, v) => `${n} pengganti unik${v ? ` · ${v} kosong` : ""}`,
+      kCov: "Liputan pengganti", kCovN: (a, b) => `${a} / ${b} ada pengganti dalaman`,
+      kR0: "Ada pengganti R0", kR0N: (a, b) => `${a} / ${b} jawatan`,
+      kHigh: "Risiko tinggi", kHighN: "Tiada R0 dan kosong ≤24 bulan",
+      risk: { high: "Risiko tinggi", med: "Risiko sederhana", low: "Risiko rendah" },
+      end: { contract: "tamat kontrak", retire: "bersara", est: "bersara (anggaran)" }, endCap: { contract: "Tamat kontrak", retire: "Bersara", est: "Bersara (anggaran)" },
+      incumbent: "Penyandang", vacantIn: n => `Kosong dalam <b>${n}</b> bulan`, overdue: n => `Lepas tarikh tamat <b>${n}</b> bulan`, vacantNow: "<b>Kosong sekarang</b>", noEnd: "Tarikh tamat tidak dinyatakan",
+      vacantName: "KOSONG", vacantSub: "Tiada penyandang",
+      internal: "Pengganti dalaman", reps: "Calon penggantian", none: "Tiada pengganti dalaman",
+      removed: "Digugurkan oleh HCC", shortRunway: "runway pendek", shortTitle: "Bersara atau tamat kontrak kurang 24 bulan selepas jawatan kosong",
+      noMeetFlag: "✗ kriteria", stat: { ok: "Disahkan HOD", new: "Baru · menunggu SRA", struck: "Digugurkan", rep: "Penggantian", meet: "Memenuhi kriteria", nomeet: "Tidak memenuhi kriteria" },
+      noMatch: q => `Tiada pengganti sepadan dengan carian "${q}".`,
+      nHigh: (p, e) => `<b>${p}</b>: ${e} dan tiada pengganti R0. Percepatkan IDP atau kenal pasti calon luar.`,
+      nHighWhy: { vac: "jawatan sedang kosong", soon: (e, d, m) => `penyandang ${e} ${d} (${m} bulan lagi)`, past: (e, d) => `tarikh tamat penyandang (${e} ${d}) telah berlalu` },
+      nRunway: (n, p, e, d, g) => `<b>${n}</b> (${p}): ${e} ${d}, ${g >= 0 ? g + " bulan selepas" : Math.abs(g) + " bulan sebelum"} jawatan kosong. Runway terhad.`,
+      nMulti: (n, k, list) => `<b>${n}</b> dipetakan kepada ${k} jawatan: ${list}. Semak risiko pengganti bertindih.`,
+      nChain: n => `<b>${n}</b> ialah penyandang jawatan kritikal dan juga pengganti. Kenaikan beliau akan membuka kekosongan berantai.`,
+      nNoMeet: (n, list) => `${n} baris pengganti tidak memenuhi kriteria pemilihan (${list}). Sahkan dengan HR sama ada kekal dalam senarai.`,
+      nMismatch: n => `${n} baris mempunyai tahap kesediaan dalam fail yang berbeza dengan kiraan skala semasa. Semak lajur TOTAL SRA atau READINESS.`,
+      nEst: n => `${n} penyandang OCP tiada tarikh dalam masterlist. Tarikh kosong dianggar daripada umur, dengan andaian bersara pada 60 tahun.`,
+      nVac: n => `${n} jawatan sedang kosong. Isi daripada pengganti R0 dahulu.`,
+      nIdp: "IDP ditetapkan 2 tahun (2027–2028) untuk tutup jurang. Tarikh penilaian SRA: Oktober 2026.",
+      dType: { int: "Pengganti dalaman", rep: "Calon penggantian" },
+      close: "Tutup", target: "Jawatan sasaran", position: "Jawatan", vacant: "Kosong", months: "bulan", pms: "PMS 2024 · 2025",
+      staffNo: "No. pekerja", curTitle: "Jawatan semasa", svc: "Tempoh berkhidmat", qual: "Kelayakan", type: "Jenis lantikan",
+      sra: "Keputusan SRA 2026", bExp: "Pengalaman kerja · 10%", bFit: "Job fit (Harrison JSA) · 40%", bFun: "Kompetensi fungsian · 50%", total: "Jumlah",
+      curScale: "Skala semasa", newScale: "Skala cadangan", fileLvl: "Tahap dalam fail",
+      runwayCallout: (e, d, g) => `<b>Runway pendek.</b> ${e} ${d}, ${g >= 0 ? g + " bulan selepas" : Math.abs(g) + " bulan sebelum"} jawatan sasaran kosong.`,
+      critTitle: "Kriteria pemilihan", crit: { grade: "Gred jawatan dipetakan", emp: "Status perkhidmatan", acad: "Kelayakan akademik", age: "Umur", pms: "PMS (Cemerlang, 2 tahun)", disc: "Rekod tatatertib" },
+      critShort: { grade: "gred", emp: "status perkhidmatan", acad: "kelayakan", age: "umur", pms: "PMS", disc: "tatatertib" },
+      noMeetCallout: list => `<b>Tidak memenuhi kriteria pemilihan:</b> ${list}.`,
+      gaps: "Jurang utama", notAssessed: "Belum dinilai", asp: "Aspirasi kerjaya",
+      notInFile: "Tiada dalam masterlist. Maklumat ini datang daripada kad pekerja dan sesi SRA bersama HOD.",
+      aspL: ["Berminat maju ke peranan kepimpinan", "Beraspirasi disediakan untuk jawatan kritikal", "Beraspirasi jalani pembangunan berstruktur", "Sanggup labur masa & usaha jangka panjang", "Sanggup ambil peranan stretch / diperluas"],
+      openCard: "Buka kad pekerja", openIdp: "Buka IDP",
+      mock: { dash: "Dashboard", rv: "Readiness Validation", idp: "IDP", card: "Kad Pekerja" },
+      mockToast: s => `Skrin ${s} belum dibina dalam mockup ini.`,
+      trcToast: d => `Carta pengganti ${d} ditanda sedia untuk semakan HCC (mockup).`,
+      prog: { run: "IDP dalam pelaksanaan", none: "IDP belum dibina", ok: "IDP diluluskan", draft: "IDP draf" },
+      mapTitle: "Pemetaan masterlist kepada portal", mapNote: "Lajur dipadankan ikut nama tajuk, jadi susunan lajur dalam fail boleh berubah. Helaian MASTERLIST OCP -2026 (2) ialah salinan dan tidak dibaca.",
+      mapCol: "Lajur masterlist", mapField: "Digunakan dalam portal untuk",
+      distTitle: "Taburan tahap kesediaan", distNote: s => `Pengganti dalaman · ${s}`, distCat: (c, n) => `${c} · ${n} pengganti`,
+      tlTitle: "Bila jawatan akan kosong", tl: ["Kosong sekarang atau lepas tarikh tamat", "Dalam 12 bulan", "13–24 bulan", "25–36 bulan", "Lebih 3 tahun", "Tiada tarikh"],
+      byDeptTitle: "Ikut jabatan", byDeptNote: "Semua jabatan. Klik baris untuk buka carta penggantinya.",
+      thDept: "Jabatan", thPositions: "Jawatan", thCov: "Liputan", thR0: "Ada R0", thHigh: "Risiko tinggi", thVac: "Kosong", thNoMeet: "Tak penuhi kriteria",
+      riskTitle: "Jawatan yang perlu perhatian", riskEmpty: "Tiada jawatan berisiko tinggi dalam skop ini.",
+      critBarsTitle: "Kriteria pemilihan tidak dipenuhi", critNone: "Semua pengganti dalam skop ini memenuhi kriteria pemilihan.", critNoData: "Semakan kriteria datang daripada masterlist. Muatkan fail untuk lihat pecahan ini.",
+      rvTitle: d => `Readiness validation · ${d} 2026`, rvNote: "Keputusan SRA untuk disahkan bersama setiap HOD. Pilihan pengesahan disimpan dalam tab pelayar ini sahaja dan hilang bila halaman dimuat semula.",
+      thGaps: "Jurang utama", thVal: "Pengesahan SRA oleh HOD", gapsNone: "Daripada sesi SRA",
+      val: { pending: "Belum disahkan", ok: "Disahkan", rep: "Senarai penggantian", rev: "Semak semula skor" },
+      rvProgress: (a, b) => `${a} daripada ${b} disahkan`,
+      navOv: "Gambaran", navSum: "Ringkasan", sumEyebrow: "Ringkasan eksekutif", sumTitle: d => `Ringkasan succession · ${d} 2026`,
+      sumMeta: (src, sc) => `Sumber: ${src} · Skala: ${sc} · Data setakat 2 Nov 2026`, srcSample: "data contoh (rekaan)",
+      exPdf: "Muat turun PDF", exPpt: "Muat turun PowerPoint", exWorking: "Menyediakan…",
+      exNoteSample: "Kedua-dua fail ikut skop, skala dan bahasa semasa. Ringkasan ini guna data contoh rekaan.",
+      exNoteFile: "Kedua-dua fail ikut skop, skala dan bahasa semasa. Ia mengandungi nama dan skor daripada masterlist, jadi simpan dan kongsi di bawah klasifikasi RESTRICTED.",
+      exUnavailable: "Muat turun tidak tersedia dalam paparan ini. Buka artifact di claude.ai untuk muat turun.",
+      exSaved: f => `${f} disimpan.`, exDeclined: "Muat turun dibatalkan.", exBusy: "Satu tetingkap muat turun sedang dibuka. Cuba lagi sebentar.",
+      exFailed: "Fail tidak dapat dijana. Semak sambungan dan cuba lagi.", exLib: "Pustaka eksport tidak dapat dimuatkan. Semak sambungan dan cuba lagi.",
+      thValue: "Nilai", thTarget: "Sasaran", thStatus2: "Status", sumPosTitle: "Jawatan kritikal", thInc: "Penyandang", thVacIn: "Kosong dalam (bulan)", thSuccN: "Pengganti", thReady: "Campuran kesediaan", thRisk: "Risiko",
+      sumNotesTitle: "Perkara utama", kSucc: "Pengganti", kVac: "Kosong sekarang", vacNow: "Kosong", noDate: "Tiada tarikh",
+      classSample: "Data contoh · rekaan", classFile: "RESTRICTED",
+      pptKpiTitle: "Angka utama", pptEffTitle: "Keberkesanan program", pptRiskTitle: "Jawatan yang perlu perhatian", pptPosTitle: "Jawatan kritikal", pptNotesTitle: "Perkara utama", cont: "samb.", page: "Muka",
+      nbTitle: "9-Box: prestasi × potensi", nbNote: "Proksi sehingga ada penarafan potensi berasingan: prestasi = PMS 2025, potensi = tahap kesediaan SRA ikut skala dipilih. Setiap pengganti dikira sekali, pada SRA tertinggi.",
+      nbCount: (n, x) => `${n} pengganti diletakkan${x ? ` · ${x} tiada PMS` : ""}`,
+      nbPerf: "Prestasi (PMS 2025)", nbPot: "Potensi (kesediaan SRA)",
+      nbPerfLab: ["<80%", "80–89%", "≥90%"], nbPotLab: ["R2 / belum sedia", "R1", "R0"],
+      nbBox: [["Prestasi rendah", "Berkesan", "Profesional dipercayai"], ["Tidak konsisten", "Pemain teras", "Berprestasi tinggi"], ["Berlian mentah", "Berpotensi tinggi", "Pemimpin masa depan"]],
+      nbPick: "Klik kotak untuk senaraikan pengganti di dalamnya.", nbEmpty: "Tiada pengganti dalam kotak ini.", nbList: (b, n) => `${b} · ${n}`,
+      thPms: "PMS 2025", thBest: "SRA tertinggi",
+      effTitle: "Keberkesanan program", effNote: "Diukur ikut skop semasa. Sasaran ialah andaian kerja untuk perbincangan, bukan polisi yang diluluskan.",
+      eff: {
+        bench: ["Kekuatan bangku", "Pengganti dalaman bagi setiap jawatan kritikal", "Sasaran ≥ 2.0"],
+        two: ["Jawatan dengan ≥2 pengganti", "Kedalaman bangku", "Sasaran 100%"],
+        ready: ["Nisbah ready-now", "Pengganti R0 bagi setiap jawatan kritikal", "Sasaran ≥ 1.0"],
+        meet: ["Pengganti penuhi kriteria", "Lulus semua 6 kriteria pemilihan", "Sasaran 100%"],
+        runway: ["Runway pendek", "Pengganti keluar < 24 bulan selepas jawatan kosong", "Sasaran ≤ 10%"],
+        overlap: ["Pengganti untuk beberapa jawatan", "Risiko tumpuan", "Sasaran ≤ 20%"],
+        women: ["Wanita dalam kumpulan pengganti", "Kepelbagaian jantina saluran bakat", "Rujukan 30%"],
+        idp: ["IDP tersedia", "Pengganti dengan IDP diluluskan atau sedang berjalan", "Sasaran 100%"]
+      },
+      effSt: { ok: "Di landasan", watch: "Perlu perhatian", na: "Menunggu data" },
+      effNa: { meet: "Semakan kriteria datang daripada masterlist.", women: "Tiada data jantina dalam sumber ini.", idp: "Belum ada rekod IDP. Luluskan IDP di tab IDP atau sambungkan sistem IDP." },
+      notYetTitle: "Metrik yang perlukan data tambahan", thMetric: "Metrik", thNeeds: "Data diperlukan",
+      notYet: [["Kadar isian dalaman jawatan kritikal", "Sejarah lantikan: siapa mengisi setiap jawatan kritikal dan sama ada mereka dalam senarai pengganti"], ["Pergerakan kesediaan tahun ke tahun (R2 → R1 → R0)", "Keputusan SRA kitaran sebelumnya"], ["Kehilangan pengganti dan HiPo yang dikesali", "Rekod peletakan jawatan dipadankan dengan senarai pengganti"], ["Tempoh mengisi jawatan kritikal", "Tarikh kekosongan dan lantikan"], ["Kadar siap IDP ikut kategori 70 · 20 · 10", "Status aktiviti IDP daripada sistem IDP / LMS"]],
+      cardTitle: "Kad pekerja", cardPick: "Pengganti", idpTitle: "Pelan Pembangunan Individu (IDP)", idpPick: "Pengganti · jawatan sasaran",
+      emptyPick: "Tiada pengganti dalam skop ini. Tukar jabatan, kategori atau carian.",
+      bestSra: "SRA 2026 tertinggi", profile: "Profil pengganti", sraByRole: "Keputusan SRA 2026 ikut jawatan sasaran", thRole: "Jawatan sasaran",
+      leadGaps: "Jurang kepimpinan (Harrison)", funcGaps: "Jurang fungsian / teknikal", noGaps: "Tiada jurang direkod.",
+      derivedNote: "Jurang diterbitkan daripada skor SRA dalam masterlist (bawah 80% wajaran setiap komponen). Trait Harrison dan penarafan kompetensi terperinci datang daripada laporan SRA.",
+      hodFb: "Maklum balas HOD", hodFbPh: "Catatan daripada perbincangan SRA bersama HOD…", keptLocal: "Disimpan dalam tab pelayar ini sahaja.", openIdpFor: "Buka IDP",
+      gFit: v => `Job fit (Harrison JSA) ${v} / 40, bawah 80% wajaran`, gFun: v => `Kompetensi fungsian ${v} / 50, bawah 80% wajaran`, gExp: v => `Pengalaman kerja ${v} / 10, bawah 80% wajaran`,
+      secA: "A. Kepimpinan / soft skills", secB: "B. Fungsian / teknikal / pensijilan",
+      thArea: "Bidang penambahbaikan (dapatan SRA)", thInter: "Intervensi dicadangkan", thCatI: "Kategori", thW: "Wajaran", thTl: "Garis masa", thSt: "Status", thRem: "Catatan",
+      addRow: "Tambah baris", del: "Buang baris", noRows: "Belum ada intervensi. Tambah baris.",
+      cats: { ojt: "On-the-Job / Shadowing (70%)", cm: "Coaching & Mentoring (20%)", tr: "Latihan (10%)" },
+      rowSt: { ns: "Belum mula", ip: "Sedang berjalan", dn: "Selesai" },
+      mixTitle: "Campuran 70 · 20 · 10", mixByCount: "Peratus ikut bilangan intervensi. Isi wajaran untuk guna wajaran.", mixByW: "Peratus ikut wajaran.",
+      idpSt: { draft: "Draf", sub: "Dihantar kepada HOD", app: "Diluluskan HOD" },
+      idpAct: { sub: "Hantar kepada HOD", app: "Luluskan (HOD)", draft: "Kembali ke draf" },
+      idpToast: { sub: "IDP dihantar kepada HOD (mockup).", app: "IDP diluluskan oleh HOD (mockup).", draft: "IDP dikembalikan ke draf." },
+      idpNote: "Draf dijana daripada jurang SRA dengan cadangan intervensi. Sunting mana-mana sel. Perubahan disimpan dalam tab pelayar ini sahaja.",
+      mappedRole: "Jawatan dipetakan", incEnd: "Penyandang", readiness: "Tahap kesediaan", record: "Status IDP dalam rekod",
+      monitor: "<b>Pemantauan:</b> Pelan Pembangunan Individu (IDP) & KPI cascading",
+      months12: ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogo","Sep","Okt","Nov","Dis"]
+    }
+  };
+  const MAP = [
+    ["NO · DEPT./DIV. · DIV.", ["Department filter and grouping; OCP division name", "Penapis jabatan dan kumpulan; nama bahagian OCP"]],
+    ["MCP block: position title (BM / EN), grade, department (BM / EN)", ["Position card heading in both languages", "Kepala kad jawatan dalam dua bahasa"]],
+    ["INCUMBENT NAME · STAFF NO · AGE", ["Incumbent row; VACANT shows as a vacant position", "Baris penyandang; VACANT dipaparkan sebagai jawatan kosong"]],
+    ["MCP block: contract / retirement date", ["Months to vacancy and risk level", "Bulan sebelum kosong dan tahap risiko"]],
+    ["LEVEL · MAPPEP ROLE · POSITION ROLE", ["Category C-1 MCP / C-2 OCP", "Kategori C-1 MCP / C-2 OCP"]],
+    ["STAFF NO · STAFF NAME · TITLE · PERSON GRADE · STAFF TYPE", ["Successor row and detail", "Baris dan butiran pengganti"]],
+    ["FIELD OF STUDY · YEARS OF SERVICE", ["Successor detail", "Butiran pengganti"]],
+    ["RETIREMENTDATE · CONTRACT EXDATE", ["Short-runway check; also gives OCP incumbents' dates when they appear as successors", "Semakan runway pendek; juga beri tarikh penyandang OCP bila mereka turut jadi pengganti"]],
+    ["PMS 2024 · PMS 2025 · PMS GRADE", ["Successor detail", "Butiran pengganti"]],
+    ["MAPPED ROLE POSITION GRADE … DISCIPLINARY RECORD (/ or X)", ["Selection criteria checklist", "Senarai semak kriteria pemilihan"]],
+    ["MEET · NO MEET", ["Criteria flag on the chart and status in the table", "Bendera kriteria di carta dan status di jadual"]],
+    ["JOB EX. SCORE (10%) · JSA (HA) SCORE (40%) · FUNC. COMPET. SCORE (50%) · TOTAL SRA", ["SRA score bars and total", "Bar skor SRA dan jumlah"]],
+    ["READINESS", ["Compared with the level calculated on the current scale", "Dibanding dengan tahap kiraan skala semasa"]],
+    ["CURRENT / PROPOSED READINESS table", ["Scale thresholds per category (MCP and OCP differ)", "Ambang skala ikut kategori (MCP dan OCP berbeza)"]],
+    ["EMAIL · GENDER · BIRTHDATE · UNIVERSITY · join and confirm dates", ["Not shown on this screen", "Tidak dipaparkan di skrin ini"]]
+  ];
+  let lang = "en";
+  try { const s = localStorage.getItem("sp-lang"); if (s === "en" || s === "ms") lang = s; } catch (e) {}
+  const L = () => T[lang];
+  const tx = v => Array.isArray(v) ? (v[lang === "en" ? 0 : 1] || v[0]) : v;
+
+  // ---------- Scales ----------
+  const NOW = { y: 2026, m: 11 };
+  const DEFAULT_SCALES = {
+    cur: { MCP: [[70, "R0"], [50, "R1"], [40, "R2"], [0, "-"]], OCP: [[70, "R0"], [50, "R1"], [40, "R2"], [0, "-"]] },
+    neu: { MCP: [[90, "R0"], [75, "R1"], [60, "R2"], [0, "R3"]], OCP: [[80, "R0"], [60, "R1"], [50, "R2"], [0, "R3"]] }
+  };
+  let SCALES = JSON.parse(JSON.stringify(DEFAULT_SCALES));
+  let scale = "cur", view = "chart";
+
+  // ---------- Sample data (fictional) ----------
+  function sampleData() {
+    const P = {
+      kamal:   { n: "Kamal Ariffin bin Yusof", g: "TH12", end: "2028-11", et: "contract" },
+      faizal:  { n: "Faizal bin Rahman", g: "TH11", pos: ["Chief Deposit Strategy Officer", "Ketua Pegawai Strategi Deposit"], end: "2029-06", et: "retire", pms: "88.9% · 80.6%", asp: [1,1,1,1,0] },
+      hafiz:   { n: "Hafiz bin Osman", g: "TH10", pos: ["Head of Hajj Management Division", "Ketua Bahagian Pengurusan Haji"], end: "2035-07", et: "retire", pms: "85.5% · 91.2%", asp: [1,1,1,1,1] },
+      aina:    { n: "Nurul Aina binti Zakaria", g: "TH9", pos: ["Deputy Head of Planning Division", "Timbalan Ketua Bahagian Perancangan"], end: "2038-03", et: "retire", pms: "90.1% · 89.4%", asp: [1,1,1,1,1] },
+      azman:   { n: "Azman bin Salleh", g: "TH9", end: "2031-04", et: "retire" },
+      syafiq:  { n: "Syafiq bin Hamdan", g: "TH8", pos: ["Senior Manager, Agency", "Pengurus Kanan Agensi"], end: "2040-01", et: "retire", pms: "91.0% · 90.3%", asp: [1,1,1,1,1] },
+      zul:     { n: "Zulkifli bin Idris", g: "TH7", pos: ["Manager, Agency Accreditation", "Pengurus Akreditasi Agensi"], end: "2045-09", et: "retire", pms: "88.2% · 92.0%", asp: [1,1,1,1,1] },
+      imran:   { n: "Imran bin Ghazali", g: "TH9", pos: ["General Manager, Logistics", "Pengurus Besar Logistik"], end: "2033-02", et: "retire" },
+      amirul:  { n: "Amirul bin Hakim", g: "TH9", pos: ["Hajj Consul", "Konsul Haji"], end: "2036-05", et: "retire", pms: "89.7% · 90.8%", asp: [1,1,1,1,1] },
+      shahrul: { n: "Shahrul bin Nordin", g: "TH9", end: "2027-08", et: "retire" },
+      aisyah:  { n: "Aisyah binti Karim", g: "TH8", pos: ["Senior Manager, Guidance Curriculum", "Pengurus Kanan Kurikulum Bimbingan"], end: "2039-10", et: "retire", pms: "87.5% · 88.1%", asp: [1,1,1,0,1] },
+      zahid:   { n: "Zahid bin Hussin", g: "TH8", pos: ["Senior Manager, State Guidance", "Pengurus Kanan Bimbingan Negeri"], end: "2034-06", et: "retire", pms: "86.3% · 87.0%", asp: [1,1,1,1,0] },
+      hazim:   { n: "Hazim bin Ali", g: "TH8", pos: ["Manager, Digital Content", "Pengurus Kandungan Digital"], end: "2046-02", et: "retire", pms: "90.4% · 91.5%", asp: [1,1,1,1,1] },
+      rozita:  { n: "Rozita binti Omar", g: "TH9", end: "2030-09", et: "retire" },
+      khairul: { n: "Khairul bin Bakar", g: "TH8", pos: ["Senior Manager, Research", "Pengurus Kanan Penyelidikan"], end: "2041-11", et: "retire", pms: "89.0% · 90.2%", asp: [1,1,1,1,1] },
+      zailan:  { n: "Zailan bin Ghafur", g: "TH8", pos: ["Senior Manager, Analytics", "Pengurus Kanan Analitik"], end: "2037-04", et: "retire", pms: "85.1% · 86.4%", asp: [1,1,0,1,1] },
+      mustafa: { n: "Mustafa bin Latif", g: "TH8", pos: ["Senior Manager, Consulate", "Pengurus Kanan Konsulat"], end: "2038-08", et: "retire", pms: "86.8% · 85.9%", asp: [1,1,1,1,0] },
+      nazri:   { n: "Mohd Nazri bin Kassim", g: "TH9", end: "2032-01", et: "retire" },
+      ashraf:  { n: "Ashraf bin Shamsudin", g: "TH8", pos: ["Senior Manager, State Operations", "Pengurus Kanan Operasi Negeri"], end: "2042-12", et: "retire", pms: "88.4% · 87.7%", asp: [1,1,1,1,1] }
+    };
+    const G = {
+      infl: ["Leadership: Influencing, Pressure Tolerance", "Kepimpinan: Influencing, Pressure Tolerance"], digi: ["Technical: Pilgrim Digital Services (2/4)", "Teknikal: Perkhidmatan Digital Jemaah (2/4)"],
+      intl: ["International authority experience (1/2)", "Pengalaman pihak berkuasa antarabangsa (1/2)"], plan: ["Leadership: Planning, Authoritative", "Kepimpinan: Planning, Authoritative"],
+      ops24: ["Technical: Hajj Operations Strategy (2/4)", "Teknikal: Strategi Operasi Haji (2/4)"], g912: ["Grade gap TH9 to TH12", "Jurang gred TH9 ke TH12"],
+      planSelf: ["Leadership: Planning, Self-Acceptance", "Kepimpinan: Planning, Self-Acceptance"], saudi: ["Technical: Saudi Authority Liaison (3/4)", "Teknikal: Diplomasi Pihak Berkuasa Saudi (3/4)"],
+      retire7: ["Retires 7 months after the incumbent's contract ends", "Bersara 7 bulan selepas penyandang tamat kontrak"], deleg: ["Leadership: Delegation", "Kepimpinan: Delegation"],
+      contract34: ["Technical: Agency Contract Management (3/4)", "Teknikal: Pengurusan Kontrak Agensi (3/4)"], press: ["Leadership: Pressure Tolerance", "Kepimpinan: Pressure Tolerance"],
+      g79: ["Grade gap TH7 to TH9", "Jurang gred TH7 ke TH9"], logi: ["Technical: Global Logistics (3/4)", "Teknikal: Logistik Global (3/4)"],
+      g810: ["Grade gap TH8 to TH10", "Jurang gred TH8 ke TH10"], season: ["Technical: Season Operations Planning (2/4)", "Teknikal: Perancangan Operasi Musim (2/4)"],
+      inflOnly: ["Leadership: Influencing", "Kepimpinan: Influencing"], large: ["Technical: Large-scale Programme Management (2/4)", "Teknikal: Pengurusan Program Berskala Besar (2/4)"],
+      chall: ["Leadership: Wants Challenge, Self-Improvement", "Kepimpinan: Wants Challenge, Self-Improvement"], divExp: ["Division management experience (0/2)", "Pengalaman pengurusan bahagian (0/2)"],
+      curr: ["Technical: Guidance Curriculum (2/4)", "Teknikal: Kurikulum Bimbingan (2/4)"], research: ["Technical: Research Design (2/4)", "Teknikal: Reka Bentuk Kajian (2/4)"],
+      inflPlan: ["Leadership: Influencing, Planning", "Kepimpinan: Influencing, Planning"], diplo: ["Diplomatic experience (1/2)", "Pengalaman diplomatik (1/2)"],
+      authInfl: ["Leadership: Authoritative, Influencing", "Kepimpinan: Authoritative, Influencing"], abroad: ["Overseas experience (0/2)", "Pengalaman di luar negara (0/2)"],
+      complex: ["Technical: Complex Hajj Operations (3/4)", "Teknikal: Operasi Kompleks Haji (3/4)"]
+    };
+    const PROG = { hafiz: "run", aina: "none", faizal: "run", syafiq: "run", zul: "none", amirul: "run", aisyah: "ok", zahid: "ok", hazim: "none", khairul: "run", zailan: "draft", mustafa: "none", ashraf: "ok" };
+    const raw = [
+      ["dir", "MCP", ["Director of Hajj", "Pengarah Haji"], "TH12", "kamal", [["hafiz", 7, 33.6, 40, "ok", ["infl", "digi", "intl"]], ["aina", 6, 28, 30, "new", ["plan", "ops24", "g912"]], ["faizal", 9, 34, 40, "rep", ["planSelf", "saudi", "retire7"]]]],
+      ["agn", "OCP", ["Head of Hajj Agency Division", "Ketua Bahagian Agensi Haji"], "TH9", "azman", [["syafiq", 8, 30, 38, "ok", ["deleg", "contract34"]], ["zul", 5, 25, 28, "new", ["press", "g79"]]]],
+      ["mgt", "OCP", ["Head of Hajj Management Division", "Ketua Bahagian Pengurusan Haji"], "TH10", "hafiz", [["amirul", 8, 29, 35, "ok", ["logi"]], ["imran", 7, 27, 30, "struck", []], ["syafiq", 6, 25, 30, "ok", ["g810", "season"]]]],
+      ["bim", "OCP", ["Head of Hajj Guidance Division", "Ketua Bahagian Bimbingan Haji"], "TH9", "shahrul", [["aisyah", 6, 27, 30, "ok", ["inflOnly", "large"]], ["zahid", 6, 22, 27, "ok", ["chall"]], ["hazim", 3, 20, 21, "new", ["divExp", "curr"]]]],
+      ["rnd", "OCP", ["Head of Hajj R&D Division", "Ketua Bahagian R&D Haji"], "TH9", "rozita", [["khairul", 8, 28, 35, "ok", ["press"]], ["zailan", 4, 20, 22, "ok", ["research", "inflPlan"]]]],
+      ["kon", "OCP", ["Hajj Consul", "Konsul Haji"], "TH9", "amirul", [["khairul", 7, 29, 38, "ok", ["diplo"]], ["mustafa", 4, 18, 20, "new", ["authInfl", "abroad"]]]],
+      ["dom", "OCP", ["Head of Domestic Operations Division", "Ketua Bahagian Operasi Domestik"], "TH10", "nazri", [["amirul", 9, 31, 38, "ok", ["complex"]], ["ashraf", 6, 24, 27, "ok", ["g810", "deleg"]]]]
+    ];
+    const positions = raw.map(([id, cat, t, g, inc, succ]) => ({
+      id, cat, dept: "HAJJ", t, g,
+      inc: Object.assign({ key: inc }, P[inc]),
+      succ: succ.map(([k, e, f, u, st, gaps]) => ({ key: k, p: Object.assign({ key: k }, P[k]), exp: e, fit: f, fun: u, st, gaps: gaps.map(x => G[x]), prog: PROG[k] || null }))
+    }));
+    return { source: "sample", positions, depts: [["HAJJ", ["Hajj Department", "Jabatan Haji"]]], fileName: "" };
+  }
+
+  // ---------- Masterlist parser ----------
+  const norm = s => String(s == null ? "" : s).toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const clean = s => String(s == null ? "" : s).replace(/\s+/g, " ").trim();
+  const title = s => clean(s).toLowerCase().replace(/(^|[\s(/&-])([a-z])/g, (m, a, b) => a + b.toUpperCase()).replace(/\b(Of|And|In|The)\b/g, w => w.toLowerCase());
+  function toYM(v) {
+    if (v == null || v === "") return null;
+    if (v instanceof Date && !isNaN(v)) { const d = new Date(v.getTime() + 12 * 3600e3); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); }
+    const m = String(v).match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+    if (m) return m[3] + "-" + m[2].padStart(2, "0");
+    return null;
+  }
+  const num = v => { const n = typeof v === "number" ? v : parseFloat(String(v).replace(/[^0-9.\-]/g, "")); return isNaN(n) ? null : n; };
+  const pct = v => { const n = num(v); return n == null ? null : (n <= 1.5 ? n * 100 : n); };
+  const tick = v => { const s = clean(v).toUpperCase(); return s === "/" || s === "✓" || s === "Y" ? true : s === "X" || s === "✗" || s === "N" ? false : null; };
+
+  function headerInfo(rows) {
+    const hr = rows.findIndex(r => r && r.some(c => norm(c) === "STAFFNAME"));
+    if (hr < 0) return null;
+    const H = rows[hr].map(norm), H2 = (rows[hr + 1] || []).map(norm);
+    const twoRow = H2.includes("JOINDATE") && !H.includes("JOINDATE");
+    const all = H.map((h, i) => h || (twoRow ? H2[i] : "") || "");
+    const after = (name, start = 0) => { for (let i = start; i < all.length; i++) if (all[i] === name) return i; return -1; };
+    return { hr, all, after };
+  }
+  function readScale(rows, cat) {
+    const out = { cur: null, neu: null };
+    for (let r = 0; r < Math.min(rows.length, 12); r++) {
+      const row = rows[r] || [];
+      row.forEach((c, i) => {
+        const n = norm(c);
+        const grab = () => { const b = []; for (let k = 1; k <= 4; k++) { const v = rows[r + k] && rows[r + k][i], lv = rows[r + k] && rows[r + k][i + 1]; const x = num(String(v || "").replace(/^.*?(\d+).*$/, "$1")); b.push([k === 4 ? 0 : (x == null ? 0 : x), clean(lv) || ["R0", "R1", "R2", "-"][k - 1]]); } return b; };
+        if (n === "CURRENTRESULTSCORING") out.cur = grab();
+        if (n === "PROPOSEDREADINESS") out.neu = grab();
+      });
+    }
+    if (out.cur) SCALES.cur[cat] = out.cur;
+    if (out.neu) SCALES.neu[cat] = out.neu;
+  }
+  function succFrom(row, h) {
+    const sn = h.after("STAFFNAME"), base = sn - 1;
+    const at = (name, from = base) => { const i = h.after(name, from); return i < 0 ? null : row[i]; };
+    const studyIdx = h.after("FIELDOFSTUDY", sn), study2 = h.after("FIELDOFSTUDY", studyIdx + 1);
+    const pms24 = h.after("PMS2024", sn), pms25 = h.after("PMS2025", sn);
+    const empIdx = h.after("EMPLOYMENTSTATUS", sn);
+    const crit = {
+      grade: tick(at("MAPPEDROLEPOSITIONGRADE", sn)), emp: tick(row[empIdx]), acad: tick(at("ACADEMICQUALIFICATION", sn)),
+      age: tick(at("AGE", empIdx)), pms: tick(at("PMS", empIdx)), disc: tick(at("DISCIPLINARYRECORD", sn))
+    };
+    const meetY = tick(at("MEET", sn)), meetN = tick(at("NOMEET", sn));
+    const exEnd = toYM(at("CONTRACTEXDATE", sn)), rtEnd = toYM(at("RETIREMENTDATE", sn));
+    const q1 = clean(row[studyIdx]), q2 = clean(row[study2]);
+    const p = {
+      key: clean(at("STAFFNO")) || clean(row[sn]), staff: clean(at("STAFFNO")), n: clean(row[sn]), g: clean(at("PERSONGRADE", sn)),
+      pos: title(at("TITLE", sn)), type: clean(at("STAFFTYPE", sn)),
+      qual: [q1, q2].filter(x => x && x !== "#N/A").map(title).join(" · "),
+      svc: clean(at("YEARSOFSERVICE", sn)).toLowerCase(),
+      gender: (/^f/i.test(clean(at("GENDER", sn) || at("GENDERNAME", sn))) ? "F" : /^m/i.test(clean(at("GENDER", sn) || at("GENDERNAME", sn))) ? "M" : null),
+      end: exEnd || rtEnd, et: exEnd ? "contract" : "retire",
+      pms: [row[pms24], row[pms25]].map(v => num(v) == null ? "–" : num(v).toFixed(2) + "%").join(" · ") +
+           ` (${[row[pms24 + 1], row[pms25 + 1]].map(clean).filter(Boolean).join(" · ")})`
+    };
+    return {
+      key: p.key, p, exp: pct(at("JOBEXSCORE10", sn)) || 0, fit: pct(at("JSAHASCORE40", sn)) || 0, fun: pct(at("FUNCCOMPETSCORE50", sn)) || 0,
+      fileTotal: pct(at("TOTALSRA", sn)), fileLvl: clean(at("READINESS", sn)) || null,
+      st: meetN === true && meetY !== true ? "nomeet" : "meet", crit, gaps: null, prog: null
+    };
+  }
+  function parseWorkbook(wb, fileName) {
+    SCALES = JSON.parse(JSON.stringify(DEFAULT_SCALES));
+    const find = re => wb.SheetNames.find(n => re.test(n.toUpperCase()) && !/\(\d+\)/.test(n));
+    const mName = find(/MASTERLIST\s*MCP/), oName = find(/MASTERLIST\s*OCP/);
+    if (!mName && !oName) throw new Error(L().noSheets);
+    const positions = [], deptBM = {}, people = {};
+    if (mName) {
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[mName], { header: 1, raw: true, defval: null });
+      const h = headerInfo(rows); if (!h) throw new Error("MCP header");
+      readScale(rows, "MCP");
+      const noIdx = h.after("NO"), deptIdx = h.after("DEPTDIV");
+      let cur = null;
+      for (let r = h.hr + 1; r < rows.length; r++) {
+        const row = rows[r] || [];
+        if (num(row[0]) != null && row[1]) {
+          const rawT = clean(String(row[1]).replace(/\(KT[^)]*\)/i, "").replace(/\(\s*[^)]*-\s*[^)]*\)\s*$/, ""));
+          const parts = rawT.split(/\s*\/\s*/).map(clean).filter(Boolean);
+          const t = parts.length > 1 ? [title(parts.slice(1).join(" / ")), title(parts[0])] : [title(rawT), title(rawT)];
+          const dParts = clean(row[9]).split(/\s*\/\s*/).map(clean);
+          const endTxt = clean(row[7]).toUpperCase();
+          cur = { id: "m" + r, cat: "MCP", dept: null, deptLabel: dParts.length > 1 ? [title(dParts.slice(1).join(" ")), title(dParts[0])] : null, t, g: clean(row[8]),
+            inc: { key: clean(row[2]), staff: clean(row[2]), n: clean(row[3]), end: toYM(row[6]), et: endTxt === "CONTRACT" ? "contract" : "retire" }, succ: [] };
+          positions.push(cur);
+        }
+        if (cur && noIdx >= 0 && num(row[noIdx]) != null && row[h.after("STAFFNAME")]) {
+          const dept = clean(row[deptIdx]).toUpperCase();
+          if (!cur.dept) { cur.dept = dept; if (cur.deptLabel) deptBM[dept] = cur.deptLabel; }
+          const s = succFrom(row, h); cur.succ.push(s); people[s.key] = s.p;
+        }
+      }
+    }
+    if (oName) {
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[oName], { header: 1, raw: true, defval: null });
+      const h = headerInfo(rows); if (!h) throw new Error("OCP header");
+      readScale(rows, "OCP");
+      const iDept = h.after("DEPTDIV"), iDiv = h.after("DIV"), iStaff = h.after("STAFFNO"), iInc = h.after("INCUMBENTNAME"), iAge = h.after("AGE");
+      const byKey = {};
+      for (let r = h.hr + 1; r < rows.length; r++) {
+        const row = rows[r] || [];
+        if (num(row[0]) == null || !row[h.after("STAFFNAME")]) continue;
+        const dept = clean(row[iDept]).toUpperCase(), div = clean(row[iDiv]), incN = clean(row[iInc]);
+        const k = dept + "|" + div + "|" + incN;
+        if (!byKey[k]) {
+          const vac = !clean(row[iStaff]) || /VACANT|KOSONG/i.test(incN);
+          byKey[k] = { id: "o" + r, cat: "OCP", dept, t: ["Head of Division · " + title(div), "Ketua Bahagian · " + title(div)], g: "",
+            inc: vac ? { vacant: true, n: "" } : { key: clean(row[iStaff]), staff: clean(row[iStaff]), n: incN, age: num(row[iAge]), end: null, et: "est" }, succ: [] };
+          positions.push(byKey[k]);
+        }
+        const s = succFrom(row, h); byKey[k].succ.push(s); people[s.key] = people[s.key] || s.p;
+      }
+    }
+    // Fill OCP incumbent dates from their own successor rows; else estimate from age (retire at 60)
+    let est = 0;
+    positions.forEach(p => {
+      const inc = p.inc;
+      if (inc.vacant || inc.end) return;
+      const me = people[inc.key];
+      if (me && me.end) { inc.end = me.end; inc.et = me.et; }
+      else if (inc.age != null) { inc.end = (NOW.y + Math.max(0, 60 - inc.age)) + "-" + String(NOW.m).padStart(2, "0"); inc.et = "est"; est++; }
+    });
+    const depts = [...new Set(positions.map(p => p.dept).filter(Boolean))].map(d => [d, deptBM[d] || [title(d), title(d)]]);
+    return { source: "file", positions, depts, fileName, est };
+  }
+
+  // ---------- State + helpers ----------
+  let DATA = sampleData();
+  let dept = "";
+  const ym = s => { const [y, m] = s.split("-").map(Number); return { y, m }; };
+  const monthsTo = s => { if (!s) return null; const d = ym(s); return (d.y - NOW.y) * 12 + (d.m - NOW.m); };
+  const fmtYM = s => { if (!s) return "–"; const d = ym(s); return L().months12[d.m - 1] + " " + d.y; };
+  const total = s => +(s.exp + s.fit + s.fun).toFixed(1);
+  const level = (t, cat, sc = scale) => SCALES[sc][cat].find(([min]) => t >= min)[1];
+  const lvCls = l => (l === "-" || !l) ? "r3" : l.toLowerCase();
+  const desc = (l, sc = scale) => (sc === "neu" && l === "R2") ? L().descNewR2 : (L().desc[l] || L().desc["-"]);
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const $ = id => document.getElementById(id);
+  const isInternal = s => s.st !== "rep" && s.st !== "struck";
+  const deptLabel = d => { const x = DATA.depts.find(([k]) => k === d); return x ? tx(x[1]) : d; };
+
+  function analyse(p) {
+    const internal = p.succ.filter(isInternal);
+    const mo = p.inc.vacant ? 0 : monthsTo(p.inc.end);
+    const hasR0 = internal.some(s => level(total(s), p.cat) === "R0");
+    const soon = mo != null && mo <= 24;
+    const risk = (!hasR0 && soon) ? "high" : (!hasR0 || soon) ? "med" : "low";
+    return { internal, mo, hasR0, risk };
+  }
+  const runwayGap = (s, p) => { const a = monthsTo(s.p.end), b = p.inc.vacant ? 0 : monthsTo(p.inc.end); return a == null || b == null ? null : a - Math.max(b, 0); };
+  const runwayShort = (s, p) => { const g = runwayGap(s, p); return g != null && g < 24; };
+  const failed = s => s.crit ? Object.keys(s.crit).filter(k => s.crit[k] === false) : [];
+  const q = () => $("fSearch").value.trim().toLowerCase();
+  const visible = () => DATA.positions.filter(p => (!$("fCat").value || p.cat === $("fCat").value) && (!dept || p.dept === dept));
+
+  // ---------- Render ----------
+  function renderStatic() {
+    document.documentElement.lang = lang === "en" ? "en" : "ms";
+    document.querySelectorAll("[data-i]").forEach(e => { const v = L()[e.dataset.i]; if (typeof v === "string") e.innerHTML = v; });
+    $("fSearch").placeholder = L().search; $("fSearch").setAttribute("aria-label", L().search);
+    $("fDept").setAttribute("aria-label", lang === "en" ? "Department" : "Jabatan");
+    $("fCat").setAttribute("aria-label", lang === "en" ? "Category" : "Kategori");
+    $("scaleGrp").setAttribute("aria-label", lang === "en" ? "Readiness scale" : "Skala kesediaan");
+    $("viewGrp").setAttribute("aria-label", lang === "en" ? "View" : "Paparan");
+    $("nav").setAttribute("aria-label", lang === "en" ? "Portal sections" : "Bahagian portal");
+    $("lgEN").setAttribute("aria-pressed", String(lang === "en")); $("lgMS").setAttribute("aria-pressed", String(lang === "ms"));
+    const file = DATA.source === "file";
+    $("banner").className = "banner" + (file ? " file" : "");
+    $("banner").innerHTML = file ? L().bannerFile(esc(DATA.fileName)) : L().bannerSample;
+    const m = DATA.positions.filter(p => p.cat === "MCP").length, o = DATA.positions.length - m;
+    $("loadNote").textContent = file ? L().loadedNote(m, o, DATA.positions.reduce((a, p) => a + p.succ.length, 0), DATA.positions.filter(p => p.inc.vacant).length) : L().loadNote;
+    $("useSample").hidden = !file;
+    $("fDept").innerHTML = `<option value="">${L().deptAll}</option>` + DATA.depts.map(([k, lab]) => `<option value="${esc(k)}"${k === dept ? " selected" : ""}>${esc(tx(lab))}</option>`).join("");
+    $("chartTitle").textContent = L().chartTitle(dept ? deptLabel(dept) : L().deptAll);
+    $("rvTitle").textContent = L().rvTitle(dept ? deptLabel(dept) : L().deptAll);
+    document.querySelectorAll("nav [data-view]").forEach(b => { if (b.dataset.view === page) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+    $("mapRows").innerHTML = MAP.map(([c, f]) => `<tr><td>${esc(c)}</td><td>${esc(tx(f))}</td></tr>`).join("");
+  }
+
+  function renderLegend() {
+    const cats = [...new Set(visible().map(p => p.cat))]; if (!cats.length) cats.push("MCP");
+    const rng = (b, i) => i === 0 ? `≥${b[0][0]}%` : i === b.length - 1 ? `≤${b[i - 1][0] - 1}%` : `${b[i][0]}–${b[i - 1][0] - 1}%`;
+    const base = SCALES[scale][cats[0]];
+    const same = cats.every(c => JSON.stringify(SCALES[scale][c]) === JSON.stringify(base));
+    $("legend").innerHTML = base.map(([, l], i) => {
+      const r = same ? rng(base, i) : cats.map(c => `${c} ${rng(SCALES[scale][c], i)}`).join(" · ");
+      return `<span><i class="sw ${lvCls(l)}"></i>${l === "-" ? L().notReady : l + " " + desc(l)} <span class="note">${r}</span></span>`;
+    }).join("") + (DATA.source === "sample" ? `<span><i class="sw rep"></i>${L().repLegend}</span><span><span class="pill p-new">${L().newPill}</span>${L().newLegend}</span>` : `<span><span class="flag bad">${L().noMeetFlag}</span>${L().stat.nomeet}</span>`);
+    $("scaleNote").textContent = L().scaleNote(L().scaleName[scale]);
+  }
+
+  function renderKpis() {
+    const ps = visible(), an = ps.map(analyse);
+    const cov = an.filter(a => a.internal.length).length, r0 = an.filter(a => a.hasR0).length, high = an.filter(a => a.risk === "high").length;
+    const succN = new Set(ps.flatMap(p => p.succ.filter(s => s.st !== "struck").map(s => s.key))).size, vac = ps.filter(p => p.inc.vacant).length;
+    const pc = (a, b) => b ? Math.round(a / b * 100) : 0;
+    $("kpis").innerHTML = `
+      <div class="panel kpi accent"><span class="label">${L().kPos}</span><span class="value">${ps.length}</span><span class="note">${L().kPosN(succN, vac)}</span></div>
+      <div class="panel kpi ok"><span class="label">${L().kCov}</span><span class="value">${pc(cov, ps.length)}<small>%</small></span><span class="note">${L().kCovN(cov, ps.length)}</span></div>
+      <div class="panel kpi ${r0 === ps.length ? "ok" : "warn"}"><span class="label">${L().kR0}</span><span class="value">${pc(r0, ps.length)}<small>%</small></span><span class="note">${L().kR0N(r0, ps.length)}</span></div>
+      <div class="panel kpi ${high ? "bad" : "ok"}"><span class="label">${L().kHigh}</span><span class="value">${high}</span><span class="note">${L().kHighN}</span></div>`;
+  }
+
+  const RISKC = { high: "p-bad", med: "p-warn", low: "p-ok" };
+  function succBtn(p, s, idx) {
+    const per = s.p, t = total(s), l = level(t, p.cat), term = q();
+    const hit = term && per.n.toLowerCase().includes(term), dim = term && !hit;
+    const nm = `${esc(per.n)}${per.g ? ` (${esc(per.g)})` : ""}`;
+    if (s.st === "struck") return `<div class="succ struck${dim ? " dim" : ""}"><div class="succ-main"><span class="succ-name">${nm}</span><span class="succ-sub">${L().removed}</span></div></div>`;
+    const flags = (runwayShort(s, p) ? `<span class="flag" title="${L().shortTitle}">⚠ ${L().shortRunway}</span>` : "") +
+      (s.st === "nomeet" ? `<span class="flag bad" title="${esc(failed(s).map(k => L().crit[k]).join(", "))}">${L().noMeetFlag}</span>` : "");
+    return `<button type="button" class="succ${s.st === "rep" ? " rep" : ""}${hit ? " hit" : ""}${dim ? " dim" : ""}" data-p="${p.id}" data-x="${idx}">
+      <span class="succ-main"><span class="succ-name">${nm}</span>
+      <span class="succ-sub"><span class="num">${t.toFixed(1)}%</span>${s.st === "new" ? `<span class="pill p-new">${L().newPill}</span>` : ""}${flags}</span></span>
+      <span class="chip ${lvCls(l)}">${l}</span></button>`;
+  }
+  function posCard(p) {
+    const a = analyse(p), inc = p.inc;
+    const items = p.succ.map((s, i) => [s, i]);
+    const internal = items.filter(([s]) => s.st !== "rep"), reps = items.filter(([s]) => s.st === "rep");
+    const meta = inc.vacant ? L().vacantNow : a.mo == null ? L().noEnd : a.mo < 0 ? L().overdue(-a.mo) : L().vacantIn(a.mo);
+    const incRow = inc.vacant ? `<div class="pos-inc vac">${L().vacantName}<small>${L().vacantSub}</small></div>`
+      : `<div class="pos-inc">${esc(inc.n)}<small>${L().incumbent} · ${inc.end ? L().end[inc.et] + " " + fmtYM(inc.end) : L().noEnd}</small></div>`;
+    return `<article class="pos${a.risk === "high" ? " risk-high" : ""}">
+      <div class="pos-head"><b>${esc(tx(p.t))}${p.g ? ` (${esc(p.g)})` : ""}</b>${!dept && p.dept ? `<small>${esc(deptLabel(p.dept))}</small>` : ""}</div>
+      ${incRow}
+      <div class="pos-meta"><span>${meta}</span><span class="pill ${RISKC[a.risk]}">${L().risk[a.risk]}</span></div>
+      <div class="pos-body">
+        <div class="grp">${L().internal}</div>
+        ${internal.length ? internal.map(([s, i]) => succBtn(p, s, i)).join("") : `<div class="empty-succ">${L().none}</div>`}
+        ${reps.length ? `<div class="grp">${L().reps}</div>${reps.map(([s, i]) => succBtn(p, s, i)).join("")}` : ""}
+      </div></article>`;
+  }
+  function renderChart() {
+    const ps = visible(), m = ps.filter(p => p.cat === "MCP"), o = ps.filter(p => p.cat === "OCP");
+    $("mcp").className = m.length === 1 ? "mcp-wrap" : "pos-grid";
+    $("mcp").innerHTML = m.map(posCard).join(""); $("ocp").innerHTML = o.map(posCard).join("");
+    $("mcpHead").hidden = $("mcp").hidden = !m.length;
+    $("ocpHead").hidden = $("ocp").hidden = !o.length;
+    $("chartEmpty").hidden = ps.length > 0;
+  }
+  function renderTable() {
+    const term = q(), SC = { ok: "p-ok", new: "p-mute", struck: "p-bad", rep: "p-warn", meet: "p-ok", nomeet: "p-bad" };
+    $("rows").innerHTML = visible().flatMap(p => p.succ.map((s, i) => {
+      if (term && !s.p.n.toLowerCase().includes(term)) return "";
+      const t = total(s), l = level(t, p.cat), struck = s.st === "struck";
+      return `<tr class="${struck ? "" : "clk"}" ${struck ? "" : `data-p="${p.id}" data-x="${i}"`}>
+        <td><b>${esc(tx(p.t))}</b> <span class="sub">${esc(p.g)}</span></td><td>${p.cat}</td>
+        <td>${esc(s.p.n)} <span class="sub">${esc(s.p.g)}</span></td>
+        <td class="num">${s.exp.toFixed(1)}%</td><td class="num">${s.fit.toFixed(1)}%</td><td class="num">${s.fun.toFixed(1)}%</td>
+        <td class="num"><b>${t.toFixed(1)}%</b></td><td>${struck ? "–" : `<span class="rd ${lvCls(l)}">${l}</span>`}</td>
+        <td><span class="pill ${SC[s.st]}">${L().stat[s.st]}</span></td></tr>`;
+    })).join("") || `<tr><td colspan="9" class="sub" style="text-align:center;padding:24px">${esc(term ? L().noMatch(term) : L().emptyScope)}</td></tr>`;
+  }
+  function renderNotes() { $("notes").innerHTML = noteList().map(x => `<li>${x}</li>`).join(""); }
+  function noteList() {
+    const out = [], vis = visible();
+    const vac = vis.filter(p => p.inc.vacant).length;
+    if (vac) out.push(L().nVac(vac));
+    vis.forEach(p => {
+      const a = analyse(p), inc = p.inc;
+      if (a.risk === "high") {
+        const why = inc.vacant ? L().nHighWhy.vac : a.mo < 0 ? L().nHighWhy.past(L().end[inc.et], fmtYM(inc.end)) : L().nHighWhy.soon(L().end[inc.et], fmtYM(inc.end), a.mo);
+        out.push(L().nHigh(esc(tx(p.t)), why));
+      }
+      p.succ.forEach(s => {
+        if (!isInternal(s) && s.st !== "rep") return;
+        if (runwayShort(s, p)) out.push(L().nRunway(esc(s.p.n), esc(tx(p.t)), L().end[s.p.et], fmtYM(s.p.end), runwayGap(s, p)));
+      });
+    });
+    const rowsAll = vis.flatMap(p => p.succ.map(s => [p, s]));
+    const nm = rowsAll.filter(([, s]) => s.st === "nomeet");
+    if (nm.length) {
+      const c = {}; nm.forEach(([, s]) => failed(s).forEach(k => c[k] = (c[k] || 0) + 1));
+      out.push(L().nNoMeet(nm.length, Object.entries(c).map(([k, n]) => `${L().critShort[k]} ${n}`).join(", ")));
+    }
+    const mis = rowsAll.filter(([p, s]) => s.fileLvl && s.fileLvl !== level(total(s), p.cat, "cur")).length;
+    if (mis) out.push(L().nMismatch(mis));
+    const est = vis.filter(p => p.inc.et === "est" && !p.inc.vacant).length;
+    if (est) out.push(L().nEst(est));
+    const counts = {}, names = {};
+    rowsAll.forEach(([p, s]) => { if (s.st !== "struck") { (counts[s.key] = counts[s.key] || []).push(tx(p.t)); names[s.key] = s.p.n; } });
+    Object.entries(counts).filter(([, v]) => v.length > 1).forEach(([k, v]) => out.push(L().nMulti(esc(names[k]), v.length, v.map(esc).join(", "))));
+    Object.keys(counts).forEach(k => { if (DATA.positions.some(p => !p.inc.vacant && p.inc.key === k)) out.push(L().nChain(esc(names[k]))); });
+    out.push(L().nIdp);
+    return out;
+  }
+  // ---------- Dashboard ----------
+  const uc = t => t.charAt(0).toUpperCase() + t.slice(1);
+  function whyText(p, a) {
+    const inc = p.inc;
+    return inc.vacant ? L().nHighWhy.vac : a.mo < 0 ? L().nHighWhy.past(L().end[inc.et], fmtYM(inc.end)) : L().nHighWhy.soon(L().end[inc.et], fmtYM(inc.end), a.mo);
+  }
+
+  // ---------- 9-Box + effectiveness ----------
+  let selNb = null;
+  const pmsLast = per => { const m = [...String(per.pms || "").matchAll(/(\d+(?:\.\d+)?)%/g)]; return m.length ? +m[m.length - 1][1] : null; };
+  const genderOf = per => per.gender || (DATA.source === "sample" ? (/\bbinti\b/i.test(per.n) ? "F" : /\bbin\b/i.test(per.n) ? "M" : null) : null);
+  function peopleInScope(ps) {
+    const m = new Map();
+    ps.forEach(p => p.succ.forEach((s, i) => {
+      if (s.st === "struck") return;
+      const x = { p, s, i };
+      if (!m.has(s.key)) m.set(s.key, { per: s.p, best: x, list: [] });
+      const e = m.get(s.key); e.list.push(x); if (total(s) > total(e.best.s)) e.best = x;
+    }));
+    return [...m.values()];
+  }
+  function renderNineBox(ps) {
+    const U = L(), people = peopleInScope(ps), cells = {}; let noPms = 0;
+    people.forEach(e => {
+      const pm = pmsLast(e.per); if (pm == null) { noPms++; return; }
+      const perf = pm >= 90 ? 2 : pm >= 80 ? 1 : 0;
+      const lv = level(total(e.best.s), e.best.p.cat), pot = lv === "R0" ? 2 : lv === "R1" ? 1 : 0;
+      (cells[pot + "-" + perf] = cells[pot + "-" + perf] || []).push(Object.assign({ pm, lv }, e));
+    });
+    const placed = people.length - noPms;
+    $("nbCount").textContent = U.nbCount(placed, noPms);
+    const tone = (pot, perf) => pot + perf >= 4 ? "t-ok" : pot + perf === 3 ? "t-ok2" : pot + perf === 2 ? "t-mid" : pot + perf === 1 ? "t-warn" : "t-bad";
+    let grid = "";
+    for (let pot = 2; pot >= 0; pot--) for (let perf = 0; perf <= 2; perf++) {
+      const k = pot + "-" + perf, n = (cells[k] || []).length;
+      grid += `<button type="button" class="nb-box ${tone(pot, perf)}" data-nb="${k}" aria-pressed="${selNb === k}"><span class="nb-n">${n}</span><span class="nb-name">${U.nbBox[pot][perf]}</span></button>`;
+    }
+    $("nbWrap").innerHTML = `<div class="nb-y"><span>${U.nbPot}</span></div>
+      <div class="nb-ylab">${[2, 1, 0].map(i => `<span>${U.nbPotLab[i]}</span>`).join("")}</div>
+      <div class="nb-grid">${grid}</div>
+      <div class="nb-xlab">${U.nbPerfLab.map(x => `<span>${x}</span>`).join("")}</div>
+      <div class="nb-x">${U.nbPerf}</div>`;
+    if (!selNb) { $("nbList").innerHTML = `<p class="note">${U.nbPick}</p>`; return; }
+    const [pot, perf] = selNb.split("-").map(Number), list = (cells[selNb] || []).sort((a, b) => total(b.best.s) - total(a.best.s));
+    $("nbList").innerHTML = `<h3>${U.nbList(U.nbBox[pot][perf], list.length)}</h3>` + (list.length ? `<div class="table-scroll"><table>
+      <thead><tr><th>${U.thSucc}</th><th>${U.thBest}</th><th class="num">${U.thPms}</th><th class="num">SRA</th><th>${U.thLvl}</th></tr></thead>
+      <tbody>${list.map(e => `<tr class="clk" data-p="${e.best.p.id}" data-x="${e.best.i}"><td><b>${esc(e.per.n)}</b> <span class="sub">${esc(e.per.g || "")}</span></td><td class="sub">${esc(tx(e.best.p.t))}</td><td class="num">${e.pm.toFixed(1)}%</td><td class="num">${total(e.best.s).toFixed(1)}%</td><td><span class="rd ${lvCls(e.lv)}">${e.lv}</span></td></tr>`).join("")}</tbody>
+    </table></div>` : `<p class="note">${U.nbEmpty}</p>`);
+  }
+  function effMetrics(ps) {
+    const n = ps.length, people = peopleInScope(ps);
+    const rows = ps.flatMap(p => p.succ.filter(isInternal).map(s => ({ p, s })));
+    const per = ps.map(p => p.succ.filter(isInternal));
+    const pct = (a, b) => b ? Math.round(a / b * 100) : null;
+    const fileMode = DATA.source === "file";
+    const genders = people.map(e => genderOf(e.per)).filter(Boolean);
+    const idk = ({ p, s }) => p.id + "|" + p.succ.indexOf(s);
+    const idpKnown = rows.filter(r => (IDPS[idk(r)] && IDPS[idk(r)].status !== "draft") || r.s.prog);
+    const idpOk = rows.filter(r => (IDPS[idk(r)] && IDPS[idk(r)].status === "app") || r.s.prog === "ok" || r.s.prog === "run");
+    const P = v => v + "%";
+    const M = [
+      ["bench", n ? (rows.length / n) : null, v => v.toFixed(1), v => v >= 2],
+      ["two", pct(per.filter(a => a.length >= 2).length, n), P, v => v >= 100],
+      ["ready", n ? rows.filter(({ p, s }) => level(total(s), p.cat) === "R0").length / n : null, v => v.toFixed(2), v => v >= 1],
+      ["meet", fileMode ? pct(rows.filter(r => r.s.st !== "nomeet").length, rows.length) : null, P, v => v >= 100],
+      ["runway", pct(rows.filter(({ p, s }) => runwayShort(s, p)).length, rows.length), P, v => v <= 10],
+      ["overlap", pct(people.filter(e => e.list.length > 1).length, people.length), P, v => v <= 20],
+      ["women", genders.length ? pct(genders.filter(g => g === "F").length, genders.length) : null, P, v => v >= 30],
+      ["idp", idpKnown.length || !fileMode ? pct(idpOk.length, rows.length) : null, P, v => v >= 100]
+    ];
+    return M.map(([k, v, fmt, good]) => ({ k, v, text: v == null ? "–" : fmt(v), st: v == null ? "na" : good(v) ? "ok" : "watch" }));
+  }
+  function renderEff(ps) {
+    const U = L();
+    $("effGrid").innerHTML = effMetrics(ps).map(m => {
+      const [t, d, tgt] = U.eff[m.k], v = m.text.replace(/%$/, "<small>%</small>");
+      return `<div class="eff ${m.st}"><span class="t">${t}</span><span class="v">${v}</span><span class="d">${m.v == null ? (U.effNa[m.k] || d) : d}</span>
+        <div class="row"><span>${tgt}</span><span class="pill ${m.st === "ok" ? "p-ok" : m.st === "watch" ? "p-warn" : "p-mute"}">${U.effSt[m.st]}</span></div></div>`;
+    }).join("");
+    $("notYet").innerHTML = U.notYet.map(([a, b]) => `<tr><td><b>${a}</b></td><td class="sub">${b}</td></tr>`).join("");
+  }
+  function renderDash() {
+    const ps = visible();
+    renderNineBox(ps); renderEff(ps);
+    $("distNote").textContent = L().distNote(L().scaleName[scale]);
+    $("dist").innerHTML = ["MCP", "OCP"].filter(c => ps.some(p => p.cat === c)).map(c => {
+      const lv = ps.filter(p => p.cat === c).flatMap(p => p.succ.filter(isInternal).map(s => level(total(s), c)));
+      const labs = SCALES[scale][c].map(b => b[1]);
+      return `<div class="dist-row"><b>${L().distCat(c, lv.length)}</b><div class="stackbar">${labs.map(l => { const n = lv.filter(x => x === l).length; return n ? `<div class="${lvCls(l)}" style="flex:${n}" title="${l}: ${n}">${l} · ${n}</div>` : ""; }).join("")}</div></div>`;
+    }).join("") || `<p class="note">${L().emptyScope}</p>`;
+    const b = [0, 0, 0, 0, 0, 0];
+    ps.forEach(p => { const mo = analyse(p).mo; b[p.inc.vacant || (mo != null && mo <= 0) ? 0 : mo == null ? 5 : mo <= 12 ? 1 : mo <= 24 ? 2 : mo <= 36 ? 3 : 4]++; });
+    const mx = Math.max(1, ...b);
+    $("tl").innerHTML = L().tl.map((lab, i) => `<div class="bar-row"><span>${lab}</span><span class="n">${b[i]}</span><div class="bar-track"><div class="bar-fill${i === 0 ? " hot" : i <= 2 ? " warm" : ""}" style="width:${b[i] / mx * 100}%"></div></div></div>`).join("");
+    const catF = $("fCat").value, pc = (a, n) => Math.round(a / n * 100) + "%";
+    $("deptRows").innerHTML = DATA.depts.map(([k, lab]) => {
+      const dp = DATA.positions.filter(p => p.dept === k && (!catF || p.cat === catF)); if (!dp.length) return "";
+      const an = dp.map(analyse), cov = an.filter(a => a.internal.length).length, r0 = an.filter(a => a.hasR0).length, hi = an.filter(a => a.risk === "high").length;
+      const vac = dp.filter(p => p.inc.vacant).length, nm = dp.reduce((n, p) => n + p.succ.filter(s => s.st === "nomeet").length, 0);
+      return `<tr class="clk" data-dept="${esc(k)}"><td><b>${esc(tx(lab))}</b></td><td class="num">${dp.length}</td><td class="num">${pc(cov, dp.length)}</td><td class="num">${r0} <span class="sub">(${pc(r0, dp.length)})</span></td><td class="num">${hi ? `<span class="pill p-bad">${hi}</span>` : "0"}</td><td class="num">${vac}</td><td class="num">${nm}</td></tr>`;
+    }).join("");
+    const hi = ps.map(p => [p, analyse(p)]).filter(([, a]) => a.risk === "high");
+    $("riskList").innerHTML = hi.length ? hi.map(([p, a]) => `<button type="button" class="risk-item" data-goto="${esc(p.dept)}"><b>${esc(tx(p.t))}</b><span>${esc(deptLabel(p.dept))} · ${p.cat} · ${esc(uc(whyText(p, a)))}</span></button>`).join("") : `<p class="note">${L().riskEmpty}</p>`;
+    if (DATA.source !== "file") { $("critBars").innerHTML = `<p class="note">${L().critNoData}</p>`; return; }
+    const c = {}; let tot = 0;
+    ps.forEach(p => p.succ.forEach(s => { tot++; failed(s).forEach(k => c[k] = (c[k] || 0) + 1); }));
+    const keys = Object.keys(L().crit), cm = Math.max(1, ...keys.map(k => c[k] || 0));
+    $("critBars").innerHTML = keys.some(k => c[k]) ? keys.map(k => `<div class="bar-row"><span>${L().crit[k]}</span><span class="n">${c[k] || 0}<small> / ${tot}</small></span><div class="bar-track"><div class="bar-fill${c[k] ? " hot" : ""}" style="width:${(c[k] || 0) / cm * 100}%"></div></div></div>`).join("") : `<p class="note">${L().critNone}</p>`;
+  }
+
+  // ---------- Readiness validation ----------
+  let VAL = {};
+  function initVal() { selNb = null; IDPS = {}; FB = {}; selCard = null; selIdp = null; VAL = {}; DATA.positions.forEach(p => p.succ.forEach((s, i) => { VAL[p.id + "|" + i] = s.st === "ok" ? "ok" : s.st === "rep" ? "rep" : "pending"; })); }
+  function renderRV() {
+    const term = q(); let html = "", tot = 0, done = 0; const lv = {};
+    visible().forEach(p => {
+      const ss = p.succ.map((s, i) => [s, i]).filter(([s]) => s.st !== "struck" && (!term || s.p.n.toLowerCase().includes(term)));
+      ss.forEach(([s, i], j) => {
+        const t = total(s), l = level(t, p.cat), key = p.id + "|" + i, v = VAL[key] || "pending";
+        tot++; if (v === "ok" || v === "rep") done++; lv[l] = (lv[l] || 0) + 1;
+        const f = failed(s);
+        const gaps = s.gaps == null ? (f.length ? `<span class="flag bad">${L().noMeetFlag}: ${f.map(k => L().critShort[k]).join(", ")}</span>` : `<span class="sub">${L().gapsNone}</span>`) : (s.gaps.length ? s.gaps.map(g => esc(tx(g))).join(" · ") : `<span class="sub">${L().notAssessed}</span>`);
+        html += `<tr>${j === 0 ? `<td class="role" rowspan="${ss.length}">${esc(tx(p.t))}${p.g ? ` (${esc(p.g)})` : ""}<div class="sub">${p.cat}${!dept ? " · " + esc(deptLabel(p.dept)) : ""}</div></td>` : ""}
+          <td><button type="button" class="lnk" data-p="${p.id}" data-x="${i}">${esc(s.p.n)}</button> <span class="sub">${esc(s.p.g)}</span>${s.st === "rep" ? ` <span class="pill p-warn">${L().stat.rep}</span>` : ""}</td>
+          <td class="num">${s.exp.toFixed(1)}%</td><td class="num">${s.fit.toFixed(1)}%</td><td class="num">${s.fun.toFixed(1)}%</td><td class="num"><b>${t.toFixed(1)}%</b></td>
+          <td><span class="rd ${lvCls(l)}">${l}</span></td><td class="gaps-cell">${gaps}</td>
+          <td><select data-val="${key}" aria-label="${L().thVal}">${Object.entries(L().val).map(([k, lab]) => `<option value="${k}"${k === v ? " selected" : ""}>${lab}</option>`).join("")}</select></td></tr>`;
+      });
+    });
+    $("rvRows").innerHTML = html || `<tr><td colspan="9" class="sub" style="text-align:center;padding:24px">${esc(term ? L().noMatch(term) : L().emptyScope)}</td></tr>`;
+    $("rvSum").innerHTML = Object.keys(lv).sort().map(l => `<span class="rd ${lvCls(l)}">${l} · ${lv[l]}</span>`).join("") + `<span class="pill ${tot && done === tot ? "p-ok" : "p-mute"}">${L().rvProgress(done, tot)}</span>`;
+  }
+
+  // ---------- Shared: successor lists + gaps ----------
+  let selCard = null, selIdp = null, IDPS = {}, FB = {};
+  function pairsInScope() {
+    const term = q();
+    return visible().flatMap(p => p.succ.map((s, i) => ({ p, s, i, key: p.id + "|" + i }))).filter(x => x.s.st !== "struck" && (!term || x.s.p.n.toLowerCase().includes(term)));
+  }
+  function classify(g) {
+    const e = String(Array.isArray(g) ? g[0] : g);
+    return /^Leadership/i.test(e) ? "lead" : /Grade gap/i.test(e) ? "grade" : /^Retires/i.test(e) ? "retire" : /experience/i.test(e) ? "exp" : "tech";
+  }
+  function gapItems(s) {
+    if (s.gaps) return s.gaps.map(g => ({ kind: classify(g), text: g })).filter(g => g.kind !== "retire");
+    const out = [], f = v => v.toFixed(1);
+    if (s.fit < 32) out.push({ kind: "lead", text: [T.en.gFit(f(s.fit)), T.ms.gFit(f(s.fit))] });
+    if (s.fun < 40) out.push({ kind: "tech", text: [T.en.gFun(f(s.fun)), T.ms.gFun(f(s.fun))] });
+    if (s.exp < 8) out.push({ kind: "exp", text: [T.en.gExp(f(s.exp)), T.ms.gExp(f(s.exp))] });
+    return out;
+  }
+  const SUG = {
+    tr:    { c: "tr",  tl: "Q2 2027", t: ["Strategic leadership executive education programme", "Program pendidikan eksekutif kepimpinan strategik"] },
+    lead:  { c: "cm",  tl: "Q1 2027 – Q4 2028", t: ["Executive coaching with 360° feedback (quarterly sessions)", "Executive coaching dengan maklum balas 360° (sesi suku tahunan)"] },
+    tech:  { c: "ojt", tl: "Q3 2027 – Q2 2028", t: ["Stretch assignment or project in this area, with milestone reviews by the HOD", "Tugasan stretch atau projek dalam bidang ini, dengan semakan pencapaian oleh HOD"] },
+    grade: { c: "ojt", tl: "Q3 – Q4 2028", t: ["Relief / acting in the target position during the incumbent's absence", "Memangku jawatan sasaran semasa penyandang tiada"] },
+    exp:   { c: "ojt", tl: "Q1 – Q4 2028", t: ["Job rotation or cross-functional exposure to build this experience", "Job rotation atau pendedahan rentas fungsi untuk bina pengalaman ini"] }
+  };
+  function idpFor(x) {
+    if (!IDPS[x.key]) {
+      const items = gapItems(x.s), rows = [];
+      const lead = items.filter(g => g.kind === "lead");
+      if (lead.length) rows.push({ sec: "A", area: lead[0].text, inter: SUG.tr.t, cat: "tr", w: "", tl: SUG.tr.tl, st: "ns", rem: "" });
+      items.forEach(g => { const sg = SUG[g.kind] || SUG.tech; rows.push({ sec: g.kind === "lead" ? "A" : "B", area: g.text, inter: sg.t, cat: sg.c, w: "", tl: sg.tl, st: "ns", rem: "" }); });
+      IDPS[x.key] = { status: "draft", rows };
+    }
+    return IDPS[x.key];
+  }
+
+  // ---------- Employee card ----------
+  function renderCard() {
+    const ps = pairsInScope(), ppl = new Map();
+    ps.forEach(x => { if (!ppl.has(x.s.key)) ppl.set(x.s.key, { per: x.s.p, list: [] }); ppl.get(x.s.key).list.push(x); });
+    if (!ppl.size) { $("cardSel").innerHTML = ""; $("cardBody").innerHTML = `<div class="panel empty">${L().emptyPick}</div>`; return; }
+    if (!selCard || !ppl.has(selCard)) selCard = ppl.keys().next().value;
+    $("cardSel").setAttribute("aria-label", L().cardPick);
+    $("cardSel").innerHTML = [...ppl.entries()].map(([k, v]) => `<option value="${esc(k)}"${k === selCard ? " selected" : ""}>${esc(v.per.n)}${v.per.g ? ` (${esc(v.per.g)})` : ""}</option>`).join("");
+    const { per, list } = ppl.get(selCard), fromFile = DATA.source === "file";
+    const best = list.reduce((a, x) => total(x.s) > total(a.s) ? x : a, list[0]), bt = total(best.s), bl = level(bt, best.p.cat);
+    const seen = new Set(), items = [];
+    list.forEach(x => gapItems(x.s).forEach(g => { const k = tx(g.text) + (fromFile && list.length > 1 ? " · " + tx(x.p.t) : ""); if (!seen.has(k)) { seen.add(k); items.push({ kind: g.kind, label: k }); } }));
+    const ul = arr => arr.length ? `<ul class="gaps">${arr.map(g => `<li>${esc(g.label)}</li>`).join("")}</ul>` : `<span class="note">${L().noGaps}</span>`;
+    const kv = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : "";
+    const crit = list[0].s.crit;
+    $("cardBody").innerHTML = `
+      <div class="panel prof-head">
+        <div class="prof-id"><div class="label">${L().cardTitle}</div><h2 class="prof-name">${esc(per.n)}${per.g ? ` (${esc(per.g)})` : ""}</h2><div class="note">${esc(tx(per.pos) || "")}</div>
+          <div class="prof-chips">${list.map(x => `<span class="pill p-mute">${x.p.cat} · ${esc(tx(x.p.t))}</span>`).join("")}${list.some(x => x.s.st === "nomeet") ? `<span class="pill p-bad">${L().stat.nomeet}</span>` : ""}</div></div>
+        <div class="prof-kpi"><span class="label">${L().bestSra}</span><span class="prof-rating">${bt.toFixed(1)}<small>%</small></span><span><span class="rd ${lvCls(bl)}">${bl}</span> ${desc(bl)}</span></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h2>${L().profile}</h2><dl class="kv">
+          ${kv(L().staffNo, esc(per.staff))}${kv(L().curTitle, esc(tx(per.pos) || ""))}${kv(L().type, esc(per.type))}${kv(L().svc, esc(per.svc))}
+          ${kv(L().pms, esc(per.pms || "–"))}${kv(L().endCap[per.et] || L().endCap.retire, fmtYM(per.end))}${kv(L().qual, esc(per.qual))}
+          ${!fromFile && best.s.prog ? kv(L().record, L().prog[best.s.prog]) : ""}</dl></div>
+        <div class="panel"><h2>${L().sraByRole}</h2><div class="table-scroll"><table>
+          <thead><tr><th>${L().thRole}</th><th class="num">${L().thExp}</th><th class="num">${L().thFit}</th><th class="num">${L().thFun}</th><th class="num">${L().thTot}</th><th>${L().thLvl}</th></tr></thead>
+          <tbody>${list.map(x => { const t = total(x.s), l = level(t, x.p.cat); return `<tr class="clk" data-p="${x.p.id}" data-x="${x.i}"><td><b>${esc(tx(x.p.t))}</b> <span class="sub">${x.p.cat}</span></td><td class="num">${x.s.exp.toFixed(1)}%</td><td class="num">${x.s.fit.toFixed(1)}%</td><td class="num">${x.s.fun.toFixed(1)}%</td><td class="num"><b>${t.toFixed(1)}%</b></td><td><span class="rd ${lvCls(l)}">${l}</span></td></tr>`; }).join("")}</tbody>
+        </table></div></div>
+      </div>
+      <div class="grid3">
+        <div class="panel"><h2>${L().leadGaps}</h2>${ul(items.filter(g => g.kind === "lead"))}</div>
+        <div class="panel"><h2>${L().funcGaps}</h2>${ul(items.filter(g => g.kind !== "lead"))}</div>
+        <div class="panel"><h2>${crit ? L().critTitle : L().asp}</h2><ul class="asp">${crit
+          ? Object.keys(L().crit).map(k => { const v = crit[k]; return `<li><span class="tick ${v === false ? "n" : "y"}">${v === false ? "✗" : v ? "✓" : "–"}</span><span>${L().crit[k]}</span></li>`; }).join("")
+          : L().aspL.map((a, k) => { const y = per.asp && per.asp[k]; return `<li><span class="tick ${y ? "y" : "n"}">${y ? "✓" : "✗"}</span><span>${a}</span></li>`; }).join("")}</ul></div>
+      </div>
+      ${fromFile ? `<p class="note" style="margin:0">${L().derivedNote}</p>` : ""}
+      <div class="panel"><div class="section-head"><h2>${L().hodFb}</h2><span class="note">${L().keptLocal}</span></div>
+        <textarea class="fb" id="hodFeedback" rows="3" data-fb="${esc(selCard)}" placeholder="${L().hodFbPh}" aria-label="${L().hodFb}">${esc(FB[selCard] || "")}</textarea>
+        <div class="actions"><button type="button" class="btn primary" data-open-idp="${best.key}">${L().openIdpFor}</button></div></div>`;
+  }
+
+  // ---------- IDP ----------
+  function renderMix() {
+    const d = IDPS[selIdp], el = $("mix"); if (!d || !el) return;
+    const useW = d.rows.some(r => +r.w > 0), sum = { ojt: 0, cm: 0, tr: 0 }, TGT = { ojt: 70, cm: 20, tr: 10 };
+    d.rows.forEach(r => { sum[r.cat] += useW ? (+r.w || 0) : 1; });
+    const tot = sum.ojt + sum.cm + sum.tr || 1;
+    el.innerHTML = ["ojt", "cm", "tr"].map(c => { const v = Math.round(sum[c] / tot * 100); return `<div class="bar-row"><span>${L().cats[c]}</span><span class="n">${v}%<small> / ${TGT[c]}%</small></span><div class="bar-track"><div class="bar-fill cat-${c}" style="width:${v}%"></div></div></div>`; }).join("") +
+      `<span class="note">${useW ? L().mixByW : L().mixByCount}</span>`;
+  }
+  function renderIDP() {
+    const ps = pairsInScope();
+    if (!ps.length) { $("idpSel").innerHTML = ""; $("idpBody").innerHTML = `<div class="panel empty">${L().emptyPick}</div>`; return; }
+    if (!selIdp || !ps.some(x => x.key === selIdp)) selIdp = ps[0].key;
+    $("idpSel").setAttribute("aria-label", L().idpPick);
+    $("idpSel").innerHTML = ps.map(x => `<option value="${x.key}"${x.key === selIdp ? " selected" : ""}>${esc(x.s.p.n)} · ${esc(tx(x.p.t))}</option>`).join("");
+    const x = ps.find(y => y.key === selIdp), d = idpFor(x), inc = x.p.inc, t = total(x.s), l = level(t, x.p.cat);
+    const STC = { draft: "p-mute", sub: "p-warn", app: "p-ok" };
+    const acts = { draft: ["sub"], sub: ["app", "draft"], app: ["draft"] }[d.status];
+    const row = (r, idx) => `<tr data-r="${idx}">
+        <td><textarea data-f="area" rows="2" aria-label="${L().thArea}">${esc(tx(r.area))}</textarea></td>
+        <td><textarea data-f="inter" rows="2" aria-label="${L().thInter}">${esc(tx(r.inter))}</textarea></td>
+        <td><select data-f="cat" class="cat-${r.cat}" aria-label="${L().thCatI}">${Object.entries(L().cats).map(([k, v]) => `<option value="${k}"${k === r.cat ? " selected" : ""}>★ ${v}</option>`).join("")}</select></td>
+        <td><span class="w"><input data-f="w" type="number" min="0" max="100" value="${esc(r.w)}" aria-label="${L().thW}">%</span></td>
+        <td><input data-f="tl" value="${esc(r.tl)}" aria-label="${L().thTl}"></td>
+        <td><select data-f="st" aria-label="${L().thSt}">${Object.entries(L().rowSt).map(([k, v]) => `<option value="${k}"${k === r.st ? " selected" : ""}>${v}</option>`).join("")}</select></td>
+        <td><input data-f="rem" value="${esc(r.rem)}" aria-label="${L().thRem}"></td>
+        <td><button type="button" class="btn sm" data-delrow="${idx}" aria-label="${L().del}" title="${L().del}">✕</button></td></tr>`;
+    const section = sec => {
+      const rows = d.rows.map((r, idx) => [r, idx]).filter(([r]) => r.sec === sec);
+      return `<div class="panel"><div class="section-head"><h2>${sec === "A" ? L().secA : L().secB}</h2><button type="button" class="btn sm" data-add="${sec}">+ ${L().addRow}</button></div>
+        <div class="table-scroll"><table class="idp"><thead><tr><th style="width:22%">${L().thArea}</th><th style="width:24%">${L().thInter}</th><th style="width:17%">${L().thCatI}</th><th>${L().thW}</th><th style="width:12%">${L().thTl}</th><th>${L().thSt}</th><th>${L().thRem}</th><th></th></tr></thead>
+        <tbody>${rows.length ? rows.map(([r, idx]) => row(r, idx)).join("") : `<tr><td colspan="8" class="sub" style="text-align:center;padding:16px">${L().noRows}</td></tr>`}</tbody></table></div></div>`;
+    };
+    $("idpBody").innerHTML = `
+      <div class="panel idp-head">
+        <dl class="kv">
+          <dt>${L().thSucc}</dt><dd><b>${esc(x.s.p.n)}${x.s.p.g ? ` (${esc(x.s.p.g)})` : ""}</b></dd>
+          <dt>${L().mappedRole}</dt><dd>${esc(tx(x.p.t))}${x.p.g ? ` (${esc(x.p.g)})` : ""} · ${x.p.cat}</dd>
+          <dt>${L().incEnd}</dt><dd>${inc.vacant ? L().vacantName : `${esc(inc.n)} · ${inc.end ? L().end[inc.et] + " " + fmtYM(inc.end) : L().noEnd}`}</dd>
+          <dt>${L().readiness}</dt><dd><span class="rd ${lvCls(l)}">${l}</span> ${t.toFixed(1)}% · ${desc(l)}</dd>
+          ${DATA.source !== "file" && x.s.prog ? `<dt>${L().record}</dt><dd>${L().prog[x.s.prog]}</dd>` : ""}
+        </dl>
+        <div class="idp-status"><span class="pill ${STC[d.status]}">${L().idpSt[d.status]}</span>
+          <div class="actions">${acts.map(a => `<button type="button" class="btn${a === "draft" ? "" : " primary"} sm" data-idpst="${a}">${L().idpAct[a]}</button>`).join("")}</div></div>
+      </div>
+      <div class="panel"><h2>${L().mixTitle}</h2><div id="mix" class="bars"></div></div>
+      ${section("A")}${section("B")}
+      <p class="note" style="margin:0">${L().idpNote}</p>
+      <div class="track">${L().monitor}</div>`;
+    renderMix();
+  }
+
+  // ---------- Summary + export ----------
+  function summaryData() {
+    const U = L(), ps = visible(), an = ps.map(analyse);
+    const rows = ps.flatMap(p => p.succ.filter(isInternal).map(s => ({ p, s })));
+    const pc = (a, b) => b ? Math.round(a / b * 100) : 0;
+    const succN = new Set(ps.flatMap(p => p.succ.filter(s => s.st !== "struck").map(s => s.key))).size;
+    const kpis = [
+      [U.kPos, String(ps.length)], [U.kSucc, String(succN)],
+      [U.kCov, pc(an.filter(a => a.internal.length).length, ps.length) + "%"], [U.kR0, pc(an.filter(a => a.hasR0).length, ps.length) + "%"],
+      [U.kHigh, String(an.filter(a => a.risk === "high").length)], [U.kVac, String(ps.filter(p => p.inc.vacant).length)]
+    ];
+    const dist = ["MCP", "OCP"].filter(c => ps.some(p => p.cat === c)).map(c => {
+      const lv = rows.filter(r => r.p.cat === c).map(r => level(total(r.s), c));
+      return { cat: c, n: lv.length, parts: SCALES[scale][c].map(b => b[1]).map(l => ({ l, n: lv.filter(x => x === l).length })) };
+    });
+    const eff = effMetrics(ps).map(m => ({ name: U.eff[m.k][0], value: m.text, target: U.eff[m.k][2], status: U.effSt[m.st], st: m.st }));
+    const risk = ps.map((p, i) => [p, an[i]]).filter(([, a]) => a.risk === "high").map(([p, a]) => ({ pos: tx(p.t), dept: deptLabel(p.dept), cat: p.cat, why: uc(whyText(p, a)) }));
+    const positions = ps.map((p, i) => {
+      const a = an[i], cnt = {};
+      a.internal.forEach(s => { const l = level(total(s), p.cat); cnt[l] = (cnt[l] || 0) + 1; });
+      return { cat: p.cat, pos: tx(p.t) + (p.g ? ` (${p.g})` : ""), dept: deptLabel(p.dept), inc: p.inc.vacant ? U.vacantName : p.inc.n,
+        vac: p.inc.vacant ? U.vacNow : a.mo == null ? U.noDate : String(a.mo), succ: a.internal.length,
+        mix: Object.keys(cnt).sort().map(l => `${l} × ${cnt[l]}`).join(", ") || "–", risk: U.risk[a.risk], rk: a.risk };
+    });
+    const strip = h => h.replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+    return {
+      title: U.sumTitle(dept ? deptLabel(dept) : U.deptAll),
+      meta: U.sumMeta(DATA.source === "file" ? DATA.fileName : U.srcSample, U.scaleName[scale]),
+      cls: DATA.source === "file" ? U.classFile : U.classSample, kpis, dist, eff, risk, positions,
+      notes: noteList().map(strip).slice(0, 8), showDept: !dept
+    };
+  }
+  function renderSummary() {
+    const U = L(), d = summaryData();
+    $("sumTitle").textContent = d.title; $("sumMeta").textContent = d.meta;
+    if (!dlKnownMissing) $("exNote").textContent = DATA.source === "file" ? U.exNoteFile : U.exNoteSample; else $("exNote").textContent = U.exUnavailable;
+    $("sumKpis").innerHTML = d.kpis.map(([k, v]) => `<div class="panel kpi accent"><span class="label">${esc(k)}</span><span class="value">${esc(v).replace(/%$/, "<small>%</small>")}</span></div>`).join("");
+    $("sumDist").innerHTML = d.dist.map(x => `<div class="dist-row"><b>${U.distCat(x.cat, x.n)}</b><div class="stackbar">${x.parts.map(pt => pt.n ? `<div class="${lvCls(pt.l)}" style="flex:${pt.n}">${pt.l} · ${pt.n}</div>` : "").join("")}</div></div>`).join("") || `<p class="note">${U.emptyScope}</p>`;
+    $("sumEff").innerHTML = d.eff.map(m => `<tr><td>${esc(m.name)}</td><td class="num"><b>${esc(m.value)}</b></td><td class="sub">${esc(m.target)}</td><td><span class="pill ${m.st === "ok" ? "p-ok" : m.st === "watch" ? "p-warn" : "p-mute"}">${esc(m.status)}</span></td></tr>`).join("");
+    $("sumRisk").innerHTML = d.risk.length ? d.risk.map(r => `<div class="risk-item" style="cursor:default"><b>${esc(r.pos)}</b><span>${esc(r.dept)} · ${r.cat} · ${esc(r.why)}</span></div>`).join("") : `<p class="note">${U.riskEmpty}</p>`;
+    const RC = { high: "p-bad", med: "p-warn", low: "p-ok" };
+    $("sumPos").innerHTML = d.positions.map(r => `<tr><td>${r.cat}</td><td><b>${esc(r.pos)}</b>${d.showDept ? `<div class="sub">${esc(r.dept)}</div>` : ""}</td><td>${esc(r.inc)}</td><td class="num">${esc(r.vac)}</td><td class="num">${r.succ}</td><td class="sub">${esc(r.mix)}</td><td><span class="pill ${RC[r.rk]}">${esc(r.risk)}</span></td></tr>`).join("") || `<tr><td colspan="7" class="sub" style="text-align:center;padding:16px">${U.emptyScope}</td></tr>`;
+    $("sumNotes").innerHTML = d.notes.map(n => `<li>${esc(n)}</li>`).join("");
+  }
+
+  const LIBS = {
+    pdf: ["https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js", "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"],
+    ppt: ["https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"]
+  };
+  const loaded = {};
+  const loadScript = src => loaded[src] || (loaded[src] = new Promise((res, rej) => { const sc = document.createElement("script"); sc.src = src; sc.onload = res; sc.onerror = () => { delete loaded[src]; rej(new Error("lib")); }; document.head.appendChild(sc); }));
+  async function loadLibs(kind) { for (const u of LIBS[kind]) await loadScript(u); }
+  let dlPromise = null, dlKnownMissing = false;
+  function getDownloads() {
+    if (dlPromise) return dlPromise;
+    if (!(window.claude && typeof window.claude.use === "function")) {
+      // Standalone web page (outside the Claude viewer): use a normal browser download.
+      return Promise.resolve({ save: ({ filename, data }) => {
+        const url = URL.createObjectURL(data instanceof Blob ? data : new Blob([data]));
+        const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        return Promise.resolve({ status: "saved" });
+      } });
+    }
+    dlPromise = window.claude.use("downloads").catch(() => null);
+    return dlPromise;
+  }
+  const BRAND = { dark: "0D6636", mid: "4A9437", tint: "E3F3DA", text: "2A2B2E", muted: "6A6B6D", line: "E6E6E6", R0: "4A9437", R1: "F2D230", R2: "E06666", R3: "C9CBCD", "-": "C9CBCD", high: "C62828", med: "945800", low: "0D6636" };
+  const pdfSafe = t => String(t).replace(/≥/g, ">=").replace(/≤/g, "<=").replace(/→/g, "->").replace(/✗/g, "x").replace(/✓/g, "v").replace(/↺/g, "").replace(/[^\x00-\xFF·–—‘’“”…]/g, "");
+  const fileStem = () => "Succession-Summary-" + (dept ? deptLabel(dept).replace(/[^A-Za-z0-9]+/g, "-") : "All") + "-2026";
+
+  async function buildPdf(d) {
+    await loadLibs("pdf");
+    const { jsPDF } = window.jspdf, doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" }), U = L();
+    const W = 297, M = 14, hex = h => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    const h2 = (t, y, x) => { doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(...hex(BRAND.text)); doc.text(pdfSafe(t), x == null ? M : x, y); doc.setFont("helvetica", "normal"); };
+    doc.setFillColor(...hex("52DE56")); doc.rect(0, 0, W, 3, "F");
+    doc.setTextColor(...hex(BRAND.text)); doc.setFont("helvetica", "bold"); doc.setFontSize(18); doc.text(pdfSafe(d.title), M, 16);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(...hex(BRAND.muted)); doc.text(pdfSafe(d.meta), M, 22);
+    let y = 28; const bw = (W - 2 * M - 5 * 4) / 6;
+    d.kpis.forEach(([k, v], i) => {
+      const x = M + i * (bw + 4);
+      doc.setDrawColor(...hex(BRAND.line)); doc.setFillColor(255, 255, 255); doc.rect(x, y, bw, 20, "FD");
+      doc.setFillColor(...hex(BRAND.dark)); doc.rect(x, y, 1.2, 20, "F");
+      doc.setFontSize(7); doc.setTextColor(...hex(BRAND.muted)); doc.text(pdfSafe(k.toUpperCase()), x + 4, y + 6, { maxWidth: bw - 6 });
+      doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.setTextColor(...hex(BRAND.text)); doc.text(pdfSafe(v), x + 4, y + 16); doc.setFont("helvetica", "normal");
+    });
+    y = 56; h2(U.distTitle, y);
+    y += 4; const barW = 120;
+    d.dist.forEach(x => {
+      doc.setFontSize(8); doc.setTextColor(...hex(BRAND.muted)); doc.text(pdfSafe(U.distCat(x.cat, x.n)), M, y + 3);
+      let bx = M; const tot = x.parts.reduce((a, p) => a + p.n, 0) || 1;
+      x.parts.forEach(pt => {
+        if (!pt.n) return; const w = barW * pt.n / tot;
+        doc.setFillColor(...hex(BRAND[pt.l] || BRAND.R3)); doc.rect(bx, y + 5, w, 6, "F");
+        doc.setFontSize(7); if (pt.l === "R1" || pt.l === "-" || pt.l === "R3") doc.setTextColor(42, 43, 46); else doc.setTextColor(255, 255, 255);
+        if (w > 10) doc.text(`${pt.l} ${pt.n}`, bx + 1.5, y + 9); bx += w;
+      });
+      y += 15;
+    });
+    h2(U.effTitle, 56, M + barW + 12);
+    doc.autoTable({ startY: 59, margin: { left: M + barW + 12, right: M }, head: [[U.thMetric, U.thValue, U.thTarget, U.thStatus2].map(pdfSafe)],
+      body: d.eff.map(m => [m.name, m.value, m.target, m.status].map(pdfSafe)), styles: { fontSize: 7.5, cellPadding: 1.4 },
+      headStyles: { fillColor: hex(BRAND.dark) }, alternateRowStyles: { fillColor: hex("F0F9EC") },
+      didParseCell: c => { if (c.section === "body" && c.column.index === 3) { const st = d.eff[c.row.index].st; c.cell.styles.textColor = hex(st === "ok" ? BRAND.low : st === "watch" ? BRAND.med : BRAND.muted); c.cell.styles.fontStyle = "bold"; } } });
+    const y2 = Math.max(y, doc.lastAutoTable.finalY) + 8;
+    h2(U.riskTitle, y2);
+    doc.autoTable({ startY: y2 + 2, margin: { left: M, right: M, bottom: 14 }, head: [[U.thPos, U.thDept, U.thCat, U.thRisk].map(pdfSafe)],
+      body: d.risk.length ? d.risk.map(r => [r.pos, r.dept, r.cat, r.why].map(pdfSafe)) : [[pdfSafe(U.riskEmpty), "", "", ""]],
+      styles: { fontSize: 7.5, cellPadding: 1.4 }, headStyles: { fillColor: hex(BRAND.high) }, columnStyles: { 3: { cellWidth: 120 } } });
+    doc.addPage();
+    h2(U.sumPosTitle, 14);
+    const head = [U.thCat, U.thPos].concat(d.showDept ? [U.thDept] : []).concat([U.thInc, U.thVacIn, U.thSuccN, U.thReady, U.thRisk]);
+    doc.autoTable({ startY: 18, margin: { left: M, right: M, bottom: 14 }, head: [head.map(pdfSafe)],
+      body: d.positions.map(r => [r.cat, r.pos].concat(d.showDept ? [r.dept] : []).concat([r.inc, r.vac, String(r.succ), r.mix, r.risk]).map(pdfSafe)),
+      styles: { fontSize: 7.5, cellPadding: 1.4 }, headStyles: { fillColor: hex(BRAND.dark) }, alternateRowStyles: { fillColor: hex("F0F9EC") },
+      didParseCell: c => { if (c.section === "body" && c.column.index === head.length - 1) { c.cell.styles.textColor = hex(BRAND[d.positions[c.row.index].rk]); c.cell.styles.fontStyle = "bold"; } } });
+    let y3 = doc.lastAutoTable.finalY + 8;
+    if (y3 > 170) { doc.addPage(); y3 = 16; }
+    h2(U.sumNotesTitle, y3); doc.setFontSize(8.5); doc.setTextColor(...hex(BRAND.text));
+    y3 += 5;
+    d.notes.forEach(n => { const lines = doc.splitTextToSize("•  " + pdfSafe(n), W - 2 * M); if (y3 + lines.length * 4 > 196) { doc.addPage(); y3 = 16; } doc.text(lines, M, y3); y3 += lines.length * 4 + 1.5; });
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) {
+      doc.setPage(i); doc.setFontSize(7.5); doc.setTextColor(...hex(BRAND.muted));
+      doc.text(pdfSafe(`Succession Planning Portal · ${d.cls}`), M, 204); doc.text(pdfSafe(`${U.page} ${i} / ${pages}`), W - M, 204, { align: "right" });
+    }
+    return doc.output("blob");
+  }
+
+  async function buildPpt(d) {
+    await loadLibs("ppt");
+    const U = L(), pptx = new window.PptxGenJS();
+    pptx.layout = "LAYOUT_WIDE"; pptx.title = d.title;
+    const F = "Calibri";
+    pptx.defineSlideMaster({ title: "SP", background: { color: "FFFFFF" },
+      objects: [{ rect: { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: "52DE56" } } },
+        { text: { text: `Succession Planning Portal · ${d.cls}`, options: { x: 0.5, y: 7.05, w: 8, h: 0.3, fontFace: F, fontSize: 9, color: BRAND.muted } } }],
+      slideNumber: { x: 12.3, y: 7.05, fontFace: F, fontSize: 9, color: BRAND.muted } });
+    const head = t => ({ text: t, options: { bold: true, color: "FFFFFF", fill: { color: BRAND.dark }, fontFace: F, fontSize: 11 } });
+    const cell = (t, o) => ({ text: String(t), options: Object.assign({ fontFace: F, fontSize: 10.5, color: BRAND.text }, o || {}) });
+    const title = (sl, t) => sl.addText(t, { x: 0.5, y: 0.3, w: 12.3, h: 0.6, fontFace: F, fontSize: 24, bold: true, color: BRAND.text });
+    let sl = pptx.addSlide({ masterName: "SP" });
+    sl.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.35, h: 7.5, fill: { color: BRAND.dark } });
+    sl.addText(U.sumEyebrow.toUpperCase(), { x: 0.9, y: 2.2, w: 11, h: 0.4, fontFace: F, fontSize: 14, bold: true, color: BRAND.mid, charSpacing: 2 });
+    sl.addText(d.title, { x: 0.9, y: 2.7, w: 11.5, h: 1.2, fontFace: F, fontSize: 36, bold: true, color: BRAND.text });
+    sl.addText(d.meta, { x: 0.9, y: 4.0, w: 11.5, h: 0.5, fontFace: F, fontSize: 14, color: BRAND.muted });
+    sl = pptx.addSlide({ masterName: "SP" }); title(sl, U.pptKpiTitle);
+    d.kpis.forEach(([k, v], i) => {
+      const x = 0.5 + (i % 3) * 2.15, y = 1.2 + Math.floor(i / 3) * 1.55;
+      sl.addShape(pptx.ShapeType.rect, { x, y, w: 2.0, h: 1.35, fill: { color: "FFFFFF" }, line: { color: BRAND.line } });
+      sl.addShape(pptx.ShapeType.rect, { x, y, w: 0.07, h: 1.35, fill: { color: BRAND.dark }, line: { color: BRAND.dark } });
+      sl.addText(k.toUpperCase(), { x: x + 0.15, y: y + 0.08, w: 1.8, h: 0.5, fontFace: F, fontSize: 9, color: BRAND.muted, valign: "top" });
+      sl.addText(v, { x: x + 0.15, y: y + 0.55, w: 1.8, h: 0.7, fontFace: F, fontSize: 28, bold: true, color: BRAND.text });
+    });
+    if (d.dist.length) {
+      const labels = d.dist.map(x => x.cat), levels = d.dist[0].parts.map(p => p.l);
+      const data = levels.map(l => ({ name: l === "-" ? U.notReady : l, labels, values: d.dist.map(x => (x.parts.find(p => p.l === l) || { n: 0 }).n) }));
+      sl.addText(U.distTitle, { x: 7.1, y: 1.1, w: 5.7, h: 0.4, fontFace: F, fontSize: 14, bold: true, color: BRAND.text });
+      sl.addChart(pptx.charts.BAR, data, { x: 7.1, y: 1.5, w: 5.7, h: 3.0, barDir: "bar", barGrouping: "stacked", chartColors: levels.map(l => BRAND[l] || BRAND.R3),
+        showLegend: true, legendPos: "b", legendFontFace: F, legendFontSize: 10, catAxisLabelFontFace: F, valAxisLabelFontFace: F, catAxisLabelFontSize: 11, valAxisLabelFontSize: 9,
+        showValue: true, dataLabelFontSize: 9, dataLabelColor: "FFFFFF", valGridLine: { color: "EEEEEE", size: 0.5 } });
+    }
+    sl = pptx.addSlide({ masterName: "SP" }); title(sl, U.pptEffTitle);
+    const SC = { ok: BRAND.low, watch: BRAND.med, na: BRAND.muted };
+    sl.addTable([[head(U.thMetric), head(U.thValue), head(U.thTarget), head(U.thStatus2)]].concat(d.eff.map(m => [cell(m.name), cell(m.value, { bold: true, align: "right" }), cell(m.target, { color: BRAND.muted }), cell(m.status, { bold: true, color: SC[m.st] })])),
+      { x: 0.5, y: 1.2, w: 12.3, colW: [5.3, 1.8, 2.8, 2.4], border: { type: "solid", color: BRAND.line, pt: 0.75 }, rowH: 0.48 });
+    sl.addText(U.effNote, { x: 0.5, y: 6.4, w: 12.3, h: 0.4, fontFace: F, fontSize: 10, italic: true, color: BRAND.muted });
+    sl = pptx.addSlide({ masterName: "SP" }); title(sl, U.pptRiskTitle);
+    const riskRows = d.risk.slice(0, 7);
+    sl.addTable([[head(U.thPos), head(U.thDept), head(U.thCat), head(U.thRisk)]].concat(riskRows.length ? riskRows.map(r => [cell(r.pos, { bold: true }), cell(r.dept), cell(r.cat), cell(r.why, { fontSize: 9.5 })]) : [[cell(U.riskEmpty), cell(""), cell(""), cell("")]]),
+      { x: 0.5, y: 1.1, w: 12.3, colW: [3.6, 2.3, 0.9, 5.5], border: { type: "solid", color: BRAND.line, pt: 0.75 } });
+    if (d.risk.length > 7) sl.addText(`+${d.risk.length - 7}`, { x: 12.1, y: 0.35, w: 0.7, h: 0.5, fontFace: F, fontSize: 12, color: BRAND.high, bold: true, align: "right" });
+    sl = pptx.addSlide({ masterName: "SP" }); title(sl, U.pptNotesTitle);
+    sl.addText(d.notes.map(n => ({ text: n, options: { bullet: true, breakLine: true, paraSpaceAfter: 6 } })), { x: 0.5, y: 1.1, w: 12.3, h: 5.6, fontFace: F, fontSize: 13, color: BRAND.text, valign: "top" });
+    const RK = { high: BRAND.high, med: BRAND.med, low: BRAND.low }, perSlide = 11;
+    for (let i = 0; i < Math.max(1, d.positions.length); i += perSlide) {
+      sl = pptx.addSlide({ masterName: "SP" }); title(sl, U.pptPosTitle + (i ? ` (${U.cont})` : ""));
+      const hdr = [head(U.thCat), head(U.thPos)].concat(d.showDept ? [head(U.thDept)] : []).concat([head(U.thInc), head(U.thVacIn), head(U.thSuccN), head(U.thReady), head(U.thRisk)]);
+      const body = d.positions.slice(i, i + perSlide).map(r => [cell(r.cat), cell(r.pos, { bold: true })].concat(d.showDept ? [cell(r.dept)] : []).concat([cell(r.inc), cell(r.vac, { align: "right" }), cell(r.succ, { align: "right" }), cell(r.mix), cell(r.risk, { bold: true, color: RK[r.rk] })]));
+      const colW = d.showDept ? [0.7, 2.9, 1.7, 2.4, 1.1, 0.9, 1.4, 1.2] : [0.7, 3.6, 3.0, 1.2, 1.0, 1.6, 1.2];
+      sl.addTable([hdr].concat(body.length ? body : [[cell(U.emptyScope)].concat(hdr.slice(1).map(() => cell("")))]), { x: 0.5, y: 1.1, w: 12.3, colW, fontSize: 10, border: { type: "solid", color: BRAND.line, pt: 0.75 } });
+    }
+    return pptx.write({ outputType: "blob" });
+  }
+
+  async function doExport(kind) {
+    const U = L(), btn = $(kind === "pdf" ? "exPdf" : "exPpt"), label = btn.textContent;
+    const dl = await getDownloads();
+    if (!dl) { toast(U.exUnavailable); return; }
+    btn.disabled = true; btn.textContent = U.exWorking;
+    let blob;
+    try { blob = kind === "pdf" ? await buildPdf(summaryData()) : await buildPpt(summaryData()); }
+    catch (err) { toast(err && err.message === "lib" ? U.exLib : U.exFailed); btn.disabled = false; btn.textContent = label; return; }
+    const filename = fileStem() + (kind === "pdf" ? ".pdf" : ".pptx");
+    try { await dl.save({ filename, data: blob }); toast(U.exSaved(filename)); }
+    catch (err) {
+      const c = err && err.code;
+      toast(c === "declined" ? U.exDeclined : c === "rate_limited" ? U.exBusy : (c === "bad_request" || c === "transform_error") ? U.exFailed : U.exUnavailable);
+      if (["unavailable", "not_granted", "capability_disabled", "capability_removed", "extension_not_enabled"].includes(c)) { dlKnownMissing = true; $("exportBox").hidden = true; $("exNote").textContent = U.exUnavailable; }
+    } finally { btn.disabled = false; btn.textContent = label; }
+  }
+
+  // ---------- Overview ----------
+  const CY = {
+    en: { edit: "Edit status", save: "Save status", cancel: "Cancel", saving: "Saving…", status: "Status", note: "Short note (optional)", notePh: "e.g. IDP",
+      hint: "Changes are saved for everyone who opens this portal.", updated: (n, d) => n ? `Updated by ${n} · ${d}` : `Updated ${d}`,
+      def: "Showing the default status until HR saves one.", stale: "Showing the last saved status while checking for updates.", offline: "Could not reach the saved status. Showing the last known one.",
+      saved: "Cycle status saved. Everyone who opens the portal now sees it.", denied: "You can view the status but not change it. Ask the portal owner for Editor access.", failed: "The status could not be saved. Try again." },
+    ms: { edit: "Tukar status", save: "Simpan status", cancel: "Batal", saving: "Menyimpan…", status: "Status", note: "Nota ringkas (pilihan)", notePh: "cth. IDP",
+      hint: "Perubahan disimpan untuk semua yang membuka portal ini.", updated: (n, d) => n ? `Dikemas kini oleh ${n} · ${d}` : `Dikemas kini ${d}`,
+      def: "Memaparkan status lalai sehingga HR menyimpan status.", stale: "Memaparkan status terakhir disimpan sambil menyemak kemas kini.", offline: "Status yang disimpan tidak dapat dicapai. Memaparkan status terakhir diketahui.",
+      saved: "Status kitaran disimpan. Semua yang membuka portal kini nampak status ini.", denied: "Anda boleh lihat status tetapi tidak boleh menukarnya. Minta akses Editor daripada pemilik portal.", failed: "Status tidak dapat disimpan. Cuba lagi." }
+  };
+  const OV = {
+    en: {
+      tier: "Talent, Succession & Leadership Pipeline", title: "Succession Planning 2026 · MCP & OCP",
+      lead: "Ready successors for every critical position: identified, assessed, validated, then developed.",
+      flow: ["Identify", "Assess (SRA)", "Validate (HOD · HCC)", "Develop (IDP)"],
+      stats: ["critical positions", "successors", "departments"],
+      goalLabel: "Programme goal", goal: "A strong successor pool that keeps critical roles filled and the business running.",
+      cards: [["check", "Position-focused", "Assessed against one target role"], ["x", "Not a promotion", "No automatic appointment or entitlement"], ["shield", "Develop & review", "IDP for every successor · reviewed twice a year"]],
+      pipeTitle: "Four-tier talent pipeline", focus: "This portal",
+      pipe: ["Feeds the future talent pool", "ETP builds the leadership pipeline", "Ready successors for critical roles", "Strategic leadership for the vision"],
+      defTitle: "Critical positions",
+      mcp: [["Sets strategy & direction"], ["Reports to GMD & CEO"]], ocp: [["Runs business-as-usual"], ["Usually Division Heads, TH9+"]],
+      critTitle: "Who can be a successor",
+      crit: [["layers", "TH7–TH11", "Grade · OCP TH7–TH10"], ["briefcase", "Confirmed", "Permanent, or contract ≥ 1 yr"], ["cap", "Degree", "Bachelor's or higher"], ["calendar", "≤ 55", "Age, subject to readiness"], ["award", "Excellent × 2", "PMS, 2 years in a row"], ["shield", "Clean 5 yrs", "No disciplinary action"]],
+      procTitle: "Six-stage process", procNote: "Status for the 2026 cycle", st: { done: "Done", now: "In progress", next: "Next" },
+      stages: [["Build the talent pool", ["Criteria", "MCP & OCP", "Annual cycle"]], ["Assess leadership capability", ["Harrison JSA", "PMS"]], ["Discuss readiness, name successors", ["HCC", "SRA results"]], ["Close gaps with an IDP", ["IDP", "Coaching", "Mobility"]], ["Keep the successor pool strong", ["Dashboard", "Bi-annual review"]], ["Keep HiPos engaged", ["TEX", "Rewards", "Engagement"]]],
+      sraTitle: "How readiness is scored", sraNote: "Successor Readiness Assessment 2026",
+      sra: [["40%", "Job fit", "Harrison JSA", "user", "Successor"], ["10%", "Job experience", "Scale 0–2", "tie", "HOD"], ["50%", "Functional competencies", "Scale 1–4", "tie", "HOD"]],
+      gaugeTitle: "Readiness scale", gauge: [["Not ready", "≤39%"], ["R2", "2–4 yrs"], ["R1", "1–2 yrs"], ["R0", "Ready now"]], proposed: "Proposed R0 (MCP)",
+      devTitle: "Development mix", devNote: "Every SRA gap becomes an IDP action",
+      dev: [["70%", "briefcase", "On-the-job", ["Stretch projects", "Job rotation", "Acting role", "Board papers"]], ["20%", "chat", "Coaching & mentoring", ["Executive coaching", "Mentoring", "GROW feedback"]], ["10%", "book", "Training", ["Exec education", "Certification", "E-learning"]]],
+      rolesTitle: "Who does what",
+      roles: [["user", "Successor", "JSA · IDP"], ["tie", "HOD", "Assess · validate · approve IDP"], ["org", "Talent Mgmt", "Run the cycle · HCC papers"], ["users", "HCC", "Review · approve"], ["cpu", "Portal", "Screen · score · track"]],
+      guideTitle: "Using this portal", open: "Open",
+      guide: [["dash", "chart", "Dashboard", "Coverage, 9-Box, metrics"], ["sum", "doc", "Summary", "One-pager · PDF · PowerPoint"], ["chart", "sitemap", "Succession Chart", "Positions and successors"], ["rv", "clipboard", "Readiness Validation", "SRA scores with the HOD"], ["idp", "trend", "IDP", "70 · 20 · 10 plans"], ["card", "user", "Employee Card", "Profile, SRA and gaps"]]
+    },
+    ms: {
+      tier: "Talent, Succession & Leadership Pipeline", title: "Succession Planning 2026 · MCP & OCP",
+      lead: "Pengganti yang sedia untuk setiap jawatan kritikal: dikenal pasti, dinilai, disahkan, kemudian dibangunkan.",
+      flow: ["Kenal pasti", "Nilai (SRA)", "Sahkan (HOD · HCC)", "Bangun (IDP)"],
+      stats: ["jawatan kritikal", "pengganti", "jabatan"],
+      goalLabel: "Matlamat program", goal: "Kumpulan pengganti yang kukuh supaya jawatan kritikal sentiasa terisi dan perniagaan terus berjalan.",
+      cards: [["check", "Ikut jawatan", "Dinilai berbanding satu jawatan sasaran"], ["x", "Bukan kenaikan pangkat", "Tiada lantikan automatik atau hak"], ["shield", "Bangun & semak", "IDP untuk setiap pengganti · disemak dua kali setahun"]],
+      pipeTitle: "Saluran bakat empat peringkat", focus: "Portal ini",
+      pipe: ["Mengisi talent pool masa depan", "ETP membina saluran kepimpinan", "Pengganti sedia untuk jawatan kritikal", "Kepimpinan strategik untuk visi"],
+      defTitle: "Jawatan kritikal",
+      mcp: [["Merangka strategi & hala tuju"], ["Melapor kepada GMD & CEO"]], ocp: [["Menjalankan operasi harian"], ["Lazimnya Ketua Bahagian, TH9+"]],
+      critTitle: "Siapa boleh jadi pengganti",
+      crit: [["layers", "TH7–TH11", "Gred · OCP TH7–TH10"], ["briefcase", "Disahkan", "Tetap, atau kontrak ≥ 1 thn"], ["cap", "Ijazah", "Sarjana muda atau lebih"], ["calendar", "≤ 55", "Umur, tertakluk kesediaan"], ["award", "Cemerlang × 2", "PMS, 2 tahun berturut"], ["shield", "Bersih 5 thn", "Tiada tindakan tatatertib"]],
+      procTitle: "Proses enam peringkat", procNote: "Status kitaran 2026", st: { done: "Selesai", now: "Sedang berjalan", next: "Seterusnya" },
+      stages: [["Bina talent pool", ["Kriteria", "MCP & OCP", "Kitaran tahunan"]], ["Nilai keupayaan kepimpinan", ["Harrison JSA", "PMS"]], ["Bincang kesediaan, namakan pengganti", ["HCC", "Keputusan SRA"]], ["Tutup jurang dengan IDP", ["IDP", "Coaching", "Mobiliti"]], ["Kekalkan kumpulan pengganti kukuh", ["Dashboard", "Semakan dwi-tahunan"]], ["Kekalkan penglibatan HiPo", ["TEX", "Ganjaran", "Engagement"]]],
+      sraTitle: "Cara kesediaan diskor", sraNote: "Successor Readiness Assessment 2026",
+      sra: [["40%", "Job fit", "Harrison JSA", "user", "Pengganti"], ["10%", "Pengalaman kerja", "Skala 0–2", "tie", "HOD"], ["50%", "Kompetensi fungsian", "Skala 1–4", "tie", "HOD"]],
+      gaugeTitle: "Skala kesediaan", gauge: [["Belum sedia", "≤39%"], ["R2", "2–4 thn"], ["R1", "1–2 thn"], ["R0", "Sedia sekarang"]], proposed: "Cadangan R0 (MCP)",
+      devTitle: "Campuran pembangunan", devNote: "Setiap jurang SRA menjadi tindakan IDP",
+      dev: [["70%", "briefcase", "On-the-job", ["Projek stretch", "Job rotation", "Memangku", "Kertas Lembaga"]], ["20%", "chat", "Coaching & mentoring", ["Executive coaching", "Mentoring", "GROW feedback"]], ["10%", "book", "Latihan", ["Pendidikan eksekutif", "Pensijilan", "E-learning"]]],
+      rolesTitle: "Siapa buat apa",
+      roles: [["user", "Pengganti", "JSA · IDP"], ["tie", "HOD", "Nilai · sahkan · lulus IDP"], ["org", "Talent Mgmt", "Urus kitaran · kertas HCC"], ["users", "HCC", "Semak · lulus"], ["cpu", "Portal", "Tapis · skor · jejak"]],
+      guideTitle: "Cara guna portal ini", open: "Buka",
+      guide: [["dash", "chart", "Dashboard", "Liputan, 9-Box, metrik"], ["sum", "doc", "Ringkasan", "Satu halaman · PDF · PowerPoint"], ["chart", "sitemap", "Carta Pengganti", "Jawatan dan pengganti"], ["rv", "clipboard", "Readiness Validation", "Skor SRA bersama HOD"], ["idp", "trend", "IDP", "Pelan 70 · 20 · 10"], ["card", "user", "Kad Pekerja", "Profil, SRA dan jurang"]]
+    }
+  };
+  OV.en.cy = CY.en; OV.ms.cy = CY.ms;
+  const PIPE = [
+    { t: ["Graduate Talent", "Bakat Graduan"], band: ["Fresh graduates / entry", "Graduan baharu / permulaan"], h: 40, ico: "cap" },
+    { t: ["Talent Management", "Pengurusan Bakat"], band: ["Executive – Manager · TH4–TH6", "Eksekutif – Pengurus · TH4–TH6"], h: 70, ico: "rocket" },
+    { t: ["Succession Planning", "Succession Planning"], band: ["Asst. Manager – HOD · TH5–TH11", "Pen. Pengurus – HOD · TH5–TH11"], h: 100, ico: "trend", focus: true },
+    { t: ["Senior Leadership Team", "Pasukan Kepimpinan Kanan"], band: ["Senior Management (C-Suite)", "Pengurusan Kanan (C-Suite)"], h: 130, ico: "trophy" }
+  ];
+  const STAGE_ICO = ["search", "clipboard", "chat", "trend", "sitemap", "heart"];
+  const ICON_SPRITE = `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></symbol>
+    <symbol id="i-tie" viewBox="0 0 24 24"><circle cx="12" cy="6" r="3.5"/><path d="M5 21c0-4.5 3-7 7-7s7 2.5 7 7"/><path d="M12 14l-1.3 2.5L12 21l1.3-4.5z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.7c2.3.6 4 2.3 4 5.3"/></symbol>
+    <symbol id="i-org" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1M10 21v-3h4v3"/></symbol>
+    <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+    <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-sitemap" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M12 15l-3-3c1.5-4.5 5-8 10-9-1 5-4.5 8.5-9 10z"/><path d="M9 12H5l2-4h4M12 15v4l4-2v-4"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 3M16 6h3a3 3 0 0 1-3 3M12 13v4M8 21h8M9 17h6"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M19 19v2H6"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+  </defs></svg>`;
+  const ico = (id, cls) => `<svg class="ico${cls ? " " + cls : ""}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+  const STAGE_NAMES = ["Talent Identification", "Talent Assessment", "Talent Evaluation & Review", "Talent Development", "Succession Planning", "Talent Retention"];
+  // Shared cycle status: db doc settings/cycle (everyone reads, Editors/owner write)
+  const DEFAULT_CYCLE = { stages: ["done", "done", "done", "now", "next", "next"], notes: ["", "", "", "IDP", "", ""] };
+  let CYCLE = JSON.parse(JSON.stringify(DEFAULT_CYCLE)), cycleMeta = { by: null, at: null, state: "default" };
+  let cycleDb = null, cycleUser = null, cycleCanEdit = false, cycleEditing = false, cycleDraft = null, cycleSaving = false;
+  const cycleNames = {};
+  async function initCycle() {
+    if (!(window.claude && typeof window.claude.use === "function")) return;
+    const [db, user] = await Promise.all([window.claude.use("db").catch(() => null), window.claude.use("user").catch(() => null)]);
+    cycleUser = user;
+    if (user) cycleCanEdit = !!(await user.canEdit());
+    if (!db) { if (page === "ov") renderOverview(); return; }
+    cycleDb = db;
+    let settled = false;
+    const rerender = () => { if (page === "ov" && !cycleEditing) renderOverview(); };
+    const timer = setTimeout(() => { if (!settled) { cycleMeta.state = cycleMeta.at ? "stale" : "offline"; rerender(); } }, 10000);
+    db.doc("settings/cycle").onSnapshot(snap => {
+      if (!snap.metadata.fromCache) { settled = true; clearTimeout(timer); }
+      const d = snap.exists ? snap.data() : null;
+      if (d && Array.isArray(d.stages) && d.stages.length === 6) {
+        CYCLE = { stages: d.stages.map(x => ["done", "now", "next"].includes(x) ? x : "next"), notes: Array.from({ length: 6 }, (_, i) => String((d.notes || [])[i] || "")) };
+        cycleMeta = { by: d.updatedBy || null, at: d.updatedAt || null, state: snap.metadata.fromCache ? "stale" : "live" };
+      } else if (!snap.metadata.fromCache) cycleMeta.state = "default";
+      if (cycleUser && cycleMeta.by) cycleUser.profiles([cycleMeta.by]).then(ps => { cycleNames[cycleMeta.by] = (ps[cycleMeta.by] && ps[cycleMeta.by].name) || ""; rerender(); });
+      rerender();
+    }, () => { settled = true; clearTimeout(timer); cycleMeta.state = "offline"; rerender(); });
+    if (page === "ov") renderOverview();
+  }
+  async function saveCycle() {
+    if (!cycleDb || !cycleDraft || cycleSaving) return;
+    const O = OV[lang];
+    cycleSaving = true; renderOverview();
+    const uid = cycleUser ? await cycleUser.id() : null;
+    const body = { stages: cycleDraft.stages.slice(), notes: cycleDraft.notes.map(n => String(n).trim().slice(0, 40)), updatedBy: uid, updatedAt: new Date().toISOString() };
+    const write = () => cycleDb.doc("settings/cycle").set(body);
+    try {
+      try { await write(); } catch (e) { if (e && e.code === "unavailable") { await new Promise(r => setTimeout(r, 600 + Math.random() * 600)); await write(); } else throw e; }
+      CYCLE = { stages: body.stages, notes: body.notes }; cycleMeta = { by: uid, at: body.updatedAt, state: "live" };
+      cycleEditing = false; cycleDraft = null; toast(O.cy.saved);
+    } catch (e) {
+      if (e && e.code === "invalid_argument") { cycleCanEdit = false; cycleEditing = false; cycleDraft = null; toast(O.cy.denied); } else toast(O.cy.failed);
+    } finally { cycleSaving = false; renderOverview(); }
+  }
+  function cycleHead(O) {
+    const d = cycleMeta.at ? new Date(cycleMeta.at) : null;
+    const when = d && !isNaN(d) ? `${d.getDate()} ${L().months12[d.getMonth()]} ${d.getFullYear()}` : "";
+    const metaTxt = cycleMeta.state === "offline" ? O.cy.offline : cycleMeta.state === "stale" ? O.cy.stale : when ? O.cy.updated(cycleNames[cycleMeta.by] || "", when) : (cycleDb ? O.cy.def : "");
+    const btns = !(cycleDb && cycleCanEdit) ? "" : cycleEditing
+      ? `<button type="button" class="btn sm" data-cy="cancel"${cycleSaving ? " disabled" : ""}>${O.cy.cancel}</button><button type="button" class="btn sm primary" data-cy="save"${cycleSaving ? " disabled" : ""}>${cycleSaving ? O.cy.saving : O.cy.save}</button>`
+      : `<button type="button" class="btn sm" data-cy="edit">${O.cy.edit}</button>`;
+    return `<div class="section-head"><div><h2>${O.procTitle}</h2><span class="note">${O.procNote}</span>${metaTxt ? `<span class="note cy-meta"> · ${esc(metaTxt)}</span>` : ""}</div><div class="head-actions">${btns}</div></div>
+      ${cycleEditing ? `<p class="note" style="margin:0">${O.cy.hint}</p>` : ""}`;
+  }
+  function cycleJourney(O) {
+    const src = cycleEditing ? cycleDraft : CYCLE;
+    return `<ol class="journey">${STAGE_NAMES.map((n, i) => {
+      const st = src.stages[i], note = src.notes[i];
+      const edit = cycleEditing ? `<div class="cy-edit"><select data-cy-st="${i}" aria-label="${O.cy.status}: ${n}">${["done", "now", "next"].map(k => `<option value="${k}"${k === st ? " selected" : ""}>${O.st[k]}</option>`).join("")}</select>
+        <input data-cy-note="${i}" value="${esc(note)}" maxlength="40" placeholder="${O.cy.notePh}" aria-label="${O.cy.note}: ${n}"></div>` : "";
+      return `<li class="${st}"><span class="j-dot">${st === "done" ? ico("check") : ico(STAGE_ICO[i])}</span><div class="j-body"><span class="j-when">${i + 1} · ${O.st[st]}${note ? " · " + esc(note) : ""}</span><b>${n}</b>${edit}<span class="j-sub">${O.stages[i][0]}</span><span class="chips">${O.stages[i][1].map(c => `<span>${c}</span>`).join("")}</span></div></li>`;
+    }).join("")}</ol>`;
+  }
+  function renderOverview() {
+    const O = OV[lang], ps = DATA.positions;
+    const succ = new Set(ps.flatMap(p => p.succ.filter(s => s.st !== "struck").map(s => s.key))).size;
+    const depts = new Set(ps.map(p => p.dept)).size;
+    const statIco = ["sitemap", "users", "org"];
+    // donut: circumference 100 on r = 15.915
+    let off = 25;
+    const donut = O.sra.map((c, i) => { const v = parseFloat(c[0]); const seg = `<circle class="dn dn-${i}" cx="21" cy="21" r="15.915" stroke-dasharray="${v} ${100 - v}" stroke-dashoffset="${off}"/>`; off -= v; return seg; }).join("");
+    const zones = [[0, 40, "r3"], [40, 50, "r2"], [50, 70, "r1"], [70, 100, "r0"]];
+    $("view-ov").innerHTML = ICON_SPRITE + `
+      <div class="panel ov-hero">
+        <div class="ov-hero-text"><div class="tier">${O.tier}</div><h2 class="ov-title">${O.title}</h2><p class="ov-lead">${O.lead}</p>
+          <div class="ov-flow">${O.flow.map((f, i) => `${i ? '<span class="ov-arrow" aria-hidden="true"></span>' : ""}<span class="ov-step"><b>${i + 1}</b>${f}</span>`).join("")}</div>
+          <div class="ov-stats">${[ps.length, succ, depts].map((v, i) => `<div class="ov-stat">${ico(statIco[i], "ico-tile")}<span><b>${v}</b><small>${O.stats[i]}</small></span></div>`).join("")}</div>
+        </div>
+        <div class="ov-goal">${ico("flag", "ico-lg")}<div class="label">${O.goalLabel}</div><p>${O.goal}</p></div>
+      </div>
+      <div class="grid3">${O.cards.map(([ic, big, txt], i) => `<div class="panel ov-card c${i}">${ico(ic, "ico-xl")}<div><b>${big}</b><p>${txt}</p></div></div>`).join("")}</div>
+      <div class="panel">
+        <h2>${O.pipeTitle}</h2>
+        <div class="stairs">${PIPE.map((t, i) => `<div class="stair${t.focus ? " focus" : ""}">
+          <div class="stair-head"><span class="stair-ico s${i}">${ico(t.ico)}</span><b>${tx(t.t)}</b></div>
+          <div class="stair-bar s${i}" style="height:${t.h}px"><span>${tx(t.band)}</span></div>
+          <p>${O.pipe[i]}</p>
+          ${t.focus ? `<div class="stair-cats"><span><b>MCP</b> C-1 · TH7–11</span><span><b>OCP</b> C-2 · TH7–10</span><span><b>BCP</b> TH5–7</span></div><span class="stair-flag">${O.focus}</span>` : ""}
+        </div>`).join("")}</div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h2>${O.defTitle}</h2>
+          <div class="cp-grid">
+            <div class="cp"><div class="cp-top"><span class="cp-badge">MCP</span><span class="cp-g">C-1 · TH7–TH11</span></div><b>Mission Critical Position</b>
+              <ul class="ico-list"><li>${ico("flag")}${O.mcp[0]}</li><li>${ico("org")}${O.mcp[1]}</li></ul></div>
+            <div class="cp"><div class="cp-top"><span class="cp-badge alt">OCP</span><span class="cp-g">C-2 · TH7–TH10</span></div><b>Operational Critical Position</b>
+              <ul class="ico-list"><li>${ico("cpu")}${O.ocp[0]}</li><li>${ico("sitemap")}${O.ocp[1]}</li></ul></div>
+          </div>
+        </div>
+        <div class="panel"><h2>${O.critTitle}</h2>
+          <div class="crit-grid">${O.crit.map(([ic, big, sm]) => `<div class="crit-item">${ico(ic, "ico-tile")}<span><b>${big}</b><small>${sm}</small></span></div>`).join("")}</div>
+        </div>
+      </div>
+      <div class="panel">
+        ${cycleHead(O)}
+        ${cycleJourney(O)}
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="section-head"><h2>${O.sraTitle}</h2><span class="note">${O.sraNote}</span></div>
+          <div class="sra-viz">
+            <svg class="donut" viewBox="0 0 42 42" role="img" aria-label="${O.sra.map(c => c[0] + " " + c[1]).join(", ")}"><circle class="dn-bg" cx="21" cy="21" r="15.915"/>${donut}<text x="21" y="20" class="dn-t">SRA</text><text x="21" y="25.5" class="dn-s">100%</text></svg>
+            <ul class="sra-legend">${O.sra.map((c, i) => `<li><span class="sw-dn dn-${i}"></span><span class="pct">${c[0]}</span><span><b>${c[1]}</b><small>${c[2]}</small></span><span class="by">${ico(c[3])}${c[4]}</span></li>`).join("")}</ul>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>${O.gaugeTitle}</h2>
+          <div class="gauge">
+            <div class="g-zones">${zones.map(([a, b, c], i) => `<div class="g-zone ${c}" style="flex:${b - a}"><b>${O.gauge[i][0]}</b><span>${O.gauge[i][1]}</span></div>`).join("")}</div>
+            <div class="g-ticks">${[0, 40, 50, 70, 100].map(v => `<span style="left:${v}%">${v}%</span>`).join("")}</div>
+            <div class="g-prop" style="left:90%"><span>${O.proposed} ≥90%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="section-head"><h2>${O.devTitle}</h2><span class="note">${O.devNote}</span></div>
+        <div class="mix">${O.dev.map(([p, ic, t], i) => `<div class="mix-seg m${i}" style="flex:${parseFloat(p)}">${ico(ic)}<b>${p}</b><span>${t}</span></div>`).join("")}</div>
+        <div class="grid3">${O.dev.map(([p, ic, t, chips], i) => `<div class="mix-detail m${i}"><b>${t}</b><span class="chips">${chips.map(c => `<span>${c}</span>`).join("")}</span></div>`).join("")}</div>
+      </div>
+      <div class="panel">
+        <h2>${O.rolesTitle}</h2>
+        <div class="roles-row">${O.roles.map(([ic, t, d], i) => `${i ? '<span class="ov-arrow" aria-hidden="true"></span>' : ""}<div class="role-chip">${ico(ic, "ico-tile")}<b>${t}</b><small>${d}</small></div>`).join("")}</div>
+      </div>
+      <div class="panel">
+        <h2>${O.guideTitle}</h2>
+        <div class="guide">${O.guide.map(([v, ic, t, d]) => `<button type="button" class="guide-item" data-view="${v}">${ico(ic, "ico-tile")}<span class="gi-txt"><b>${t}</b><span>${d}</span></span><span class="go">→</span></button>`).join("")}</div>
+      </div>`;
+  }
+  // ---------- Pages ----------
+  let page = "chart";
+  const FROM_HASH = { overview: "ov", dashboard: "dash", summary: "sum", chart: "chart", readiness: "rv", idp: "idp", "employee-card": "card" }, TO_HASH = { ov: "overview", dash: "dashboard", sum: "summary", chart: "chart", rv: "readiness", idp: "idp", card: "employee-card" };
+  const readHash = () => { page = FROM_HASH[location.hash.slice(1)] || "ov"; };
+  function go(pg) { if (TO_HASH[pg] === location.hash.slice(1)) { page = pg; render(); } else location.hash = TO_HASH[pg]; }
+
+  function render() {
+    renderStatic(); renderLegend();
+    const side = ["rv", "idp", "card", "sum", "ov"].includes(page);
+    $("view-ov").hidden = page !== "ov"; document.querySelector(".scope").hidden = page === "ov";
+    $("view-sum").hidden = page !== "sum";
+    $("view-dash").hidden = page !== "dash"; $("view-rv").hidden = page !== "rv"; $("view-idp").hidden = page !== "idp"; $("view-card").hidden = page !== "card"; $("chartPanel").hidden = page !== "chart";
+    $("notesPanel").hidden = side; $("kpis").hidden = side;
+    if (!side) renderKpis();
+    if (page === "idp") renderIDP();
+    if (page === "card") renderCard();
+    if (page === "sum") renderSummary();
+    if (page === "ov") renderOverview();
+    if (page === "dash") renderDash();
+    if (page === "rv") renderRV();
+    if (page === "chart") { if (view === "chart") renderChart(); else renderTable(); }
+    renderNotes();
+    if ($("dlg").open && openRef) openDetail(openRef[0], openRef[1]);
+  }
+
+  // ---------- Dialog ----------
+  let openRef = null;
+  function openDetail(pid, i) {
+    const p = DATA.positions.find(x => x.id === pid); if (!p) return;
+    openRef = [pid, i];
+    const s = p.succ[i], per = s.p, t = total(s), lc = level(t, p.cat, "cur"), ln = level(t, p.cat, "neu"), inc = p.inc;
+    const bar = (lab, v, max) => `<div class="bar-row"><span>${lab}</span><span class="n">${v.toFixed(1)}<small> / ${max}</small></span><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, v / max * 100)}%"></div></div></div>`;
+    const fromFile = DATA.source === "file";
+    const kv = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : "";
+    const vacTxt = inc.vacant ? L().vacantNow.replace(/<\/?b>/g, "") : inc.end ? `${fmtYM(inc.end)} · ${monthsTo(inc.end)} ${L().months}` : L().noEnd;
+    const fails = failed(s);
+    $("dlgBody").innerHTML = `
+      <div class="dlg-head"><div><div class="label">${p.cat} · ${s.st === "rep" ? L().dType.rep : L().dType.int}</div><h2 id="dName">${esc(per.n)}${per.g ? ` (${esc(per.g)})` : ""}</h2><div class="note">${esc(tx(per.pos) || "")}</div></div>
+        <button type="button" class="btn sm" id="dClose">${L().close}</button></div>
+      <div class="dlg-grid">
+        <div class="box"><span class="label">${L().target}</span>
+          <dl class="kv">${kv(L().position, `<b>${esc(tx(p.t))}${p.g ? ` (${esc(p.g)})` : ""}</b>`)}${kv(L().incumbent, inc.vacant ? L().vacantName : esc(inc.n))}${kv(L().vacant, vacTxt)}
+          ${kv(L().endCap[per.et] || L().endCap.retire, fmtYM(per.end))}${kv(L().pms, esc(per.pms || "–"))}
+          ${fromFile ? kv(L().staffNo, esc(per.staff)) + kv(L().type, esc(per.type)) + kv(L().svc, esc(per.svc)) + kv(L().qual, esc(per.qual)) : kv("IDP", s.prog ? L().prog[s.prog] : "–")}</dl></div>
+        <div class="box"><span class="label">${L().sra}</span>
+          <div class="bars">${bar(L().bExp, s.exp, 10)}${bar(L().bFit, s.fit, 40)}${bar(L().bFun, s.fun, 50)}</div>
+          <div class="total"><span>${L().total}</span><b>${t.toFixed(1)}%</b></div>
+          <div class="kv">
+            <span class="note">${L().curScale}</span><span><span class="rd ${lvCls(lc)}">${lc}</span> ${desc(lc, "cur")}</span>
+            <span class="note">${L().newScale}</span><span><span class="rd ${lvCls(ln)}">${ln}</span> ${desc(ln, "neu")}</span>
+            ${s.fileLvl ? `<span class="note">${L().fileLvl}</span><span><span class="rd ${lvCls(s.fileLvl)}">${esc(s.fileLvl)}</span></span>` : ""}
+          </div></div>
+      </div>
+      ${fails.length ? `<div class="callout bad">${L().noMeetCallout(fails.map(k => L().crit[k]).join(", "))}</div>` : ""}
+      ${runwayShort(s, p) ? `<div class="callout">${L().runwayCallout(L().endCap[per.et], fmtYM(per.end), runwayGap(s, p))}</div>` : ""}
+      <div class="dlg-grid">
+        ${s.crit ? `<div class="box"><span class="label">${L().critTitle}</span><ul class="asp">${Object.keys(L().crit).map(k => { const v = s.crit[k]; return `<li><span class="tick ${v === false ? "n" : "y"}">${v === false ? "✗" : v ? "✓" : "–"}</span><span>${L().crit[k]}</span></li>`; }).join("")}</ul></div>` : ""}
+        <div class="box"><span class="label">${L().gaps}</span>${s.gaps == null ? `<span class="note">${L().notInFile}</span>` : s.gaps.length ? `<ul class="gaps">${s.gaps.map(g => `<li>${esc(tx(g))}</li>`).join("")}</ul>` : `<span class="note">${L().notAssessed}</span>`}</div>
+        ${!fromFile ? `<div class="box"><span class="label">${L().asp}</span><ul class="asp">${L().aspL.map((a, k) => { const y = per.asp && per.asp[k]; return `<li><span class="tick ${y ? "y" : "n"}">${y ? "✓" : "✗"}</span><span>${a}</span></li>`; }).join("")}</ul></div>` : ""}
+      </div>
+      <div class="actions"><button type="button" class="btn" data-open="card">${L().openCard}</button><button type="button" class="btn primary" data-open="idp">${L().openIdp}</button></div>`;
+    if (!$("dlg").open) $("dlg").showModal();
+    $("dClose").addEventListener("click", () => $("dlg").close());
+  }
+  $("dlg").addEventListener("click", e => { if (e.target === $("dlg")) $("dlg").close(); });
+  $("dlg").addEventListener("close", () => { openRef = null; });
+
+  // ---------- Events ----------
+  let tt;
+  function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2600); }
+  document.addEventListener("click", e => {
+    const lg = e.target.closest("[data-lang]");
+    if (lg) { lang = lg.dataset.lang; try { localStorage.setItem("sp-lang", lang); } catch (er) {} render(); return; }
+    const op = e.target.closest("[data-open]");
+    if (op && openRef) {
+      const p = DATA.positions.find(x => x.id === openRef[0]), s = p && p.succ[openRef[1]];
+      if (s) { selCard = s.key; selIdp = openRef[0] + "|" + openRef[1]; }
+      $("dlg").close(); go(op.dataset.open); window.scrollTo({ top: 0 }); return;
+    }
+    const oi = e.target.closest("[data-open-idp]");
+    if (oi) { selIdp = oi.dataset.openIdp; go("idp"); window.scrollTo({ top: 0 }); return; }
+    const ad = e.target.closest("[data-add]");
+    if (ad && IDPS[selIdp]) {
+      const d = IDPS[selIdp]; d.rows.push({ sec: ad.dataset.add, area: "", inter: "", cat: ad.dataset.add === "A" ? "cm" : "ojt", w: "", tl: "", st: "ns", rem: "" });
+      renderIDP(); const el = document.querySelector(`#idpBody tr[data-r="${d.rows.length - 1}"] textarea`); if (el) el.focus(); return;
+    }
+    const dr = e.target.closest("[data-delrow]");
+    if (dr && IDPS[selIdp]) { IDPS[selIdp].rows.splice(+dr.dataset.delrow, 1); renderIDP(); return; }
+    const is = e.target.closest("[data-idpst]");
+    if (is && IDPS[selIdp]) { IDPS[selIdp].status = is.dataset.idpst; toast(L().idpToast[is.dataset.idpst]); renderIDP(); return; }
+    const cy = e.target.closest("[data-cy]");
+    if (cy) {
+      const a = cy.dataset.cy;
+      if (a === "edit") { cycleEditing = true; cycleDraft = { stages: CYCLE.stages.slice(), notes: CYCLE.notes.slice() }; renderOverview(); }
+      else if (a === "cancel") { cycleEditing = false; cycleDraft = null; renderOverview(); }
+      else if (a === "save") saveCycle();
+      return;
+    }
+    const nb = e.target.closest("[data-nb]");
+    if (nb) { selNb = selNb === nb.dataset.nb ? null : nb.dataset.nb; renderNineBox(visible()); return; }
+    const nv = e.target.closest("[data-view]");
+    if (nv) { go(nv.dataset.view); if (nv.classList.contains("guide-item")) window.scrollTo({ top: 0 }); return; }
+    const dg = e.target.closest("[data-dept],[data-goto]");
+    if (dg) { dept = dg.dataset.dept || dg.dataset.goto; go("chart"); window.scrollTo({ top: 0 }); return; }
+    const m = e.target.closest("[data-mock]");
+    if (m) { toast(L().mockToast(L().mock[m.dataset.mock])); return; }
+    const s = e.target.closest("[data-p]");
+    if (s) openDetail(s.dataset.p, +s.dataset.x);
+  });
+  $("fileIn").addEventListener("change", e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    $("loadErr").hidden = true;
+    if (typeof XLSX === "undefined") { $("loadErr").textContent = L().loadErr("Excel reader did not load"); $("loadErr").hidden = false; return; }
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const wb = XLSX.read(new Uint8Array(rd.result), { type: "array", cellDates: true });
+        DATA = parseWorkbook(wb, f.name); initVal();
+        dept = "";
+        render();
+      } catch (err) { $("loadErr").textContent = L().loadErr(err.message || String(err)); $("loadErr").hidden = false; }
+      e.target.value = "";
+    };
+    rd.readAsArrayBuffer(f);
+  });
+  $("useSample").addEventListener("click", () => { SCALES = JSON.parse(JSON.stringify(DEFAULT_SCALES)); DATA = sampleData(); initVal(); dept = ""; render(); });
+  $("sendTrc").addEventListener("click", () => toast(L().trcToast(dept ? deptLabel(dept) : L().deptAll)));
+  $("fDept").addEventListener("change", e => { dept = e.target.value; render(); });
+  $("fCat").addEventListener("change", render);
+  $("fSearch").addEventListener("input", render);
+  const setScale = v => { scale = v; $("scCur").setAttribute("aria-pressed", String(v === "cur")); $("scNew").setAttribute("aria-pressed", String(v === "neu")); render(); };
+  $("scCur").addEventListener("click", () => setScale("cur"));
+  $("scNew").addEventListener("click", () => setScale("neu"));
+  const setView = v => { view = v; $("vChart").setAttribute("aria-pressed", String(v === "chart")); $("vTable").setAttribute("aria-pressed", String(v === "table")); $("chartView").hidden = v !== "chart"; $("tableView").hidden = v !== "table"; render(); };
+  $("vChart").addEventListener("click", () => setView("chart"));
+  $("vTable").addEventListener("click", () => setView("table"));
+
+  document.addEventListener("input", e => {
+    if (cycleDraft && e.target.dataset && e.target.dataset.cyNote != null) { cycleDraft.notes[+e.target.dataset.cyNote] = e.target.value; return; }
+    const fb = e.target.closest("[data-fb]");
+    if (fb) { FB[fb.dataset.fb] = fb.value; return; }
+    const f = e.target.closest("#idpBody [data-f]"), tr = f && f.closest("tr[data-r]");
+    if (f && tr && IDPS[selIdp]) {
+      const r = IDPS[selIdp].rows[+tr.dataset.r]; if (!r) return;
+      r[f.dataset.f] = f.value;
+      if (f.dataset.f === "cat") f.className = "cat-" + f.value;
+      if (f.dataset.f === "cat" || f.dataset.f === "w") renderMix();
+    }
+  });
+  document.addEventListener("change", e => {
+    if (cycleDraft && e.target.dataset && e.target.dataset.cySt != null) { cycleDraft.stages[+e.target.dataset.cySt] = e.target.value; renderOverview(); return; }
+    if (e.target.id === "cardSel") { selCard = e.target.value; renderCard(); return; }
+    if (e.target.id === "idpSel") { selIdp = e.target.value; renderIDP(); return; }
+    const sel = e.target.closest("select[data-val]"); if (!sel) return;
+    VAL[sel.dataset.val] = sel.value; renderRV();
+    const again = document.querySelector(`select[data-val="${sel.dataset.val}"]`); if (again) again.focus();
+  });
+  window.addEventListener("hashchange", () => { readHash(); render(); });
+  $("exPdf").addEventListener("click", () => doExport("pdf"));
+  $("exPpt").addEventListener("click", () => doExport("ppt"));
+  if (window.claude && typeof window.claude.use === "function") getDownloads().then(dl => { if (!dl) { dlKnownMissing = true; $("exportBox").hidden = true; $("exNote").textContent = L().exUnavailable; } });
+  initVal(); readHash();
+  render();
+  initCycle();
+})();
+</script>
+
+</body>
+</html>

@@ -1593,7 +1593,15 @@ table.idp { min-width: 1120px; }
   let dlPromise = null, dlKnownMissing = false;
   function getDownloads() {
     if (dlPromise) return dlPromise;
-    if (!(window.claude && typeof window.claude.use === "function")) return Promise.resolve(null);
+    if (!(window.claude && typeof window.claude.use === "function")) {
+      // Standalone web page (outside the Claude viewer): use a normal browser download.
+      return Promise.resolve({ save: ({ filename, data }) => {
+        const url = URL.createObjectURL(data instanceof Blob ? data : new Blob([data]));
+        const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        return Promise.resolve({ status: "saved" });
+      } });
+    }
     dlPromise = window.claude.use("downloads").catch(() => null);
     return dlPromise;
   }
