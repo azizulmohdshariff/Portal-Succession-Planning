@@ -201,6 +201,38 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 .stackbar div { display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 600; min-width: 0; overflow: hidden; white-space: nowrap; }
 .stackbar .r0 { background: var(--r0); color: var(--r0-fg); } .stackbar .r1 { background: var(--r1); color: var(--r1-fg); } .stackbar .r2 { background: var(--r2); color: var(--r2-fg); } .stackbar .r3 { background: var(--r3); color: var(--r3-fg); }
 .bar-fill.hot { background: var(--bad); } .bar-fill.warm { background: var(--warn); }
+.nb-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .nb-layout { grid-template-columns: 1fr; } }
+.nb-wrap { display: grid; grid-template-columns: 20px 58px minmax(0, 1fr); grid-template-rows: auto auto auto; gap: 6px 8px; }
+.nb-y { grid-row: 1; grid-column: 1; display: flex; align-items: center; justify-content: center; }
+.nb-y span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.nb-ylab { grid-row: 1; grid-column: 2; display: grid; grid-template-rows: repeat(3, 1fr); gap: 6px; font-size: 11px; color: var(--muted); text-align: right; }
+.nb-ylab span { display: flex; align-items: center; justify-content: flex-end; }
+.nb-grid { grid-row: 1; grid-column: 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.nb-xlab { grid-row: 2; grid-column: 3; display: grid; grid-template-columns: repeat(3, 1fr); font-size: 11px; color: var(--muted); text-align: center; }
+.nb-x { grid-row: 3; grid-column: 3; text-align: center; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.nb-box { min-height: 96px; min-width: 0; border-radius: 10px; border: 1px solid var(--line); padding: 9px; display: grid; align-content: start; gap: 2px; text-align: left; cursor: pointer; color: var(--fg); background: var(--surface); }
+.nb-box:hover { filter: brightness(0.97); }
+.nb-box[aria-pressed="true"] { outline: 3px solid var(--accent); outline-offset: 1px; }
+.nb-n { font-family: var(--mono); font-size: 24px; font-weight: 500; line-height: 1.1; }
+.nb-name { font-weight: 600; font-size: 12px; line-height: 1.25; }
+.nb-box.t-ok { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.nb-box.t-ok2 { background: var(--brand-tint); border-color: var(--accent2); }
+.nb-box.t-mid { background: var(--sunken); }
+.nb-box.t-warn { background: var(--warn-bg); }
+.nb-box.t-bad { background: var(--bad-bg); }
+@media (max-width: 560px) { .nb-wrap { grid-template-columns: 16px 44px minmax(0, 1fr); } .nb-box { min-height: 80px; padding: 6px; } .nb-n { font-size: 19px; } .nb-name { font-size: 10.5px; } }
+.nb-side { display: grid; gap: 8px; min-width: 0; }
+.eff-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 980px) { .eff-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .eff-grid { grid-template-columns: 1fr; } }
+.eff { border: 1px solid var(--line); border-left: 3px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.eff.ok { border-left-color: var(--ok); } .eff.watch { border-left-color: var(--warn); } .eff.na { border-left-color: var(--line); }
+.eff .t { font-size: 12.5px; font-weight: 600; }
+.eff .v { font-family: var(--mono); font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.eff .v small { font-size: 13px; color: var(--muted); }
+.eff .d { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.eff .row { display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--muted); }
 .risk-list { display: grid; gap: 8px; }
 .risk-item { display: grid; gap: 2px; text-align: left; border: 1px solid var(--line); border-left: 3px solid var(--bad); border-radius: 8px; padding: 8px 10px; background: var(--surface); cursor: pointer; width: 100%; }
 .risk-item:hover { background: var(--sunken); }
@@ -301,6 +333,18 @@ table.idp { min-width: 1120px; }
     <div class="grid2">
       <div class="panel"><div class="section-head"><h2 data-i="distTitle"></h2><span class="note" id="distNote"></span></div><div id="dist" class="dist"></div></div>
       <div class="panel"><h2 data-i="tlTitle"></h2><div id="tl" class="bars"></div></div>
+    </div>
+    <div class="panel">
+      <div class="section-head"><div><h2 data-i="nbTitle"></h2><p data-i="nbNote"></p></div><span class="note" id="nbCount"></span></div>
+      <div class="nb-layout">
+        <div class="nb-wrap" id="nbWrap"></div>
+        <div class="nb-side" id="nbList"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="section-head"><div><h2 data-i="effTitle"></h2><p data-i="effNote"></p></div></div>
+      <div class="eff-grid" id="effGrid"></div>
+      <details class="ref"><summary data-i="notYetTitle"></summary><div class="table-scroll"><table><thead><tr><th data-i="thMetric"></th><th data-i="thNeeds"></th></tr></thead><tbody id="notYet"></tbody></table></div></details>
     </div>
     <div class="panel">
       <div class="section-head"><h2 data-i="byDeptTitle"></h2><span class="note" data-i="byDeptNote"></span></div>
@@ -460,6 +504,28 @@ table.idp { min-width: 1120px; }
       thGaps: "Priority gaps", thVal: "SRA validation by HOD", gapsNone: "From the SRA session",
       val: { pending: "Pending", ok: "Validated", rep: "Replacement list", rev: "Revise score" },
       rvProgress: (a, b) => `${a} of ${b} validated`,
+      nbTitle: "9-Box: performance × potential", nbNote: "Proxy until a separate potential rating exists: performance = PMS 2025, potential = SRA readiness on the selected scale. Each successor counted once, at their highest SRA.",
+      nbCount: (n, x) => `${n} successors placed${x ? ` · ${x} without PMS` : ""}`,
+      nbPerf: "Performance (PMS 2025)", nbPot: "Potential (SRA readiness)",
+      nbPerfLab: ["<80%", "80–89%", "≥90%"], nbPotLab: ["R2 / not ready", "R1", "R0"],
+      nbBox: [["Under-performer", "Effective", "Trusted professional"], ["Inconsistent", "Core player", "High performer"], ["Rough diamond", "High potential", "Future leader"]],
+      nbPick: "Click a box to list the successors in it.", nbEmpty: "No successors in this box.", nbList: (b, n) => `${b} · ${n}`,
+      thPms: "PMS 2025", thBest: "Highest SRA",
+      effTitle: "Programme effectiveness", effNote: "Measured on the current scope. Targets are working assumptions for discussion, not approved policy.",
+      eff: {
+        bench: ["Bench strength", "Internal successors per critical position", "Target ≥ 2.0"],
+        two: ["Positions with ≥2 successors", "Depth of the bench", "Target 100%"],
+        ready: ["Ready-now ratio", "R0 successors per critical position", "Target ≥ 1.0"],
+        meet: ["Successors meeting criteria", "All 6 selection criteria passed", "Target 100%"],
+        runway: ["Short runway", "Successors leaving < 24 months after the vacancy", "Target ≤ 10%"],
+        overlap: ["Successors on several positions", "Concentration risk", "Target ≤ 20%"],
+        women: ["Women in successor pool", "Gender diversity of the pipeline", "Reference 30%"],
+        idp: ["IDP in place", "Successors with an approved or running IDP", "Target 100%"]
+      },
+      effSt: { ok: "On track", watch: "Watch", na: "Awaiting data" },
+      effNa: { meet: "Criteria checks come from the masterlist.", women: "No gender data in this source.", idp: "No IDP records yet. Approve IDPs in the IDP tab or connect the IDP system." },
+      notYetTitle: "Metrics that need more data", thMetric: "Metric", thNeeds: "Data needed",
+      notYet: [["Internal fill rate for critical positions", "Appointment history: who filled each critical position and whether they were on the successor list"], ["Readiness movement year on year (R2 → R1 → R0)", "SRA results from the previous cycle"], ["Regretted attrition of successors and HiPos", "Resignation records linked to the successor list"], ["Time to fill critical positions", "Vacancy and appointment dates"], ["IDP completion by 70 · 20 · 10 category", "IDP activity status from the IDP / LMS system"]],
       cardTitle: "Employee card", cardPick: "Successor", idpTitle: "Individual Development Plan (IDP)", idpPick: "Successor · target position",
       emptyPick: "No successors in this scope. Change the department, category or search.",
       bestSra: "Highest SRA 2026", profile: "Successor profile", sraByRole: "SRA 2026 result by target position", thRole: "Target position",
@@ -555,6 +621,28 @@ table.idp { min-width: 1120px; }
       thGaps: "Jurang utama", thVal: "Pengesahan SRA oleh HOD", gapsNone: "Daripada sesi SRA",
       val: { pending: "Belum disahkan", ok: "Disahkan", rep: "Senarai penggantian", rev: "Semak semula skor" },
       rvProgress: (a, b) => `${a} daripada ${b} disahkan`,
+      nbTitle: "9-Box: prestasi × potensi", nbNote: "Proksi sehingga ada penarafan potensi berasingan: prestasi = PMS 2025, potensi = tahap kesediaan SRA ikut skala dipilih. Setiap pengganti dikira sekali, pada SRA tertinggi.",
+      nbCount: (n, x) => `${n} pengganti diletakkan${x ? ` · ${x} tiada PMS` : ""}`,
+      nbPerf: "Prestasi (PMS 2025)", nbPot: "Potensi (kesediaan SRA)",
+      nbPerfLab: ["<80%", "80–89%", "≥90%"], nbPotLab: ["R2 / belum sedia", "R1", "R0"],
+      nbBox: [["Prestasi rendah", "Berkesan", "Profesional dipercayai"], ["Tidak konsisten", "Pemain teras", "Berprestasi tinggi"], ["Berlian mentah", "Berpotensi tinggi", "Pemimpin masa depan"]],
+      nbPick: "Klik kotak untuk senaraikan pengganti di dalamnya.", nbEmpty: "Tiada pengganti dalam kotak ini.", nbList: (b, n) => `${b} · ${n}`,
+      thPms: "PMS 2025", thBest: "SRA tertinggi",
+      effTitle: "Keberkesanan program", effNote: "Diukur ikut skop semasa. Sasaran ialah andaian kerja untuk perbincangan, bukan polisi yang diluluskan.",
+      eff: {
+        bench: ["Kekuatan bangku", "Pengganti dalaman bagi setiap jawatan kritikal", "Sasaran ≥ 2.0"],
+        two: ["Jawatan dengan ≥2 pengganti", "Kedalaman bangku", "Sasaran 100%"],
+        ready: ["Nisbah ready-now", "Pengganti R0 bagi setiap jawatan kritikal", "Sasaran ≥ 1.0"],
+        meet: ["Pengganti penuhi kriteria", "Lulus semua 6 kriteria pemilihan", "Sasaran 100%"],
+        runway: ["Runway pendek", "Pengganti keluar < 24 bulan selepas jawatan kosong", "Sasaran ≤ 10%"],
+        overlap: ["Pengganti untuk beberapa jawatan", "Risiko tumpuan", "Sasaran ≤ 20%"],
+        women: ["Wanita dalam kumpulan pengganti", "Kepelbagaian jantina saluran bakat", "Rujukan 30%"],
+        idp: ["IDP tersedia", "Pengganti dengan IDP diluluskan atau sedang berjalan", "Sasaran 100%"]
+      },
+      effSt: { ok: "Di landasan", watch: "Perlu perhatian", na: "Menunggu data" },
+      effNa: { meet: "Semakan kriteria datang daripada masterlist.", women: "Tiada data jantina dalam sumber ini.", idp: "Belum ada rekod IDP. Luluskan IDP di tab IDP atau sambungkan sistem IDP." },
+      notYetTitle: "Metrik yang perlukan data tambahan", thMetric: "Metrik", thNeeds: "Data diperlukan",
+      notYet: [["Kadar isian dalaman jawatan kritikal", "Sejarah lantikan: siapa mengisi setiap jawatan kritikal dan sama ada mereka dalam senarai pengganti"], ["Pergerakan kesediaan tahun ke tahun (R2 → R1 → R0)", "Keputusan SRA kitaran sebelumnya"], ["Kehilangan pengganti dan HiPo yang dikesali", "Rekod peletakan jawatan dipadankan dengan senarai pengganti"], ["Tempoh mengisi jawatan kritikal", "Tarikh kekosongan dan lantikan"], ["Kadar siap IDP ikut kategori 70 · 20 · 10", "Status aktiviti IDP daripada sistem IDP / LMS"]],
       cardTitle: "Kad pekerja", cardPick: "Pengganti", idpTitle: "Pelan Pembangunan Individu (IDP)", idpPick: "Pengganti · jawatan sasaran",
       emptyPick: "Tiada pengganti dalam skop ini. Tukar jabatan, kategori atau carian.",
       bestSra: "SRA 2026 tertinggi", profile: "Profil pengganti", sraByRole: "Keputusan SRA 2026 ikut jawatan sasaran", thRole: "Jawatan sasaran",
@@ -721,6 +809,7 @@ table.idp { min-width: 1120px; }
       pos: title(at("TITLE", sn)), type: clean(at("STAFFTYPE", sn)),
       qual: [q1, q2].filter(x => x && x !== "#N/A").map(title).join(" · "),
       svc: clean(at("YEARSOFSERVICE", sn)).toLowerCase(),
+      gender: (/^f/i.test(clean(at("GENDER", sn) || at("GENDERNAME", sn))) ? "F" : /^m/i.test(clean(at("GENDER", sn) || at("GENDERNAME", sn))) ? "M" : null),
       end: exEnd || rtEnd, et: exEnd ? "contract" : "retire",
       pms: [row[pms24], row[pms25]].map(v => num(v) == null ? "–" : num(v).toFixed(2) + "%").join(" · ") +
            ` (${[row[pms24 + 1], row[pms25 + 1]].map(clean).filter(Boolean).join(" · ")})`
@@ -961,8 +1050,78 @@ table.idp { min-width: 1120px; }
     const inc = p.inc;
     return inc.vacant ? L().nHighWhy.vac : a.mo < 0 ? L().nHighWhy.past(L().end[inc.et], fmtYM(inc.end)) : L().nHighWhy.soon(L().end[inc.et], fmtYM(inc.end), a.mo);
   }
+
+  // ---------- 9-Box + effectiveness ----------
+  let selNb = null;
+  const pmsLast = per => { const m = [...String(per.pms || "").matchAll(/(\d+(?:\.\d+)?)%/g)]; return m.length ? +m[m.length - 1][1] : null; };
+  const genderOf = per => per.gender || (DATA.source === "sample" ? (/\bbinti\b/i.test(per.n) ? "F" : /\bbin\b/i.test(per.n) ? "M" : null) : null);
+  function peopleInScope(ps) {
+    const m = new Map();
+    ps.forEach(p => p.succ.forEach((s, i) => {
+      if (s.st === "struck") return;
+      const x = { p, s, i };
+      if (!m.has(s.key)) m.set(s.key, { per: s.p, best: x, list: [] });
+      const e = m.get(s.key); e.list.push(x); if (total(s) > total(e.best.s)) e.best = x;
+    }));
+    return [...m.values()];
+  }
+  function renderNineBox(ps) {
+    const U = L(), people = peopleInScope(ps), cells = {}; let noPms = 0;
+    people.forEach(e => {
+      const pm = pmsLast(e.per); if (pm == null) { noPms++; return; }
+      const perf = pm >= 90 ? 2 : pm >= 80 ? 1 : 0;
+      const lv = level(total(e.best.s), e.best.p.cat), pot = lv === "R0" ? 2 : lv === "R1" ? 1 : 0;
+      (cells[pot + "-" + perf] = cells[pot + "-" + perf] || []).push(Object.assign({ pm, lv }, e));
+    });
+    const placed = people.length - noPms;
+    $("nbCount").textContent = U.nbCount(placed, noPms);
+    const tone = (pot, perf) => pot + perf >= 4 ? "t-ok" : pot + perf === 3 ? "t-ok2" : pot + perf === 2 ? "t-mid" : pot + perf === 1 ? "t-warn" : "t-bad";
+    let grid = "";
+    for (let pot = 2; pot >= 0; pot--) for (let perf = 0; perf <= 2; perf++) {
+      const k = pot + "-" + perf, n = (cells[k] || []).length;
+      grid += `<button type="button" class="nb-box ${tone(pot, perf)}" data-nb="${k}" aria-pressed="${selNb === k}"><span class="nb-n">${n}</span><span class="nb-name">${U.nbBox[pot][perf]}</span></button>`;
+    }
+    $("nbWrap").innerHTML = `<div class="nb-y"><span>${U.nbPot}</span></div>
+      <div class="nb-ylab">${[2, 1, 0].map(i => `<span>${U.nbPotLab[i]}</span>`).join("")}</div>
+      <div class="nb-grid">${grid}</div>
+      <div class="nb-xlab">${U.nbPerfLab.map(x => `<span>${x}</span>`).join("")}</div>
+      <div class="nb-x">${U.nbPerf}</div>`;
+    if (!selNb) { $("nbList").innerHTML = `<p class="note">${U.nbPick}</p>`; return; }
+    const [pot, perf] = selNb.split("-").map(Number), list = (cells[selNb] || []).sort((a, b) => total(b.best.s) - total(a.best.s));
+    $("nbList").innerHTML = `<h3>${U.nbList(U.nbBox[pot][perf], list.length)}</h3>` + (list.length ? `<div class="table-scroll"><table>
+      <thead><tr><th>${U.thSucc}</th><th>${U.thBest}</th><th class="num">${U.thPms}</th><th class="num">SRA</th><th>${U.thLvl}</th></tr></thead>
+      <tbody>${list.map(e => `<tr class="clk" data-p="${e.best.p.id}" data-x="${e.best.i}"><td><b>${esc(e.per.n)}</b> <span class="sub">${esc(e.per.g || "")}</span></td><td class="sub">${esc(tx(e.best.p.t))}</td><td class="num">${e.pm.toFixed(1)}%</td><td class="num">${total(e.best.s).toFixed(1)}%</td><td><span class="rd ${lvCls(e.lv)}">${e.lv}</span></td></tr>`).join("")}</tbody>
+    </table></div>` : `<p class="note">${U.nbEmpty}</p>`);
+  }
+  function renderEff(ps) {
+    const U = L(), n = ps.length, people = peopleInScope(ps);
+    const rows = ps.flatMap(p => p.succ.filter(isInternal).map(s => ({ p, s })));
+    const per = ps.map(p => p.succ.filter(isInternal));
+    const pct = (a, b) => b ? Math.round(a / b * 100) : null;
+    const fileMode = DATA.source === "file";
+    const genders = people.map(e => genderOf(e.per)).filter(Boolean);
+    const idpKnown = rows.filter(({ p, s }) => { const k = p.id + "|" + p.succ.indexOf(s); return (IDPS[k] && IDPS[k].status !== "draft") || s.prog; });
+    const idpOk = rows.filter(({ p, s }) => { const k = p.id + "|" + p.succ.indexOf(s); return (IDPS[k] && IDPS[k].status === "app") || s.prog === "ok" || s.prog === "run"; });
+    const M = [
+      ["bench", n ? (rows.length / n) : null, v => v.toFixed(1), v => v >= 2],
+      ["two", pct(per.filter(a => a.length >= 2).length, n), v => v + "<small>%</small>", v => v >= 100],
+      ["ready", n ? rows.filter(({ p, s }) => level(total(s), p.cat) === "R0").length / n : null, v => v.toFixed(2), v => v >= 1],
+      ["meet", fileMode ? pct(rows.filter(r => r.s.st !== "nomeet").length, rows.length) : null, v => v + "<small>%</small>", v => v >= 100],
+      ["runway", pct(rows.filter(({ p, s }) => runwayShort(s, p)).length, rows.length), v => v + "<small>%</small>", v => v <= 10],
+      ["overlap", pct(people.filter(e => e.list.length > 1).length, people.length), v => v + "<small>%</small>", v => v <= 20],
+      ["women", genders.length ? pct(genders.filter(g => g === "F").length, genders.length) : null, v => v + "<small>%</small>", v => v >= 30],
+      ["idp", idpKnown.length || !fileMode ? pct(idpOk.length, rows.length) : null, v => v + "<small>%</small>", v => v >= 100]
+    ];
+    $("effGrid").innerHTML = M.map(([k, v, fmt, good]) => {
+      const st = v == null ? "na" : good(v) ? "ok" : "watch", [t, d, tgt] = U.eff[k];
+      return `<div class="eff ${st}"><span class="t">${t}</span><span class="v">${v == null ? "–" : fmt(v)}</span><span class="d">${v == null ? (U.effNa[k] || d) : d}</span>
+        <div class="row"><span>${tgt}</span><span class="pill ${st === "ok" ? "p-ok" : st === "watch" ? "p-warn" : "p-mute"}">${U.effSt[st]}</span></div></div>`;
+    }).join("");
+    $("notYet").innerHTML = U.notYet.map(([a, b]) => `<tr><td><b>${a}</b></td><td class="sub">${b}</td></tr>`).join("");
+  }
   function renderDash() {
     const ps = visible();
+    renderNineBox(ps); renderEff(ps);
     $("distNote").textContent = L().distNote(L().scaleName[scale]);
     $("dist").innerHTML = ["MCP", "OCP"].filter(c => ps.some(p => p.cat === c)).map(c => {
       const lv = ps.filter(p => p.cat === c).flatMap(p => p.succ.filter(isInternal).map(s => level(total(s), c)));
@@ -991,7 +1150,7 @@ table.idp { min-width: 1120px; }
 
   // ---------- Readiness validation ----------
   let VAL = {};
-  function initVal() { IDPS = {}; FB = {}; selCard = null; selIdp = null; VAL = {}; DATA.positions.forEach(p => p.succ.forEach((s, i) => { VAL[p.id + "|" + i] = s.st === "ok" ? "ok" : s.st === "rep" ? "rep" : "pending"; })); }
+  function initVal() { selNb = null; IDPS = {}; FB = {}; selCard = null; selIdp = null; VAL = {}; DATA.positions.forEach(p => p.succ.forEach((s, i) => { VAL[p.id + "|" + i] = s.st === "ok" ? "ok" : s.st === "rep" ? "rep" : "pending"; })); }
   function renderRV() {
     const term = q(); let html = "", tot = 0, done = 0; const lv = {};
     visible().forEach(p => {
@@ -1230,6 +1389,8 @@ table.idp { min-width: 1120px; }
     if (dr && IDPS[selIdp]) { IDPS[selIdp].rows.splice(+dr.dataset.delrow, 1); renderIDP(); return; }
     const is = e.target.closest("[data-idpst]");
     if (is && IDPS[selIdp]) { IDPS[selIdp].status = is.dataset.idpst; toast(L().idpToast[is.dataset.idpst]); renderIDP(); return; }
+    const nb = e.target.closest("[data-nb]");
+    if (nb) { selNb = selNb === nb.dataset.nb ? null : nb.dataset.nb; renderNineBox(visible()); return; }
     const nv = e.target.closest("[data-view]");
     if (nv) { go(nv.dataset.view); return; }
     const dg = e.target.closest("[data-dept],[data-goto]");
