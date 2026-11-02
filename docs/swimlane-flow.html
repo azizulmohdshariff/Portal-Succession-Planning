@@ -1,0 +1,357 @@
+<title>Aliran Succession Planning</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one wide swimlane canvas (roles = rows, phases A–H = columns), sticky role column, notes below */
+:root {
+  --bg: #f5f7f9;
+  --surface: #ffffff;
+  --fg: #16202a;
+  --muted: #5a6876;
+  --line: #d9e0e6;
+  --edge: #6b7a88;
+  --back: #c2410c;
+  --accent: #155e75;
+  --lane-0: #0f766e; /* Pekerja */
+  --lane-1: #1d4ed8; /* Line Manager */
+  --lane-2: #7c3aed; /* HOD */
+  --lane-3: #b45309; /* HR */
+  --lane-4: #be123c; /* Talent Council */
+  --lane-5: #475569; /* Sistem */
+  --on-solid: #ffffff;
+  --font-display: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f151b; --surface: #17202a; --fg: #e4eaf0; --muted: #94a3b2; --line: #2a3644;
+    --edge: #8796a5; --back: #fb923c; --accent: #67c3dc;
+    --lane-0: #2dd4bf; --lane-1: #7aa2ff; --lane-2: #b794f6; --lane-3: #f0a64a; --lane-4: #fb7185; --lane-5: #a3b1c2;
+    --on-solid: #0f151b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f151b; --surface: #17202a; --fg: #e4eaf0; --muted: #94a3b2; --line: #2a3644;
+  --edge: #8796a5; --back: #fb923c; --accent: #67c3dc;
+  --lane-0: #2dd4bf; --lane-1: #7aa2ff; --lane-2: #b794f6; --lane-3: #f0a64a; --lane-4: #fb7185; --lane-5: #a3b1c2;
+  --on-solid: #0f151b;
+  color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
+.wrap { padding-block: 32px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1320px; margin: 0 auto; display: grid; gap: 28px; }
+
+header { display: grid; gap: 8px; }
+.eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 4vw, 36px); line-height: 1.15; margin: 0; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 68ch; }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.toolbar .label { font-size: 12px; color: var(--muted); margin-right: 4px; }
+.chip-btn { font: 500 12px/1 var(--font-body); padding: 7px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.chip-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.chip-btn[aria-pressed="true"] { border-color: var(--c); box-shadow: inset 0 0 0 1px var(--c); }
+.chip-btn:focus-visible, .lane-label:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Canvas */
+.canvas-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); -webkit-overflow-scrolling: touch; }
+.canvas-row { display: flex; width: max-content; }
+.labels { position: sticky; left: 0; z-index: 4; background: var(--surface); border-right: 1px solid var(--line); flex: none; width: 128px; }
+.labels .head, .labels .status-head { display: flex; align-items: flex-end; padding: 0 12px 10px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
+.labels .status-head { border-bottom: 0; border-top: 1px solid var(--line); align-items: center; padding-bottom: 0; }
+.lane-label { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 12px; border-bottom: 1px solid var(--line); cursor: pointer; background: none; border-left: 0; border-right: 0; border-top: 0; text-align: left; width: 100%; color: inherit; font: inherit; }
+.lane-label strong { font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: var(--c); line-height: 1.2; }
+.lane-label span { font-size: 11px; color: var(--muted); line-height: 1.3; }
+
+.diagram { position: relative; flex: none; }
+.diagram svg { position: absolute; inset: 0; overflow: visible; }
+.phase { position: absolute; top: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 10px 10px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.phase b { font-family: var(--font-mono); font-size: 11px; color: var(--accent); letter-spacing: .04em; }
+.phase em { font-style: normal; font-family: var(--font-display); font-weight: 700; font-size: 13px; line-height: 1.2; }
+.band { position: absolute; left: 0; right: 0; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--c) 3.5%, transparent); }
+.vsep { position: absolute; width: 0; border-left: 1px dashed var(--line); }
+
+.node { position: absolute; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px 9px; font-size: 11.5px; line-height: 1.3; color: var(--fg); background: color-mix(in srgb, var(--c) 9%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--c) 70%, transparent); border-radius: 7px; z-index: 2; transition: opacity .2s; text-wrap: balance; }
+.node.sys { border-style: dashed; }
+.node.dec { border: 0; border-radius: 0; background: color-mix(in srgb, var(--c) 22%, var(--surface)); clip-path: polygon(11% 0, 89% 0, 100% 50%, 89% 100%, 11% 100%, 0 50%); font-weight: 600; padding: 6px 18px; }
+.node.term { border: 0; border-radius: 999px; background: var(--c); color: var(--on-solid); font-weight: 600; }
+.node.term.end-neg { background: var(--surface); color: var(--c); border: 1.5px solid var(--c); }
+.node .tag { display: block; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .04em; opacity: .75; margin-top: 2px; }
+
+.edge { fill: none; stroke: var(--edge); stroke-width: 1.4; transition: opacity .2s; }
+.edge.back { stroke: var(--back); stroke-dasharray: 5 4; }
+.elabel rect { fill: var(--surface); stroke: var(--line); }
+.elabel text { font: 600 10px var(--font-body); fill: var(--muted); }
+.elabel.back text { fill: var(--back); }
+.elabel { transition: opacity .2s; }
+
+.status { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.status code { font-family: var(--font-mono); font-size: 9.5px; padding: 3px 6px; border-radius: 4px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); white-space: nowrap; }
+.status code.neg { background: color-mix(in srgb, var(--back) 12%, transparent); color: var(--back); }
+
+.canvas-wrap[data-focus] .node, .canvas-wrap[data-focus] .edge, .canvas-wrap[data-focus] .elabel { opacity: .18; }
+.canvas-wrap[data-focus] .on { opacity: 1 !important; }
+
+.hint { font-size: 12px; color: var(--muted); margin: -16px 0 0; }
+
+/* Legend + notes */
+.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 12px; color: var(--muted); align-items: center; }
+.legend i { display: inline-block; vertical-align: middle; margin-right: 7px; }
+.lg-task { width: 26px; height: 16px; border: 1.5px solid var(--edge); border-radius: 4px; }
+.lg-sys { width: 26px; height: 16px; border: 1.5px dashed var(--edge); border-radius: 4px; }
+.lg-dec { width: 28px; height: 16px; background: color-mix(in srgb, var(--edge) 35%, var(--surface)); clip-path: polygon(15% 0, 85% 0, 100% 50%, 85% 100%, 15% 100%, 0 50%); }
+.lg-term { width: 26px; height: 16px; border-radius: 999px; background: var(--edge); }
+.lg-fwd { width: 28px; height: 0; border-top: 1.5px solid var(--edge); }
+.lg-back { width: 28px; height: 0; border-top: 1.5px dashed var(--back); }
+
+.roles h2 { font-family: var(--font-display); font-size: 18px; margin: 0 0 12px; }
+.role-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px 28px; margin: 0; }
+.role-grid div { min-width: 0; padding-top: 10px; border-top: 2px solid var(--c); }
+.role-grid dt { font-family: var(--font-display); font-weight: 700; color: var(--c); }
+.role-grid dd { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Portal Succession Planning · Draf aliran v0.1</div>
+    <h1>Aliran Succession Planning ikut peranan</h1>
+    <p class="lede">Satu kitaran penuh, dari persediaan oleh HR hingga pemantauan IDP. Setiap baris ialah satu peranan dan setiap lajur ialah satu fasa (A–H). Garis putus-putus oren menunjukkan item yang dikembalikan atau perlu diulang.</p>
+  </header>
+
+  <div class="toolbar" id="toolbar" role="group" aria-label="Fokus pada peranan">
+    <span class="label">Fokus peranan:</span>
+  </div>
+
+  <div class="canvas-wrap" id="cw">
+    <div class="canvas-row">
+      <div class="labels" id="labels"></div>
+      <div class="diagram" id="diagram"><svg id="svg" aria-hidden="true"></svg></div>
+    </div>
+  </div>
+  <p class="hint">Skrol ke kanan untuk lihat semua fasa. Klik nama peranan untuk sorot tugasan peranan itu sahaja.</p>
+
+  <div class="legend">
+    <span><i class="lg-task"></i>Tugasan pengguna</span>
+    <span><i class="lg-sys"></i>Automasi sistem</span>
+    <span><i class="lg-dec"></i>Keputusan / kelulusan</span>
+    <span><i class="lg-term"></i>Mula / tamat</span>
+    <span><i class="lg-fwd"></i>Aliran biasa</span>
+    <span><i class="lg-back"></i>Dikembalikan / ulang</span>
+  </div>
+
+  <section class="roles">
+    <h2>Tanggungjawab setiap peranan</h2>
+    <dl class="role-grid" id="roles"></dl>
+  </section>
+</div>
+
+<script>
+(function () {
+  const SLOT_W = 150, NODE_W = 126, NODE_H = 60, LANE_H = 112, HEAD_H = 62, STATUS_H = 64, SLOTS = 19;
+  const COL_PAD = (SLOT_W - NODE_W) / 2;
+
+  const lanes = [
+    { name: "Pekerja", sub: "Talent / calon", duty: "Kemas kini profil, isi aspirasi kerjaya dan mobiliti, calonkan diri (pilihan), bina dan laksana IDP." },
+    { name: "Line Manager", sub: "Penyelia langsung", duty: "Pilih calon pengganti dan tahap kesediaan, nilai potensi dan kompetensi, luluskan IDP, kemas kini progres suku tahunan." },
+    { name: "HOD", sub: "Ketua Jabatan", duty: "Kenal pasti jawatan kritikal dalam jabatan, semak dan sokong atau kembalikan pencalonan." },
+    { name: "HR / Talent Mgmt", sub: "Pentadbir kitaran", duty: "Buka kitaran, tetapkan kriteria dan borang, nilai risiko, sediakan pakej kalibrasi, terbitkan talent pool, semakan pertengahan kitaran." },
+    { name: "Talent Council", sub: "Panel kalibrasi", duty: "Kalibrasi 9-Box, putuskan senarai pengganti muktamad, rekod rasional setiap keputusan." },
+    { name: "Sistem", sub: "Automasi portal", duty: "Sync data HRIS, tapis kelayakan, tarik rating KPI, jana 9-Box, hantar notifikasi, pautan LMS, cadang calon bila jawatan kosong." }
+  ];
+
+  const phases = [
+    { k: "A", t: "Persediaan kitaran", s: 0, e: 2 },
+    { k: "B", t: "Jawatan kritikal", s: 3, e: 4 },
+    { k: "C", t: "Pencalonan", s: 5, e: 7 },
+    { k: "D", t: "Penilaian talent", s: 8, e: 9 },
+    { k: "E", t: "Kalibrasi & kelulusan", s: 10, e: 12 },
+    { k: "F", t: "Penerbitan", s: 13, e: 13 },
+    { k: "G", t: "IDP", s: 14, e: 16 },
+    { k: "H", t: "Pemantauan", s: 17, e: 18 }
+  ];
+
+  // type: task | sys | dec | term | endneg
+  const nodes = [
+    { id: "start",   l: 3, s: 0,  t: "term", txt: "Mula kitaran baru" },
+    { id: "cycle",   l: 3, s: 1,  t: "task", txt: "Cipta kitaran & tetapkan tarikh fasa" },
+    { id: "hris",    l: 5, s: 1,  t: "sys",  txt: "Sync data pekerja dari HRIS" },
+    { id: "crit",    l: 3, s: 2,  t: "task", txt: "Tetapkan kriteria kelayakan & borang" },
+    { id: "notif1",  l: 5, s: 2,  t: "sys",  txt: "Notifikasi: kitaran dibuka" },
+    { id: "listpos", l: 2, s: 3,  t: "task", txt: "Senaraikan jawatan kritikal" },
+    { id: "riskcal", l: 5, s: 4,  t: "sys",  txt: "Kira risiko: umur bersara, turnover" },
+    { id: "risk",    l: 3, s: 4,  t: "task", txt: "Sahkan tahap risiko kekosongan" },
+    { id: "selfnom", l: 0, s: 5,  t: "task", txt: "Calonkan diri", tag: "pilihan" },
+    { id: "filter",  l: 5, s: 5,  t: "sys",  txt: "Tapis calon ikut kelayakan" },
+    { id: "pick",    l: 1, s: 5,  t: "task", txt: "Pilih calon & tahap kesediaan" },
+    { id: "submit",  l: 1, s: 6,  t: "task", txt: "Isi justifikasi & hantar" },
+    { id: "hodok",   l: 2, s: 7,  t: "dec",  txt: "Sokong pencalonan?" },
+    { id: "aspire",  l: 0, s: 8,  t: "task", txt: "Isi aspirasi kerjaya & mobiliti" },
+    { id: "assess",  l: 1, s: 8,  t: "task", txt: "Nilai potensi & kompetensi" },
+    { id: "kpi",     l: 5, s: 8,  t: "sys",  txt: "Tarik rating KPI 3 tahun" },
+    { id: "ext",     l: 3, s: 9,  t: "task", txt: "Muat naik 360° / assessment centre", tag: "pilihan" },
+    { id: "ninebox", l: 5, s: 9,  t: "sys",  txt: "Jana kedudukan 9-Box" },
+    { id: "pack",    l: 3, s: 10, t: "task", txt: "Sediakan pakej kalibrasi" },
+    { id: "calib",   l: 4, s: 11, t: "task", txt: "Sesi kalibrasi, laras 9-Box" },
+    { id: "tcok",    l: 4, s: 12, t: "dec",  txt: "Lulus calon?" },
+    { id: "reject",  l: 4, s: 13, t: "endneg", txt: "Ditolak, rekod rasional" },
+    { id: "publish", l: 3, s: 13, t: "task", txt: "Terbit succession slate & talent pool" },
+    { id: "notif2",  l: 5, s: 14, t: "sys",  txt: "Notifikasi calon (ikut polisi)" },
+    { id: "idp",     l: 0, s: 14, t: "task", txt: "Bina IDP", tag: "70 · 20 · 10" },
+    { id: "idpok",   l: 1, s: 15, t: "dec",  txt: "Lulus IDP?" },
+    { id: "doidp",   l: 0, s: 16, t: "task", txt: "Laksana aktiviti IDP" },
+    { id: "lms",     l: 5, s: 16, t: "sys",  txt: "Daftar kursus melalui LMS" },
+    { id: "prog",    l: 1, s: 17, t: "task", txt: "Kemas kini progres suku tahunan" },
+    { id: "mid",     l: 3, s: 17, t: "task", txt: "Semakan pertengahan kitaran" },
+    { id: "vacancy", l: 5, s: 18, t: "sys",  txt: "Jawatan kosong? Cadang calon Ready Now" },
+    { id: "close",   l: 3, s: 18, t: "term", txt: "Tutup kitaran", tag: "↺ kembali ke A" }
+  ];
+
+  const edges = [
+    ["start", "cycle"], ["cycle", "hris"], ["cycle", "crit"], ["crit", "notif1"],
+    ["notif1", "listpos"], ["listpos", "risk"], ["riskcal", "risk"], ["risk", "pick"],
+    ["filter", "pick"], ["selfnom", "pick", "sahkan"], ["pick", "submit"], ["submit", "hodok"],
+    ["hodok", "pick", "Dikembalikan", true], ["hodok", "assess", "Ya"],
+    ["aspire", "assess"], ["kpi", "ninebox"], ["assess", "ninebox"], ["ext", "ninebox"],
+    ["ninebox", "pack"], ["pack", "calib"], ["calib", "tcok"],
+    ["tcok", "calib", "Ubah kesediaan", true], ["tcok", "publish", "Ya"], ["tcok", "reject", "Tolak"],
+    ["publish", "notif2"], ["notif2", "idp"], ["idp", "idpok"],
+    ["idpok", "idp", "Tidak", true], ["idpok", "doidp", "Ya"],
+    ["doidp", "lms"], ["doidp", "prog"], ["prog", "mid"], ["mid", "vacancy"], ["mid", "close"], ["vacancy", "close"]
+  ];
+
+  const statuses = [
+    { s: 5, c: ["DRAF"] }, { s: 6, c: ["DIHANTAR"] }, { s: 7, c: ["DISOKONG_HOD", "DIKEMBALIKAN|neg"] },
+    { s: 11, c: ["DIKALIBRASI"] }, { s: 12, c: ["DILULUSKAN", "DITOLAK|neg"] },
+    { s: 14, c: ["IDP: DRAF"] }, { s: 15, c: ["IDP: DILULUSKAN"] }, { s: 16, c: ["DALAM_PELAKSANAAN"] }, { s: 18, c: ["SELESAI"] }
+  ];
+
+  const W = SLOTS * SLOT_W, H = HEAD_H + lanes.length * LANE_H + STATUS_H;
+  const diagram = document.getElementById("diagram");
+  const svg = document.getElementById("svg");
+  const labels = document.getElementById("labels");
+  const cw = document.getElementById("cw");
+  diagram.style.width = W + "px"; diagram.style.height = H + "px";
+  svg.setAttribute("width", W); svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const NS = "http://www.w3.org/2000/svg";
+  const laneTop = l => HEAD_H + l * LANE_H;
+  const colX = s => s * SLOT_W;
+  const el = (tag, cls, parent) => { const e = document.createElement(tag); if (cls) e.className = cls; (parent || diagram).appendChild(e); return e; };
+
+  // Label column
+  const lh = el("div", "head", labels); lh.style.height = HEAD_H + "px"; lh.textContent = "Peranan";
+  lanes.forEach((ln, i) => {
+    const b = el("button", "lane-label", labels);
+    b.type = "button"; b.style.height = LANE_H + "px"; b.style.setProperty("--c", `var(--lane-${i})`);
+    b.innerHTML = `<strong>${ln.name}</strong><span>${ln.sub}</span>`;
+    b.addEventListener("click", () => setFocus(i));
+  });
+  const sh = el("div", "status-head", labels); sh.style.height = STATUS_H + "px"; sh.textContent = "Status";
+
+  // Bands, phases, separators
+  lanes.forEach((_, i) => { const b = el("div", "band"); b.style.top = laneTop(i) + "px"; b.style.height = LANE_H + "px"; b.style.setProperty("--c", `var(--lane-${i})`); });
+  phases.forEach((p, i) => {
+    const d = el("div", "phase"); d.style.left = colX(p.s) + "px"; d.style.width = (p.e - p.s + 1) * SLOT_W + "px"; d.style.height = HEAD_H + "px";
+    if (i === 0) d.style.borderLeft = "0";
+    d.innerHTML = `<b>${p.k}</b><em>${p.t}</em>`;
+    if (i > 0) { const v = el("div", "vsep"); v.style.left = colX(p.s) + "px"; v.style.top = HEAD_H + "px"; v.style.height = (H - HEAD_H) + "px"; }
+  });
+
+  // Nodes
+  const byId = {};
+  nodes.forEach(n => {
+    const x = colX(n.s) + COL_PAD, y = laneTop(n.l) + (LANE_H - NODE_H) / 2;
+    Object.assign(n, { x, y, r: x + NODE_W, b: y + NODE_H, cx: x + NODE_W / 2, cy: y + NODE_H / 2 });
+    byId[n.id] = n;
+    const cls = { task: "", sys: "sys", dec: "dec", term: "term", endneg: "term end-neg" }[n.t];
+    const d = el("div", "node " + cls);
+    d.dataset.lane = n.l;
+    d.style.cssText = `left:${x}px;top:${y}px;width:${NODE_W}px;height:${NODE_H}px;--c:var(--lane-${n.l})`;
+    d.innerHTML = `<span>${n.txt}${n.tag ? `<span class="tag">${n.tag}</span>` : ""}</span>`;
+    n.el = d;
+  });
+
+  // Occupancy check for horizontal runs inside a lane
+  const occupied = (lane, s) => nodes.some(n => n.l === lane && n.s === s);
+  const clearBetween = (lane, s1, s2) => { for (let s = Math.min(s1, s2) + 1; s < Math.max(s1, s2); s++) if (occupied(lane, s)) return false; return true; };
+
+  function route(a, b, back) {
+    if (back) {
+      if (a.l === b.l) { const y = laneTop(a.l) + LANE_H - 12; return [[a.cx, a.b], [a.cx, y], [b.cx, y], [b.cx, b.b]]; }
+      if (b.l < a.l) { const y = laneTop(a.l) + 12; return [[a.cx, a.y], [a.cx, y], [b.cx, y], [b.cx, b.b]]; }
+      const y = laneTop(a.l) + LANE_H - 12; return [[a.cx, a.b], [a.cx, y], [b.cx, y], [b.cx, b.y]];
+    }
+    if (a.s === b.s) return b.l > a.l ? [[a.cx, a.b], [b.cx, b.y]] : [[a.cx, a.y], [b.cx, b.b]];
+    if (a.l === b.l) return [[a.r, a.cy], [b.x, b.cy]];
+    const gateIn = colX(b.s), gateOut = colX(a.s) + SLOT_W;
+    if (clearBetween(a.l, a.s, b.s)) return [[a.r, a.cy], [gateIn, a.cy], [gateIn, b.cy], [b.x, b.cy]];
+    if (clearBetween(b.l, a.s, b.s)) return [[a.r, a.cy], [gateOut, a.cy], [gateOut, b.cy], [b.x, b.cy]];
+    const y = laneTop(Math.max(a.l, b.l)) + 8;
+    return [[a.r, a.cy], [gateOut, a.cy], [gateOut, y], [gateIn, y], [gateIn, b.cy], [b.x, b.cy]];
+  }
+
+  const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || svg).appendChild(e); return e; };
+  const defs = svgEl("defs", {});
+  [["arr", "var(--edge)"], ["arrb", "var(--back)"]].forEach(([id, c]) => {
+    const m = svgEl("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
+    svgEl("path", { d: "M0,0 L10,5 L0,10 z", style: `fill:${c}` }, m);
+  });
+
+  const edgeEls = [];
+  edges.forEach(([f, t, label, back]) => {
+    const a = byId[f], b = byId[t], pts = route(a, b, back);
+    const p = svgEl("path", { d: "M" + pts.map(p => p.join(",")).join(" L"), class: "edge" + (back ? " back" : ""), "marker-end": `url(#${back ? "arrb" : "arr"})` });
+    const rec = { p, lanes: [a.l, b.l] };
+    if (label) {
+      // put label on the longest segment
+      let best = 0, bi = 0;
+      for (let i = 0; i < pts.length - 1; i++) { const len = Math.abs(pts[i + 1][0] - pts[i][0]) + Math.abs(pts[i + 1][1] - pts[i][1]); if (len > best) { best = len; bi = i; } }
+      const mx = (pts[bi][0] + pts[bi + 1][0]) / 2, my = (pts[bi][1] + pts[bi + 1][1]) / 2;
+      const g = svgEl("g", { class: "elabel" + (back ? " back" : "") });
+      const w = label.length * 5.6 + 12;
+      svgEl("rect", { x: mx - w / 2, y: my - 8, width: w, height: 16, rx: 8 }, g);
+      svgEl("text", { x: mx, y: my + 3.5, "text-anchor": "middle" }, g).textContent = label;
+      rec.g = g;
+    }
+    edgeEls.push(rec);
+  });
+
+  // Status rail
+  const stTop = HEAD_H + lanes.length * LANE_H;
+  statuses.forEach(st => {
+    const d = el("div", "status");
+    d.style.cssText = `left:${colX(st.s)}px;top:${stTop}px;width:${SLOT_W}px;height:${STATUS_H}px`;
+    d.innerHTML = st.c.map(c => { const [t, k] = c.split("|"); return `<code class="${k || ""}">${t}</code>`; }).join("");
+  });
+
+  // Toolbar + focus
+  const tb = document.getElementById("toolbar");
+  const btns = lanes.map((ln, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip-btn"; b.id = "focus-" + i; b.setAttribute("aria-pressed", "false");
+    b.style.setProperty("--c", `var(--lane-${i})`);
+    b.innerHTML = `<span class="dot"></span>${ln.name}`;
+    b.addEventListener("click", () => setFocus(i));
+    tb.appendChild(b); return b;
+  });
+  let focus = null;
+  function setFocus(i) {
+    focus = focus === i ? null : i;
+    btns.forEach((b, j) => b.setAttribute("aria-pressed", String(j === focus)));
+    if (focus === null) cw.removeAttribute("data-focus"); else cw.setAttribute("data-focus", focus);
+    nodes.forEach(n => n.el.classList.toggle("on", n.l === focus));
+    edgeEls.forEach(e => { const on = e.lanes.includes(focus); e.p.classList.toggle("on", on); if (e.g) e.g.classList.toggle("on", on); });
+  }
+
+  // Role notes
+  const rg = document.getElementById("roles");
+  lanes.forEach((ln, i) => {
+    const d = document.createElement("div"); d.style.setProperty("--c", `var(--lane-${i})`);
+    d.innerHTML = `<dt>${ln.name}</dt><dd>${ln.duty}</dd>`; rg.appendChild(d);
+  });
+})();
+</script>
