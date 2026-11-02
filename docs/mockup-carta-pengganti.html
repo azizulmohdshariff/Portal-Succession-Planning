@@ -271,6 +271,8 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 .dev-0 { background: var(--accent); color: var(--accent-fg); } .dev-0 .eq-big { color: var(--accent-fg); }
 .dev-1 { background: var(--accent2); color: var(--accent-fg); } .dev-1 .eq-big { color: var(--accent-fg); }
 .dev-2 { background: var(--brand-tint); color: var(--fg); }
+.cy-edit { display: grid; gap: 4px; margin: 2px 0 4px; }
+.cy-edit select, .cy-edit input { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; background: var(--surface); font-size: 12px; }
 .guide { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 @media (max-width: 860px) { .guide { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 480px) { .guide { grid-template-columns: 1fr; } }
@@ -1651,7 +1653,11 @@ table.idp { min-width: 1120px; }
       ocp: "Roles essential to business-as-usual operations, in normal and crisis situations. Generally Division Heads at grade TH9 and above.",
       critTitle: "Selection criteria", critNote: "Applied to MCP and OCP successors. The portal checks these from the masterlist.",
       crit: ["Grade TH7–TH11 (MCP) · TH7–TH10 (OCP)", "Permanent and confirmed, or confirmed contract with ≥1 year of service", "Degree holder", "Age 55 and below (subject to readiness)", "Performance at least Excellent for 2 consecutive years", "No disciplinary action in the last 5 years"],
-      procTitle: "Six-stage process", procNote: "Status for the 2026 cycle", st: { done: "Done", now: "In progress · IDP", next: "Next" },
+      procTitle: "Six-stage process", procNote: "Status for the 2026 cycle", st: { done: "Done", now: "In progress", next: "Next" },
+      cy: { edit: "Edit status", save: "Save status", cancel: "Cancel", saving: "Saving…", status: "Status", note: "Short note (optional)", notePh: "e.g. IDP",
+        hint: "Changes are saved for everyone who opens this portal.", updated: (n, d) => n ? `Updated by ${n} · ${d}` : `Updated ${d}`,
+        def: "Showing the default status until HR saves one.", stale: "Showing the last saved status while checking for updates.", offline: "Could not reach the saved status. Showing the last known one.",
+        saved: "Cycle status saved. Everyone who opens the portal now sees it.", denied: "You can view the status but not change it. Ask the portal owner for Editor access.", failed: "The status could not be saved. Try again." },
       stages: [
         ["Identify potential talent, build the talent pool and review its inflow and outflow.", "Selection criteria · MCP & OCP defined · annual talent cycle"],
         ["Assess leadership capability with robust tools.", "Harrison JSA · performance management"],
@@ -1683,7 +1689,11 @@ table.idp { min-width: 1120px; }
       ocp: "Jawatan penting untuk operasi harian, dalam keadaan biasa dan krisis. Lazimnya Ketua Bahagian gred TH9 ke atas.",
       critTitle: "Kriteria pemilihan", critNote: "Digunakan untuk pengganti MCP dan OCP. Portal menyemak kriteria ini daripada masterlist.",
       crit: ["Gred TH7–TH11 (MCP) · TH7–TH10 (OCP)", "Tetap dan disahkan, atau kontrak disahkan dengan ≥1 tahun berkhidmat", "Pemegang ijazah", "Umur 55 tahun ke bawah (tertakluk kesediaan)", "Prestasi sekurang-kurangnya Cemerlang 2 tahun berturut-turut", "Tiada tindakan tatatertib 5 tahun lepas"],
-      procTitle: "Proses enam peringkat", procNote: "Status kitaran 2026", st: { done: "Selesai", now: "Sedang berjalan · IDP", next: "Seterusnya" },
+      procTitle: "Proses enam peringkat", procNote: "Status kitaran 2026", st: { done: "Selesai", now: "Sedang berjalan", next: "Seterusnya" },
+      cy: { edit: "Tukar status", save: "Simpan status", cancel: "Batal", saving: "Menyimpan…", status: "Status", note: "Nota ringkas (pilihan)", notePh: "cth. IDP",
+        hint: "Perubahan disimpan untuk semua yang membuka portal ini.", updated: (n, d) => n ? `Dikemas kini oleh ${n} · ${d}` : `Dikemas kini ${d}`,
+        def: "Memaparkan status lalai sehingga HR menyimpan status.", stale: "Memaparkan status terakhir disimpan sambil menyemak kemas kini.", offline: "Status yang disimpan tidak dapat dicapai. Memaparkan status terakhir diketahui.",
+        saved: "Status kitaran disimpan. Semua yang membuka portal kini nampak status ini.", denied: "Anda boleh lihat status tetapi tidak boleh menukarnya. Minta akses Editor daripada pemilik portal.", failed: "Status tidak dapat disimpan. Cuba lagi." },
       stages: [
         ["Kenal pasti bakat berpotensi, bina talent pool dan semak aliran masuk dan keluarnya.", "Kriteria pemilihan · MCP & OCP ditetapkan · kitaran bakat tahunan"],
         ["Nilai keupayaan kepimpinan dengan alat yang mantap.", "Harrison JSA · pengurusan prestasi"],
@@ -1709,7 +1719,67 @@ table.idp { min-width: 1120px; }
     { t: ["Senior Leadership Team", "Pasukan Kepimpinan Kanan"], band: ["Senior Management (C-Suite)", "Pengurusan Kanan (C-Suite)"], h: 106, d: ["Strategic leadership development at senior management level to drive the organisation's vision and mission.", "Pembangunan kepimpinan strategik di peringkat pengurusan kanan untuk memacu visi dan misi organisasi."] }
   ];
   const STAGE_NAMES = ["Talent Identification", "Talent Assessment", "Talent Evaluation & Review", "Talent Development", "Succession Planning", "Talent Retention"];
-  const STAGE_ST = ["done", "done", "done", "now", "next", "next"];
+  // Shared cycle status: db doc settings/cycle (everyone reads, Editors/owner write)
+  const DEFAULT_CYCLE = { stages: ["done", "done", "done", "now", "next", "next"], notes: ["", "", "", "IDP", "", ""] };
+  let CYCLE = JSON.parse(JSON.stringify(DEFAULT_CYCLE)), cycleMeta = { by: null, at: null, state: "default" };
+  let cycleDb = null, cycleUser = null, cycleCanEdit = false, cycleEditing = false, cycleDraft = null, cycleSaving = false;
+  const cycleNames = {};
+  async function initCycle() {
+    if (!(window.claude && typeof window.claude.use === "function")) return;
+    const [db, user] = await Promise.all([window.claude.use("db").catch(() => null), window.claude.use("user").catch(() => null)]);
+    cycleUser = user;
+    if (user) cycleCanEdit = !!(await user.canEdit());
+    if (!db) { if (page === "ov") renderOverview(); return; }
+    cycleDb = db;
+    let settled = false;
+    const rerender = () => { if (page === "ov" && !cycleEditing) renderOverview(); };
+    const timer = setTimeout(() => { if (!settled) { cycleMeta.state = cycleMeta.at ? "stale" : "offline"; rerender(); } }, 10000);
+    db.doc("settings/cycle").onSnapshot(snap => {
+      if (!snap.metadata.fromCache) { settled = true; clearTimeout(timer); }
+      const d = snap.exists ? snap.data() : null;
+      if (d && Array.isArray(d.stages) && d.stages.length === 6) {
+        CYCLE = { stages: d.stages.map(x => ["done", "now", "next"].includes(x) ? x : "next"), notes: Array.from({ length: 6 }, (_, i) => String((d.notes || [])[i] || "")) };
+        cycleMeta = { by: d.updatedBy || null, at: d.updatedAt || null, state: snap.metadata.fromCache ? "stale" : "live" };
+      } else if (!snap.metadata.fromCache) cycleMeta.state = "default";
+      if (cycleUser && cycleMeta.by) cycleUser.profiles([cycleMeta.by]).then(ps => { cycleNames[cycleMeta.by] = (ps[cycleMeta.by] && ps[cycleMeta.by].name) || ""; rerender(); });
+      rerender();
+    }, () => { settled = true; clearTimeout(timer); cycleMeta.state = "offline"; rerender(); });
+    if (page === "ov") renderOverview();
+  }
+  async function saveCycle() {
+    if (!cycleDb || !cycleDraft || cycleSaving) return;
+    const O = OV[lang];
+    cycleSaving = true; renderOverview();
+    const uid = cycleUser ? await cycleUser.id() : null;
+    const body = { stages: cycleDraft.stages.slice(), notes: cycleDraft.notes.map(n => String(n).trim().slice(0, 40)), updatedBy: uid, updatedAt: new Date().toISOString() };
+    const write = () => cycleDb.doc("settings/cycle").set(body);
+    try {
+      try { await write(); } catch (e) { if (e && e.code === "unavailable") { await new Promise(r => setTimeout(r, 600 + Math.random() * 600)); await write(); } else throw e; }
+      CYCLE = { stages: body.stages, notes: body.notes }; cycleMeta = { by: uid, at: body.updatedAt, state: "live" };
+      cycleEditing = false; cycleDraft = null; toast(O.cy.saved);
+    } catch (e) {
+      if (e && e.code === "invalid_argument") { cycleCanEdit = false; cycleEditing = false; cycleDraft = null; toast(O.cy.denied); } else toast(O.cy.failed);
+    } finally { cycleSaving = false; renderOverview(); }
+  }
+  function cycleHead(O) {
+    const d = cycleMeta.at ? new Date(cycleMeta.at) : null;
+    const when = d && !isNaN(d) ? `${d.getDate()} ${L().months12[d.getMonth()]} ${d.getFullYear()}` : "";
+    const metaTxt = cycleMeta.state === "offline" ? O.cy.offline : cycleMeta.state === "stale" ? O.cy.stale : when ? O.cy.updated(cycleNames[cycleMeta.by] || "", when) : (cycleDb ? O.cy.def : "");
+    const btns = !(cycleDb && cycleCanEdit) ? "" : cycleEditing
+      ? `<button type="button" class="btn sm" data-cy="cancel"${cycleSaving ? " disabled" : ""}>${O.cy.cancel}</button><button type="button" class="btn sm primary" data-cy="save"${cycleSaving ? " disabled" : ""}>${cycleSaving ? O.cy.saving : O.cy.save}</button>`
+      : `<button type="button" class="btn sm" data-cy="edit">${O.cy.edit}</button>`;
+    return `<div class="section-head"><div><h2>${O.procTitle}</h2><span class="note">${O.procNote}</span>${metaTxt ? `<span class="note cy-meta"> · ${esc(metaTxt)}</span>` : ""}</div><div class="head-actions">${btns}</div></div>
+      ${cycleEditing ? `<p class="note" style="margin:0">${O.cy.hint}</p>` : ""}`;
+  }
+  function cycleJourney(O) {
+    const src = cycleEditing ? cycleDraft : CYCLE;
+    return `<ol class="journey">${STAGE_NAMES.map((n, i) => {
+      const st = src.stages[i], note = src.notes[i];
+      const edit = cycleEditing ? `<div class="cy-edit"><select data-cy-st="${i}" aria-label="${O.cy.status}: ${n}">${["done", "now", "next"].map(k => `<option value="${k}"${k === st ? " selected" : ""}>${O.st[k]}</option>`).join("")}</select>
+        <input data-cy-note="${i}" value="${esc(note)}" maxlength="40" placeholder="${O.cy.notePh}" aria-label="${O.cy.note}: ${n}"></div>` : "";
+      return `<li class="${st}"><span class="j-dot">${st === "done" ? "✓" : i + 1}</span><div class="j-body"><span class="j-when">${O.st[st]}${note ? " · " + esc(note) : ""}</span><b>${n}</b>${edit}<span class="j-sub">${O.stages[i][0]}</span><span class="j-en">${O.stages[i][1]}</span></div></li>`;
+    }).join("")}</ol>`;
+  }
   function renderOverview() {
     const O = OV[lang], ps = DATA.positions;
     const succ = new Set(ps.flatMap(p => p.succ.filter(s => s.st !== "struck").map(s => s.key))).size;
@@ -1740,8 +1810,8 @@ table.idp { min-width: 1120px; }
           <ol class="crit-list">${O.crit.map(c => `<li>${c}</li>`).join("")}</ol></div>
       </div>
       <div class="panel">
-        <div class="section-head"><h2>${O.procTitle}</h2><span class="note">${O.procNote}</span></div>
-        <ol class="journey">${STAGE_NAMES.map((n, i) => `<li class="${STAGE_ST[i]}"><span class="j-dot">${STAGE_ST[i] === "done" ? "✓" : i + 1}</span><div class="j-body"><span class="j-when">${O.st[STAGE_ST[i]]}</span><b>${n}</b><span class="j-sub">${O.stages[i][0]}</span><span class="j-en">${O.stages[i][1]}</span></div></li>`).join("")}</ol>
+        ${cycleHead(O)}
+        ${cycleJourney(O)}
       </div>
       <div class="panel">
         <div class="section-head"><h2>${O.sraTitle}</h2><span class="note">${O.sraNote}</span></div>
@@ -1849,6 +1919,14 @@ table.idp { min-width: 1120px; }
     if (dr && IDPS[selIdp]) { IDPS[selIdp].rows.splice(+dr.dataset.delrow, 1); renderIDP(); return; }
     const is = e.target.closest("[data-idpst]");
     if (is && IDPS[selIdp]) { IDPS[selIdp].status = is.dataset.idpst; toast(L().idpToast[is.dataset.idpst]); renderIDP(); return; }
+    const cy = e.target.closest("[data-cy]");
+    if (cy) {
+      const a = cy.dataset.cy;
+      if (a === "edit") { cycleEditing = true; cycleDraft = { stages: CYCLE.stages.slice(), notes: CYCLE.notes.slice() }; renderOverview(); }
+      else if (a === "cancel") { cycleEditing = false; cycleDraft = null; renderOverview(); }
+      else if (a === "save") saveCycle();
+      return;
+    }
     const nb = e.target.closest("[data-nb]");
     if (nb) { selNb = selNb === nb.dataset.nb ? null : nb.dataset.nb; renderNineBox(visible()); return; }
     const nv = e.target.closest("[data-view]");
@@ -1889,6 +1967,7 @@ table.idp { min-width: 1120px; }
   $("vTable").addEventListener("click", () => setView("table"));
 
   document.addEventListener("input", e => {
+    if (cycleDraft && e.target.dataset && e.target.dataset.cyNote != null) { cycleDraft.notes[+e.target.dataset.cyNote] = e.target.value; return; }
     const fb = e.target.closest("[data-fb]");
     if (fb) { FB[fb.dataset.fb] = fb.value; return; }
     const f = e.target.closest("#idpBody [data-f]"), tr = f && f.closest("tr[data-r]");
@@ -1900,6 +1979,7 @@ table.idp { min-width: 1120px; }
     }
   });
   document.addEventListener("change", e => {
+    if (cycleDraft && e.target.dataset && e.target.dataset.cySt != null) { cycleDraft.stages[+e.target.dataset.cySt] = e.target.value; renderOverview(); return; }
     if (e.target.id === "cardSel") { selCard = e.target.value; renderCard(); return; }
     if (e.target.id === "idpSel") { selIdp = e.target.value; renderIDP(); return; }
     const sel = e.target.closest("select[data-val]"); if (!sel) return;
@@ -1912,5 +1992,6 @@ table.idp { min-width: 1120px; }
   if (window.claude && typeof window.claude.use === "function") getDownloads().then(dl => { if (!dl) { dlKnownMissing = true; $("exportBox").hidden = true; $("exNote").textContent = L().exUnavailable; } });
   initVal(); readHash();
   render();
+  initCycle();
 })();
 </script>
