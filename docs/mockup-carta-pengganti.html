@@ -202,6 +202,82 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 .stackbar .r0 { background: var(--r0); color: var(--r0-fg); } .stackbar .r1 { background: var(--r1); color: var(--r1-fg); } .stackbar .r2 { background: var(--r2); color: var(--r2-fg); } .stackbar .r3 { background: var(--r3); color: var(--r3-fg); }
 .bar-fill.hot { background: var(--bad); } .bar-fill.warm { background: var(--warn); }
 .sum-title { font-size: 20px; margin-top: 2px; }
+.ov-hero { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+@media (max-width: 860px) { .ov-hero { grid-template-columns: 1fr; } }
+.ov-hero-text { display: grid; gap: 10px; align-content: start; }
+.tier { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.ov-title { font-size: 24px; line-height: 1.2; }
+.ov-lead { margin: 0; color: var(--muted); line-height: 1.6; max-width: 70ch; }
+.ov-stats { display: flex; gap: 8px 24px; flex-wrap: wrap; }
+.ov-stats div { display: grid; }
+.ov-stats b { font-family: var(--mono); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ov-stats span { color: var(--muted); font-size: 12px; }
+.ov-goal { background: var(--brand-tint); border-radius: 8px; padding: 14px 16px; display: grid; gap: 6px; align-content: center; }
+.ov-goal p { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.45; text-wrap: balance; }
+.ov-is { gap: 4px; border-top: 3px solid var(--line); }
+.ov-is.is-ok { border-top-color: var(--ok); } .ov-is.is-bad { border-top-color: var(--bad); } .ov-is.is-acc { border-top-color: var(--accent2); }
+.ov-is .big { font-size: 17px; } .ov-is p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.pipe { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: end; }
+@media (max-width: 860px) { .pipe { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .pipe { grid-template-columns: 1fr; } }
+.pipe-col { display: grid; gap: 8px; align-content: end; padding: 10px; border-radius: 10px; border: 1px dashed transparent; min-width: 0; }
+.pipe-col.focus { border-color: var(--bad); }
+.pipe-name { font-size: 14px; color: var(--accent); }
+.pipe-bar { background: var(--accent2); color: var(--accent-fg); border-radius: 6px 6px 0 0; display: flex; align-items: flex-end; padding: 8px; font-size: 12px; font-weight: 600; }
+.pipe-col:nth-child(1) .pipe-bar { background: var(--accent); } .pipe-col:nth-child(3) .pipe-bar { background: var(--brand-tint); color: var(--fg); } .pipe-col:nth-child(4) .pipe-bar { background: var(--warn); color: #fff; }
+.pipe-col p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+.pipe-cats { display: grid; gap: 3px; }
+.pipe-cats div { display: flex; justify-content: space-between; background: var(--sunken); border-radius: 5px; padding: 4px 8px; font-size: 12px; }
+.pipe-cats b { color: var(--accent); } .pipe-cats span { font-family: var(--mono); font-size: 11.5px; }
+.pipe-flag { font-size: 11px; font-style: italic; color: var(--bad); text-align: center; }
+.cat { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; display: grid; gap: 4px; }
+.cat .g { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.cat p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.crit-list { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 13px; line-height: 1.45; }
+.journey { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.journey li { position: relative; display: grid; gap: 8px; align-content: start; padding-right: 10px; }
+.journey li::before { content: ""; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: var(--line); }
+.journey li.done::before { background: var(--accent2); }
+.journey li:first-child::before { left: 15px; } .journey li:last-child::before { right: auto; width: 15px; }
+.j-dot { position: relative; z-index: 1; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-weight: 500; background: var(--surface); border: 2px solid var(--line); color: var(--muted); }
+.journey li.done .j-dot { background: var(--accent2); border-color: var(--accent2); color: var(--accent-fg); }
+.journey li.now .j-dot { background: var(--warn); border-color: var(--warn); color: #fff; box-shadow: 0 0 0 4px var(--warn-bg); }
+.j-body { display: grid; gap: 3px; font-size: 13px; }
+.j-when { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.journey li.now .j-when { color: var(--warn); font-weight: 600; }
+.j-sub { color: var(--fg); font-size: 12px; line-height: 1.4; }
+.j-en { color: var(--muted); font-size: 11.5px; line-height: 1.4; }
+@media (max-width: 860px) {
+  .journey { grid-template-columns: 1fr; gap: 14px; }
+  .journey li { grid-template-columns: 32px 1fr; gap: 12px; padding: 0; }
+  .journey li::before { top: 32px; bottom: -14px; left: 15px; right: auto; width: 2px; height: auto; }
+  .journey li:first-child::before { left: 15px; } .journey li:last-child::before { display: none; }
+}
+.eq { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
+.eq-box { flex: 1 1 150px; min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 4px; align-content: start; }
+.eq-box small { color: var(--muted); font-size: 12px; line-height: 1.4; }
+.eq-box .who { justify-self: start; margin-top: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--sunken); border: 1px solid var(--line); }
+.eq-box.result { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); text-align: center; align-content: center; flex: 0 1 130px; }
+.eq-big { font-family: var(--mono); font-size: 24px; color: var(--accent); }
+.eq-box.result .eq-big { color: var(--accent-fg); }
+.eq-op { align-self: center; font-size: 22px; font-weight: 700; color: var(--muted); }
+@media (max-width: 640px) { .eq-op { width: 100%; text-align: center; line-height: 1; } .eq-box.result { flex: 1 1 100%; } }
+.scale-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.scale-strip div { padding: 8px 6px; text-align: center; display: grid; gap: 1px; font-size: 11.5px; border-radius: 6px; }
+.scale-strip b { font-family: var(--mono); font-size: 16px; }
+.scale-strip .r0 { background: var(--r0); color: var(--r0-fg); } .scale-strip .r1 { background: var(--r1); color: var(--r1-fg); } .scale-strip .r2 { background: var(--r2); color: var(--r2-fg); } .scale-strip .r3 { background: var(--r3); color: var(--r3-fg); }
+.dev { border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.dev small { font-size: 12.5px; line-height: 1.45; }
+.dev-0 { background: var(--accent); color: var(--accent-fg); } .dev-0 .eq-big { color: var(--accent-fg); }
+.dev-1 { background: var(--accent2); color: var(--accent-fg); } .dev-1 .eq-big { color: var(--accent-fg); }
+.dev-2 { background: var(--brand-tint); color: var(--fg); }
+.guide { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 860px) { .guide { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .guide { grid-template-columns: 1fr; } }
+.guide-item { text-align: left; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); cursor: pointer; display: grid; gap: 3px; }
+.guide-item:hover { background: var(--sunken); border-color: var(--accent); }
+.guide-item span { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.guide-item .go { color: var(--accent); font-weight: 600; font-size: 12px; }
 .sum-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 980px) { .sum-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .sum-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -292,6 +368,7 @@ table.idp { min-width: 1120px; }
         <button type="button" id="lgMS" data-lang="ms" aria-pressed="false">BM</button>
       </div>
       <nav id="nav">
+        <button type="button" data-view="ov" data-i="navOv"></button>
         <button type="button" data-view="dash" data-i="navDash"></button>
         <button type="button" data-view="sum" data-i="navSum"></button>
         <button type="button" data-view="chart" aria-current="page" data-i="navChart"></button>
@@ -372,6 +449,8 @@ table.idp { min-width: 1120px; }
       <tbody id="rvRows"></tbody>
     </table></div>
   </section>
+
+  <section id="view-ov" class="stack" hidden></section>
 
   <section id="view-sum" class="stack" hidden>
     <div class="panel">
@@ -531,7 +610,7 @@ table.idp { min-width: 1120px; }
       thGaps: "Priority gaps", thVal: "SRA validation by HOD", gapsNone: "From the SRA session",
       val: { pending: "Pending", ok: "Validated", rep: "Replacement list", rev: "Revise score" },
       rvProgress: (a, b) => `${a} of ${b} validated`,
-      navSum: "Summary", sumEyebrow: "Executive summary", sumTitle: d => `Succession summary · ${d} 2026`,
+      navOv: "Overview", navSum: "Summary", sumEyebrow: "Executive summary", sumTitle: d => `Succession summary · ${d} 2026`,
       sumMeta: (src, sc) => `Source: ${src} · Scale: ${sc} · Data as at 2 Nov 2026`, srcSample: "sample data (fictional)",
       exPdf: "Download PDF", exPpt: "Download PowerPoint", exWorking: "Preparing…",
       exNoteSample: "Both files follow the current scope, scale and language. This summary uses fictional sample data.",
@@ -660,7 +739,7 @@ table.idp { min-width: 1120px; }
       thGaps: "Jurang utama", thVal: "Pengesahan SRA oleh HOD", gapsNone: "Daripada sesi SRA",
       val: { pending: "Belum disahkan", ok: "Disahkan", rep: "Senarai penggantian", rev: "Semak semula skor" },
       rvProgress: (a, b) => `${a} daripada ${b} disahkan`,
-      navSum: "Ringkasan", sumEyebrow: "Ringkasan eksekutif", sumTitle: d => `Ringkasan succession · ${d} 2026`,
+      navOv: "Gambaran", navSum: "Ringkasan", sumEyebrow: "Ringkasan eksekutif", sumTitle: d => `Ringkasan succession · ${d} 2026`,
       sumMeta: (src, sc) => `Sumber: ${src} · Skala: ${sc} · Data setakat 2 Nov 2026`, srcSample: "data contoh (rekaan)",
       exPdf: "Muat turun PDF", exPpt: "Muat turun PowerPoint", exWorking: "Menyediakan…",
       exNoteSample: "Kedua-dua fail ikut skop, skala dan bahasa semasa. Ringkasan ini guna data contoh rekaan.",
@@ -1556,15 +1635,140 @@ table.idp { min-width: 1120px; }
     } finally { btn.disabled = false; btn.textContent = label; }
   }
 
+  // ---------- Overview ----------
+  const OV = {
+    en: {
+      tier: "Talent, Succession & Leadership Pipeline", title: "Succession Planning 2026 · MCP & OCP",
+      lead: "Succession planning makes sure every critical position has successors who are ready, or being made ready, to step in. Successors are identified against set criteria, assessed through the Successor Readiness Assessment (SRA), validated with the HOD and the Talent Review Committee, then developed through an Individual Development Plan (IDP).",
+      stats: (p, s, d) => [[p, "critical positions"], [s, "successors"], [d, d === 1 ? "department" : "departments"]],
+      goalLabel: "Programme goal", goal: "Build a strong, capable successor pool for mission and operational critical positions, to minimise vacancy risk and keep the business running.",
+      whatIs: ["What it is", "Position-focused readiness", "Each successor is assessed against the requirements of a specific target position."],
+      whatNot: ["What it is not", "No automatic appointment", "Being named a successor is not a promotion or an entitlement. Appointments follow the normal approval process."],
+      commit: ["Commitment", "Development and review", "Each successor follows an IDP. The succession dashboard is reviewed twice a year."],
+      pipeTitle: "Four-tier talent pipeline", pipeNote: "This portal covers the third tier.", focus: "Focus of this portal",
+      defTitle: "Critical positions",
+      mcp: "Roles that set strategy and organisational direction. They report directly to the GMD & CEO.",
+      ocp: "Roles essential to business-as-usual operations, in normal and crisis situations. Generally Division Heads at grade TH9 and above.",
+      critTitle: "Selection criteria", critNote: "Applied to MCP and OCP successors. The portal checks these from the masterlist.",
+      crit: ["Grade TH7–TH11 (MCP) · TH7–TH10 (OCP)", "Permanent and confirmed, or confirmed contract with ≥1 year of service", "Degree holder", "Age 55 and below (subject to readiness)", "Performance at least Excellent for 2 consecutive years", "No disciplinary action in the last 5 years"],
+      procTitle: "Six-stage process", procNote: "Status for the 2026 cycle", st: { done: "Done", now: "In progress", next: "Next" },
+      stages: [
+        ["Identify potential talent, build the talent pool and review its inflow and outflow.", "Selection criteria · MCP & OCP defined · annual talent cycle"],
+        ["Assess leadership capability with robust tools.", "Harrison JSA · performance management"],
+        ["A platform for leaders to discuss readiness and identify successors.", "Talent Review Committee · SRA results · succession plan template"],
+        ["Narrow readiness gaps with customised development.", "IDP · coaching & mentoring · mobility. Pre-discussion with the HOD comes before the IDP session with successors."],
+        ["Build a strong succession pool to minimise vacancy risk.", "Succession dashboard · readiness analytics · bi-annual review"],
+        ["Keep high performers engaged and reduce HiPo turnover.", "TEX · differentiated rewards · leadership engagement"]
+      ],
+      sraTitle: "How readiness is assessed", sraNote: "Successor Readiness Assessment (SRA) 2026",
+      sra: [["40%", "Job Success Analysis", "Harrison Assessment: behavioural fit with the target role.", "Completed by the successor"], ["10%", "Job experience", "Relevant experience and track record. Scale 0–2.", "Assessed by the HOD"], ["50%", "Functional competencies", "Technical expertise for the role. Scale 1–4.", "Assessed by the HOD"]],
+      total: "SRA total", scaleNote: "Readiness scale (current, TRC 01/2023(2)). A higher proposed scale is awaiting approval.",
+      scale: [["R0", "≥70%", "Ready now"], ["R1", "50–69%", "1–2 years"], ["R2", "40–49%", "2–4 years"], ["–", "≤39%", "Not ready"]],
+      devTitle: "Development · 70 · 20 · 10", devNote: "Every gap from the SRA becomes an IDP action, tracked through the IDP and KPI cascading.",
+      dev: [["70%", "On-the-job", "Stretch assignments, job rotation, acting roles, presenting to the Board and MANCO"], ["20%", "Coaching & mentoring", "Executive coaching, mentoring by the incumbent, GROW feedback from the HOD"], ["10%", "Training", "Executive education, professional certification, e-learning"]],
+      guideTitle: "Using this portal", open: "Open",
+      guide: [["dash", "Dashboard", "Coverage, 9-Box, effectiveness metrics and positions at risk."], ["sum", "Summary", "Executive one-pager with PDF and PowerPoint download."], ["chart", "Succession Chart", "Each critical position with its incumbent and successors."], ["rv", "Readiness Validation", "SRA scores to validate with each HOD."], ["idp", "IDP", "Development plan per successor, 70 · 20 · 10."], ["card", "Employee Card", "Successor profile, SRA result and gaps."]]
+    },
+    ms: {
+      tier: "Talent, Succession & Leadership Pipeline", title: "Succession Planning 2026 · MCP & OCP",
+      lead: "Succession planning memastikan setiap jawatan kritikal ada pengganti yang sedia, atau sedang disediakan, untuk mengambil alih. Pengganti dikenal pasti ikut kriteria, dinilai melalui Successor Readiness Assessment (SRA), disahkan bersama HOD dan Talent Review Committee, kemudian dibangunkan melalui Pelan Pembangunan Individu (IDP).",
+      stats: (p, s, d) => [[p, "jawatan kritikal"], [s, "pengganti"], [d, "jabatan"]],
+      goalLabel: "Matlamat program", goal: "Membina kumpulan pengganti yang kukuh dan berkebolehan untuk jawatan kritikal misi dan operasi, bagi mengurangkan risiko kekosongan dan memastikan kesinambungan perniagaan.",
+      whatIs: ["Apa itu", "Kesediaan ikut jawatan", "Setiap pengganti dinilai berbanding keperluan satu jawatan sasaran yang khusus."],
+      whatNot: ["Apa bukan", "Bukan lantikan automatik", "Dinamakan sebagai pengganti bukan kenaikan pangkat atau hak. Lantikan ikut proses kelulusan biasa."],
+      commit: ["Komitmen", "Pembangunan dan semakan", "Setiap pengganti ikut IDP. Succession dashboard disemak dua kali setahun."],
+      pipeTitle: "Saluran bakat empat peringkat", pipeNote: "Portal ini meliputi peringkat ketiga.", focus: "Fokus portal ini",
+      defTitle: "Jawatan kritikal",
+      mcp: "Jawatan yang merangka strategi dan hala tuju organisasi. Melapor terus kepada GMD & CEO.",
+      ocp: "Jawatan penting untuk operasi harian, dalam keadaan biasa dan krisis. Lazimnya Ketua Bahagian gred TH9 ke atas.",
+      critTitle: "Kriteria pemilihan", critNote: "Digunakan untuk pengganti MCP dan OCP. Portal menyemak kriteria ini daripada masterlist.",
+      crit: ["Gred TH7–TH11 (MCP) · TH7–TH10 (OCP)", "Tetap dan disahkan, atau kontrak disahkan dengan ≥1 tahun berkhidmat", "Pemegang ijazah", "Umur 55 tahun ke bawah (tertakluk kesediaan)", "Prestasi sekurang-kurangnya Cemerlang 2 tahun berturut-turut", "Tiada tindakan tatatertib 5 tahun lepas"],
+      procTitle: "Proses enam peringkat", procNote: "Status kitaran 2026", st: { done: "Selesai", now: "Sedang berjalan", next: "Seterusnya" },
+      stages: [
+        ["Kenal pasti bakat berpotensi, bina talent pool dan semak aliran masuk dan keluarnya.", "Kriteria pemilihan · MCP & OCP ditetapkan · kitaran bakat tahunan"],
+        ["Nilai keupayaan kepimpinan dengan alat yang mantap.", "Harrison JSA · pengurusan prestasi"],
+        ["Platform untuk pemimpin membincangkan kesediaan dan mengenal pasti pengganti.", "Talent Review Committee · keputusan SRA · templat pelan pengganti"],
+        ["Kecilkan jurang kesediaan dengan pembangunan khusus.", "IDP · coaching & mentoring · mobiliti. Pra-perbincangan dengan HOD dibuat sebelum sesi IDP bersama pengganti."],
+        ["Bina kumpulan pengganti yang kukuh untuk kurangkan risiko kekosongan.", "Succession dashboard · analitik kesediaan · semakan dwi-tahunan"],
+        ["Kekalkan penglibatan bakat berprestasi tinggi dan kurangkan turnover HiPo.", "TEX · ganjaran berbeza · leadership engagement"]
+      ],
+      sraTitle: "Cara kesediaan dinilai", sraNote: "Successor Readiness Assessment (SRA) 2026",
+      sra: [["40%", "Job Success Analysis", "Harrison Assessment: kesesuaian tingkah laku dengan jawatan sasaran.", "Dijawab oleh pengganti"], ["10%", "Pengalaman kerja", "Pengalaman dan rekod prestasi yang berkaitan. Skala 0–2.", "Dinilai oleh HOD"], ["50%", "Kompetensi fungsian", "Kepakaran teknikal untuk jawatan. Skala 1–4.", "Dinilai oleh HOD"]],
+      total: "Jumlah SRA", scaleNote: "Skala kesediaan (semasa, TRC 01/2023(2)). Skala cadangan yang lebih tinggi sedang menunggu kelulusan.",
+      scale: [["R0", "≥70%", "Sedia sekarang"], ["R1", "50–69%", "1–2 tahun"], ["R2", "40–49%", "2–4 tahun"], ["–", "≤39%", "Belum sedia"]],
+      devTitle: "Pembangunan · 70 · 20 · 10", devNote: "Setiap jurang daripada SRA menjadi tindakan IDP, dipantau melalui IDP dan KPI cascading.",
+      dev: [["70%", "On-the-job", "Tugasan stretch, job rotation, memangku jawatan, bentang kepada Lembaga dan MANCO"], ["20%", "Coaching & mentoring", "Executive coaching, mentoring oleh penyandang, GROW feedback daripada HOD"], ["10%", "Latihan", "Pendidikan eksekutif, pensijilan profesional, e-learning"]],
+      guideTitle: "Cara guna portal ini", open: "Buka",
+      guide: [["dash", "Dashboard", "Liputan, 9-Box, metrik keberkesanan dan jawatan berisiko."], ["sum", "Ringkasan", "Ringkasan eksekutif satu halaman dengan muat turun PDF dan PowerPoint."], ["chart", "Carta Pengganti", "Setiap jawatan kritikal dengan penyandang dan penggantinya."], ["rv", "Readiness Validation", "Skor SRA untuk disahkan bersama setiap HOD."], ["idp", "IDP", "Pelan pembangunan setiap pengganti, 70 · 20 · 10."], ["card", "Kad Pekerja", "Profil pengganti, keputusan SRA dan jurang."]]
+    }
+  };
+  const PIPE = [
+    { t: ["Graduate Talent", "Bakat Graduan"], band: ["Fresh graduates / entry level", "Graduan baharu / peringkat permulaan"], h: 34, d: ["Grooms young talent, especially fresh graduates, to feed the future talent pool and build an early leadership mindset.", "Membentuk bakat muda, terutamanya graduan baharu, untuk mengisi talent pool masa depan dan membina minda kepimpinan awal."] },
+    { t: ["Talent Management", "Pengurusan Bakat"], band: ["Executive – Manager (TH4 – TH6)", "Eksekutif – Pengurus (TH4 – TH6)"], h: 58, d: ["Develops high-potential professionals through the Emerging Talent Programme (ETP) to build the internal leadership pipeline.", "Membangunkan profesional berpotensi tinggi melalui Emerging Talent Programme (ETP) untuk membina saluran kepimpinan dalaman."] },
+    { t: ["Succession Planning", "Succession Planning"], band: ["Assistant Manager – HOD (TH5 – TH11)", "Penolong Pengurus – HOD (TH5 – TH11)"], h: 82, focus: true, d: ["Readiness of successors for critical positions, so future leaders are ready for the next level.", "Kesediaan pengganti untuk jawatan kritikal, supaya pemimpin masa depan sedia untuk peringkat seterusnya."] },
+    { t: ["Senior Leadership Team", "Pasukan Kepimpinan Kanan"], band: ["Senior Management (C-Suite)", "Pengurusan Kanan (C-Suite)"], h: 106, d: ["Strategic leadership development at senior management level to drive the organisation's vision and mission.", "Pembangunan kepimpinan strategik di peringkat pengurusan kanan untuk memacu visi dan misi organisasi."] }
+  ];
+  const STAGE_NAMES = ["Talent Identification", "Talent Assessment", "Talent Evaluation & Review", "Talent Development", "Succession Planning", "Talent Retention"];
+  const STAGE_ST = ["done", "done", "done", "now", "next", "next"];
+  function renderOverview() {
+    const O = OV[lang], ps = DATA.positions;
+    const succ = new Set(ps.flatMap(p => p.succ.filter(s => s.st !== "struck").map(s => s.key))).size;
+    const depts = new Set(ps.map(p => p.dept)).size;
+    const stats = O.stats(ps.length, succ, depts).map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
+    const isCard = ([lab, big, txt], cls) => `<div class="panel ov-is ${cls}"><div class="label">${lab}</div><b class="big">${big}</b><p>${txt}</p></div>`;
+    $("view-ov").innerHTML = `
+      <div class="panel ov-hero">
+        <div class="ov-hero-text"><div class="tier">${O.tier}</div><h2 class="ov-title">${O.title}</h2><p class="ov-lead">${O.lead}</p><div class="ov-stats">${stats}</div></div>
+        <div class="ov-goal"><div class="label">${O.goalLabel}</div><p>${O.goal}</p></div>
+      </div>
+      <div class="grid3">${isCard(O.whatIs, "is-ok")}${isCard(O.whatNot, "is-bad")}${isCard(O.commit, "is-acc")}</div>
+      <div class="panel">
+        <div class="section-head"><h2>${O.pipeTitle}</h2><span class="note">${O.pipeNote}</span></div>
+        <div class="pipe">${PIPE.map(t => `<div class="pipe-col${t.focus ? " focus" : ""}">
+          <b class="pipe-name">${tx(t.t)}</b>
+          <div class="pipe-bar" style="height:${t.h}px"><span>${tx(t.band)}</span></div>
+          <p>${tx(t.d)}</p>
+          ${t.focus ? `<div class="pipe-cats"><div><b>MCP (C-1)</b><span>TH7 – TH11</span></div><div><b>OCP (C-2)</b><span>TH7 – TH10</span></div><div><b>BCP</b><span>TH5 – TH7</span></div></div><span class="pipe-flag">${O.focus}</span>` : ""}
+        </div>`).join("")}</div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h2>${O.defTitle}</h2>
+          <div class="cat"><div class="section-head"><b>Mission Critical Position (MCP)</b><span class="g">C-1 · TH7–TH11</span></div><p>${O.mcp}</p></div>
+          <div class="cat"><div class="section-head"><b>Operational Critical Position (OCP)</b><span class="g">C-2 · TH7–TH10</span></div><p>${O.ocp}</p></div>
+        </div>
+        <div class="panel"><div class="section-head"><h2>${O.critTitle}</h2></div><p class="note" style="margin:0">${O.critNote}</p>
+          <ol class="crit-list">${O.crit.map(c => `<li>${c}</li>`).join("")}</ol></div>
+      </div>
+      <div class="panel">
+        <div class="section-head"><h2>${O.procTitle}</h2><span class="note">${O.procNote}</span></div>
+        <ol class="journey">${STAGE_NAMES.map((n, i) => `<li class="${STAGE_ST[i]}"><span class="j-dot">${STAGE_ST[i] === "done" ? "✓" : i + 1}</span><div class="j-body"><span class="j-when">${O.st[STAGE_ST[i]]}</span><b>${n}</b><span class="j-sub">${O.stages[i][0]}</span><span class="j-en">${O.stages[i][1]}</span></div></li>`).join("")}</ol>
+      </div>
+      <div class="panel">
+        <div class="section-head"><h2>${O.sraTitle}</h2><span class="note">${O.sraNote}</span></div>
+        <div class="eq">${O.sra.map((c, i) => `${i ? '<span class="eq-op">+</span>' : ""}<div class="eq-box"><span class="eq-big">${c[0]}</span><b>${c[1]}</b><small>${c[2]}</small><span class="who">${c[3]}</span></div>`).join("")}<span class="eq-op">=</span><div class="eq-box result"><span class="eq-big">100%</span><b>${O.total}</b></div></div>
+        <div class="scale-strip">${O.scale.map(([l, r, d]) => `<div class="${l === "–" ? "r3" : l.toLowerCase()}"><b>${l}</b><span>${r}</span><span>${d}</span></div>`).join("")}</div>
+        <p class="note" style="margin:0">${O.scaleNote}</p>
+      </div>
+      <div class="panel">
+        <div class="section-head"><h2>${O.devTitle}</h2><span class="note">${O.devNote}</span></div>
+        <div class="grid3">${O.dev.map(([p, t, d], i) => `<div class="dev dev-${i}"><span class="eq-big">${p}</span><b>${t}</b><small>${d}</small></div>`).join("")}</div>
+      </div>
+      <div class="panel">
+        <h2>${O.guideTitle}</h2>
+        <div class="guide">${O.guide.map(([v, t, d]) => `<button type="button" class="guide-item" data-view="${v}"><b>${t}</b><span>${d}</span><span class="go">${O.open} →</span></button>`).join("")}</div>
+      </div>`;
+  }
+
   // ---------- Pages ----------
   let page = "chart";
-  const FROM_HASH = { dashboard: "dash", summary: "sum", chart: "chart", readiness: "rv", idp: "idp", "employee-card": "card" }, TO_HASH = { dash: "dashboard", sum: "summary", chart: "chart", rv: "readiness", idp: "idp", card: "employee-card" };
-  const readHash = () => { page = FROM_HASH[location.hash.slice(1)] || "chart"; };
+  const FROM_HASH = { overview: "ov", dashboard: "dash", summary: "sum", chart: "chart", readiness: "rv", idp: "idp", "employee-card": "card" }, TO_HASH = { ov: "overview", dash: "dashboard", sum: "summary", chart: "chart", rv: "readiness", idp: "idp", card: "employee-card" };
+  const readHash = () => { page = FROM_HASH[location.hash.slice(1)] || "ov"; };
   function go(pg) { if (TO_HASH[pg] === location.hash.slice(1)) { page = pg; render(); } else location.hash = TO_HASH[pg]; }
 
   function render() {
     renderStatic(); renderLegend();
-    const side = ["rv", "idp", "card", "sum"].includes(page);
+    const side = ["rv", "idp", "card", "sum", "ov"].includes(page);
+    $("view-ov").hidden = page !== "ov"; document.querySelector(".scope").hidden = page === "ov";
     $("view-sum").hidden = page !== "sum";
     $("view-dash").hidden = page !== "dash"; $("view-rv").hidden = page !== "rv"; $("view-idp").hidden = page !== "idp"; $("view-card").hidden = page !== "card"; $("chartPanel").hidden = page !== "chart";
     $("notesPanel").hidden = side; $("kpis").hidden = side;
@@ -1572,6 +1776,7 @@ table.idp { min-width: 1120px; }
     if (page === "idp") renderIDP();
     if (page === "card") renderCard();
     if (page === "sum") renderSummary();
+    if (page === "ov") renderOverview();
     if (page === "dash") renderDash();
     if (page === "rv") renderRV();
     if (page === "chart") { if (view === "chart") renderChart(); else renderTable(); }
@@ -1647,7 +1852,7 @@ table.idp { min-width: 1120px; }
     const nb = e.target.closest("[data-nb]");
     if (nb) { selNb = selNb === nb.dataset.nb ? null : nb.dataset.nb; renderNineBox(visible()); return; }
     const nv = e.target.closest("[data-view]");
-    if (nv) { go(nv.dataset.view); return; }
+    if (nv) { go(nv.dataset.view); if (nv.classList.contains("guide-item")) window.scrollTo({ top: 0 }); return; }
     const dg = e.target.closest("[data-dept],[data-goto]");
     if (dg) { dept = dg.dataset.dept || dg.dataset.goto; go("chart"); window.scrollTo({ top: 0 }); return; }
     const m = e.target.closest("[data-mock]");
