@@ -630,6 +630,8 @@ table.idp { min-width: 1120px; }
           <button type="button" id="vChart" aria-pressed="true" data-i="vChart"></button>
           <button type="button" id="vTable" aria-pressed="false" data-i="vTable"></button>
         </div>
+        <button type="button" class="btn" id="chPdf" data-i="exPdf"></button>
+        <button type="button" class="btn" id="chPpt" data-i="exPpt"></button>
         <button type="button" class="btn primary" id="sendTrc" data-i="sendTrc"></button>
       </div>
     </div>
@@ -2151,6 +2153,151 @@ table.idp { min-width: 1120px; }
         <div class="guide">${O.guide.map(([v, ic, t, d]) => `<button type="button" class="guide-item" data-view="${v}">${ico(ic, "ico-tile")}<span class="gi-txt"><b>${t}</b><span>${d}</span></span><span class="go">→</span></button>`).join("")}</div>
       </div>`;
   }
+  // ---------- Succession chart export (PDF / PowerPoint) ----------
+  function chartData() {
+    const U = L(), ps = visible(), groups = [];
+    ["MCP", "OCP"].forEach(cat => { const list = ps.filter(p => p.cat === cat); for (let i = 0; i < list.length; i += 4) groups.push({ cat, items: list.slice(i, i + 4) }); });
+    const plain = h => String(h).replace(/<\/?b>/g, "");
+    return {
+      title: U.chartTitle(dept ? deptLabel(dept) : U.deptAll),
+      meta: U.sumMeta(DATA.source === "file" ? DATA.fileName : U.srcSample, U.scaleName[scale]),
+      cls: DATA.source === "file" ? U.classFile : U.classSample, groups,
+      card: p => {
+        const a = analyse(p), inc = p.inc, cnt = {};
+        a.internal.forEach(s => { const l = level(total(s), p.cat); cnt[l] = (cnt[l] || 0) + 1; });
+        const succ = p.succ.filter(s => s.st !== "struck").map(s => {
+          const t = total(s), l = level(t, p.cat), es = s.st === "nomeet" ? (excSt(p, s) || "none") : null;
+          const flag = es ? (es === "none" ? U.noMeetFlag : U.excFlag[es]) : (runwayShort(s, p) ? U.shortRunway : "");
+          return { name: s.p.n + (s.p.g ? ` (${s.p.g})` : ""), t, l, rep: s.st === "rep", flag, flagOk: es === "app" };
+        });
+        return {
+          title: tx(p.t) + (p.g ? ` (${p.g})` : ""), dept: deptLabel(p.dept),
+          inc: inc.vacant ? U.vacantName : inc.n, incSub: inc.vacant ? U.vacantSub : (inc.end ? `${U.incumbent} · ${U.end[inc.et]} ${fmtYM(inc.end)}` : U.noEnd),
+          meta: plain(inc.vacant ? U.vacantNow : a.mo == null ? U.noEnd : a.mo < 0 ? U.overdue(-a.mo) : U.vacantIn(a.mo)),
+          risk: U.risk[a.risk], rk: a.risk, levels: SCALES[scale][p.cat].map(b => b[1]), cnt, succ, below: belowMin(p) && !justified(p)
+        };
+      }
+    };
+  }
+  const LVC = { R0: [BRAND.R0, "FFFFFF"], R1: [BRAND.R1, BRAND.text], R2: [BRAND.R2, "FFFFFF"], R3: [BRAND.R3, BRAND.text], "-": [BRAND.R3, BRAND.text] };
+  const lvc = l => LVC[l] || LVC["-"];
+
+  async function buildChartPpt(d) {
+    await loadLibs("ppt");
+    const U = L(), pptx = new window.PptxGenJS(), F = "Calibri";
+    pptx.layout = "LAYOUT_WIDE"; pptx.title = d.title;
+    pptx.defineSlideMaster({ title: "SC", background: { color: "FFFFFF" },
+      objects: [{ rect: { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: "52DE56" } } },
+        { text: { text: `Succession Planning Portal · ${d.cls}`, options: { x: 0.5, y: 7.05, w: 8, h: 0.3, fontFace: F, fontSize: 9, color: BRAND.muted } } }],
+      slideNumber: { x: 12.3, y: 7.05, fontFace: F, fontSize: 9, color: BRAND.muted } });
+    let sl = pptx.addSlide({ masterName: "SC" });
+    sl.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.35, h: 7.5, fill: { color: BRAND.dark }, line: { color: BRAND.dark } });
+    sl.addText(d.title, { x: 0.9, y: 2.7, w: 11.5, h: 1.2, fontFace: F, fontSize: 34, bold: true, color: BRAND.text });
+    sl.addText(d.meta, { x: 0.9, y: 4.0, w: 11.5, h: 0.5, fontFace: F, fontSize: 14, color: BRAND.muted });
+    const colW = 2.95, gap = 0.17, x0 = 0.5, MAXS = 5;
+    d.groups.forEach(g => {
+      sl = pptx.addSlide({ masterName: "SC" });
+      sl.addText(`${g.cat} · ${d.title}`, { x: 0.5, y: 0.2, w: 12.3, h: 0.5, fontFace: F, fontSize: 20, bold: true, color: BRAND.text });
+      g.items.forEach((p, i) => {
+        const c = d.card(p), x = x0 + i * (colW + gap); let y = 0.85;
+        sl.addText([{ text: c.title, options: { bold: true, breakLine: true } }, { text: c.dept, options: { fontSize: 8, bold: false, color: BRAND.muted } }],
+          { x, y, w: colW, h: 0.72, fontFace: F, fontSize: 10, color: BRAND.text, fill: { color: "E9ECEF" }, align: "center", valign: "middle" });
+        y += 0.74;
+        sl.addText([{ text: c.inc, options: { bold: true, breakLine: true } }, { text: c.incSub, options: { fontSize: 8, bold: false, color: BRAND.muted } }],
+          { x, y, w: colW, h: 0.62, fontFace: F, fontSize: 9.5, color: BRAND.text, fill: { color: "FBEEE2" }, align: "center", valign: "middle" });
+        y += 0.66;
+        sl.addText(c.meta, { x, y, w: colW - 1.1, h: 0.28, fontFace: F, fontSize: 8.5, color: BRAND.muted });
+        sl.addText(c.risk, { x: x + colW - 1.2, y, w: 1.2, h: 0.28, fontFace: F, fontSize: 8.5, bold: true, color: BRAND[c.rk], align: "right" });
+        y += 0.32;
+        sl.addTable([c.levels.map(l => ({ text: l === "-" ? "–" : l, options: { bold: true, fill: { color: lvc(l)[0] }, color: lvc(l)[1], align: "center" } })),
+          c.levels.map(l => ({ text: String(c.cnt[l] || "–"), options: { align: "center", color: BRAND.text } }))],
+          { x, y, w: colW, colW: c.levels.map(() => colW / c.levels.length), rowH: 0.24, fontFace: F, fontSize: 9, border: { type: "solid", color: BRAND.line, pt: 0.75 } });
+        y += 0.6;
+        if (c.below) { sl.addText(U.belowMin, { x, y, w: colW, h: 0.28, fontFace: F, fontSize: 8.5, bold: true, color: BRAND.med, fill: { color: "FDF0DC" }, align: "center", valign: "middle" }); y += 0.32; }
+        c.succ.slice(0, MAXS).forEach(s => {
+          sl.addShape(pptx.ShapeType.rect, { x, y, w: colW, h: 0.56, fill: { color: "FFFFFF" }, line: { color: s.rep ? BRAND.muted : BRAND.text, width: 0.75, dashType: s.rep ? "dash" : "solid" } });
+          sl.addText([{ text: s.name, options: { bold: true, breakLine: true } }, { text: `${s.t.toFixed(1)}%${s.flag ? "   " + s.flag : ""}`, options: { bold: false, fontSize: 8, color: s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted } }],
+            { x: x + 0.04, y, w: colW - 0.54, h: 0.56, fontFace: F, fontSize: 8.5, color: BRAND.text, valign: "middle" });
+          sl.addText(s.l === "-" ? "–" : s.l, { x: x + colW - 0.47, y: y + 0.02, w: 0.45, h: 0.52, fontFace: F, fontSize: 10, bold: true, align: "center", valign: "middle", color: lvc(s.l)[1], fill: { color: lvc(s.l)[0] } });
+          y += 0.62;
+        });
+        if (c.succ.length > MAXS) sl.addText(`+${c.succ.length - MAXS}`, { x, y, w: colW, h: 0.25, fontFace: F, fontSize: 9, color: BRAND.muted });
+      });
+      SCALES[scale][g.cat].map(b => b[1]).forEach((l, k) => {
+        sl.addShape(pptx.ShapeType.rect, { x: 0.5 + k * 2.1, y: 6.74, w: 0.3, h: 0.2, fill: { color: lvc(l)[0] }, line: { color: lvc(l)[0] } });
+        sl.addText(l === "-" ? U.notReady : `${l} ${desc(l)}`, { x: 0.85 + k * 2.1, y: 6.68, w: 1.8, h: 0.3, fontFace: F, fontSize: 8.5, color: BRAND.muted });
+      });
+    });
+    if (!d.groups.length) { sl = pptx.addSlide({ masterName: "SC" }); sl.addText(U.emptyScope, { x: 0.5, y: 3, w: 12, h: 1, fontFace: F, fontSize: 18, color: BRAND.muted }); }
+    return pptx.write({ outputType: "blob" });
+  }
+
+  async function buildChartPdf(d) {
+    await loadLibs("pdf");
+    const { jsPDF } = window.jspdf, doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" }), U = L();
+    const W = 297, M = 14, cw = (W - 2 * M - 3 * 5) / 4, MAXS = 6;
+    const hex = h => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    const fill = h => doc.setFillColor(...hex(h)), ink = h => doc.setTextColor(...hex(h));
+    const font = (b, sz) => { doc.setFont("helvetica", b ? "bold" : "normal"); doc.setFontSize(sz); };
+    const wrap = (t, w) => doc.splitTextToSize(pdfSafe(t), w);
+    const head = (t) => { fill("52DE56"); doc.rect(0, 0, W, 3, "F"); font(true, 14); ink(BRAND.text); doc.text(pdfSafe(t), M, 13); font(false, 8); ink(BRAND.muted); doc.text(pdfSafe(d.meta), M, 18); };
+    if (!d.groups.length) { head(d.title); font(false, 12); ink(BRAND.muted); doc.text(pdfSafe(U.emptyScope), M, 40); }
+    d.groups.forEach((g, gi) => {
+      if (gi) doc.addPage();
+      head(`${g.cat} · ${d.title}`);
+      g.items.forEach((p, i) => {
+        const c = d.card(p), x = M + i * (cw + 5); let y = 23;
+        font(true, 8.5); const tl = wrap(c.title, cw - 4).slice(0, 2), hh = 16;
+        fill("E9ECEF"); doc.rect(x, y, cw, hh, "F"); ink(BRAND.text); doc.text(tl, x + cw / 2, y + 5, { align: "center" });
+        font(false, 6.5); ink(BRAND.muted); doc.text(pdfSafe(c.dept), x + cw / 2, y + hh - 2, { align: "center" });
+        y += hh;
+        fill("FBEEE2"); doc.rect(x, y, cw, 11, "F"); font(true, 7.5); ink(BRAND.text); doc.text(wrap(c.inc, cw - 4)[0] || "", x + cw / 2, y + 4.8, { align: "center" });
+        font(false, 6.3); ink(BRAND.muted); doc.text(wrap(c.incSub, cw - 4)[0] || "", x + cw / 2, y + 8.8, { align: "center" });
+        y += 15;
+        font(false, 6.5); ink(BRAND.muted); doc.text(pdfSafe(c.meta), x, y); font(true, 6.5); ink(BRAND[c.rk]); doc.text(pdfSafe(c.risk), x + cw, y, { align: "right" });
+        y += 2.5;
+        const lw = cw / c.levels.length;
+        c.levels.forEach((l, k) => {
+          const [bg, fg] = lvc(l); fill(bg); doc.rect(x + k * lw, y, lw, 5, "F"); font(true, 7); ink(fg); doc.text(l, x + k * lw + lw / 2, y + 3.5, { align: "center" });
+          doc.setDrawColor(...hex(BRAND.line)); doc.setLineWidth(0.2); doc.rect(x + k * lw, y + 5, lw, 5, "S"); font(false, 7); ink(BRAND.text); doc.text(String(c.cnt[l] || "-"), x + k * lw + lw / 2, y + 8.6, { align: "center" });
+        });
+        y += 13;
+        if (c.below) { fill("FDF0DC"); doc.rect(x, y, cw, 5, "F"); font(true, 6.5); ink(BRAND.med); doc.text(pdfSafe(U.belowMin), x + cw / 2, y + 3.5, { align: "center" }); y += 7; }
+        c.succ.slice(0, MAXS).forEach(s => {
+          doc.setDrawColor(...hex(s.rep ? BRAND.muted : BRAND.text)); doc.setLineWidth(0.25); if (s.rep) doc.setLineDashPattern([1, 1], 0);
+          doc.rect(x, y, cw, 11, "S"); doc.setLineDashPattern([], 0);
+          const [bg, fg] = lvc(s.l); fill(bg); doc.rect(x + cw - 9, y, 9, 11, "F"); font(true, 7.5); ink(fg); doc.text(s.l, x + cw - 4.5, y + 6.5, { align: "center" });
+          font(true, 7); ink(BRAND.text); doc.text(wrap(s.name, cw - 12).slice(0, 2), x + 1.5, y + 3.8);
+          font(false, 6.3); ink(s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted); doc.text(pdfSafe(`${s.t.toFixed(1)}%${s.flag ? "   " + s.flag : ""}`), x + 1.5, y + 9.4);
+          y += 12.5;
+        });
+        if (c.succ.length > MAXS) { font(false, 6.5); ink(BRAND.muted); doc.text(`+${c.succ.length - MAXS}`, x, y + 2); }
+      });
+      SCALES[scale][g.cat].map(b => b[1]).forEach((l, k) => {
+        fill(lvc(l)[0]); doc.rect(M + k * 50, 194, 5, 3.5, "F"); font(false, 7); ink(BRAND.muted); doc.text(pdfSafe(l === "-" ? U.notReady : `${l} ${desc(l)}`), M + 7 + k * 50, 196.8);
+      });
+    });
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) { doc.setPage(i); font(false, 7.5); ink(BRAND.muted); doc.text(pdfSafe(`Succession Planning Portal · ${d.cls}`), M, 204); doc.text(pdfSafe(`${U.page} ${i} / ${pages}`), W - M, 204, { align: "right" }); }
+    return doc.output("blob");
+  }
+
+  async function doChartExport(kind) {
+    const U = L(), btn = $(kind === "pdf" ? "chPdf" : "chPpt"), label = btn.textContent;
+    const dl = await getDownloads();
+    if (!dl) { toast(U.exUnavailable); return; }
+    btn.disabled = true; btn.textContent = U.exWorking;
+    let blob;
+    try { blob = kind === "pdf" ? await buildChartPdf(chartData()) : await buildChartPpt(chartData()); }
+    catch (err) { toast(err && err.message === "lib" ? U.exLib : U.exFailed); btn.disabled = false; btn.textContent = label; return; }
+    const filename = "Succession-Chart-" + (dept ? deptLabel(dept).replace(/[^A-Za-z0-9]+/g, "-") : "All") + ($("fCat").value ? "-" + $("fCat").value : "") + "-2026" + (kind === "pdf" ? ".pdf" : ".pptx");
+    try { await dl.save({ filename, data: blob }); toast(U.exSaved(filename)); }
+    catch (err) {
+      const c = err && err.code;
+      toast(c === "declined" ? U.exDeclined : c === "rate_limited" ? U.exBusy : (c === "bad_request" || c === "transform_error") ? U.exFailed : U.exUnavailable);
+    } finally { btn.disabled = false; btn.textContent = label; }
+  }
+
   // ---------- Pages ----------
   let page = "chart";
   const FROM_HASH = { overview: "ov", dashboard: "dash", summary: "sum", chart: "chart", readiness: "rv", idp: "idp", "employee-card": "card" }, TO_HASH = { ov: "overview", dash: "dashboard", sum: "summary", chart: "chart", rv: "readiness", idp: "idp", card: "employee-card" };
@@ -2324,7 +2471,9 @@ table.idp { min-width: 1120px; }
   window.addEventListener("hashchange", () => { readHash(); render(); });
   $("exPdf").addEventListener("click", () => doExport("pdf"));
   $("exPpt").addEventListener("click", () => doExport("ppt"));
-  if (window.claude && typeof window.claude.use === "function") getDownloads().then(dl => { if (!dl) { dlKnownMissing = true; $("exportBox").hidden = true; $("exNote").textContent = L().exUnavailable; } });
+  $("chPdf").addEventListener("click", () => doChartExport("pdf"));
+  $("chPpt").addEventListener("click", () => doChartExport("ppt"));
+  if (window.claude && typeof window.claude.use === "function") getDownloads().then(dl => { if (!dl) { dlKnownMissing = true; $("exportBox").hidden = true; $("chPdf").hidden = $("chPpt").hidden = true; $("exNote").textContent = L().exUnavailable; } });
   initVal(); readHash();
   render();
   initCycle();
