@@ -382,6 +382,31 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 .guide-item { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; }
 .gi-txt { display: grid; gap: 1px; min-width: 0; }
 .guide-item .go { font-size: 16px; }
+.flag.ok { color: var(--ok); }
+.succ.mc-mm { box-shadow: inset 5px 0 0 #3b6fd6; } .succ.mc-mo { box-shadow: inset 5px 0 0 #2fbf9b; } .succ.mc-oo { box-shadow: inset 5px 0 0 #e07fd6; }
+.succ.mc-mm .succ-main, .succ.mc-mo .succ-main, .succ.mc-oo .succ-main { padding-left: 13px; }
+.sw.mcsw { width: 6px; height: 14px; border-radius: 2px; } .sw.mc-mm { background: #3b6fd6; } .sw.mc-mo { background: #2fbf9b; } .sw.mc-oo { background: #e07fd6; }
+.pos-min { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px 12px; background: var(--warn-bg); color: var(--warn); font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--line); }
+.pos-min.ok { background: var(--sunken); color: var(--muted); }
+.pos-min .btn { font-weight: 500; color: var(--fg); }
+table.cov th.warn { color: var(--bad); }
+.exc-box { border-color: var(--warn); }
+.exc-f { display: grid; gap: 4px; font-size: 12px; color: var(--muted); flex: 1 1 200px; min-width: 0; }
+.exc-f textarea, .exc-f select { font: inherit; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; background: var(--surface); width: 100%; }
+.exc-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+.appr { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.appr li { position: relative; display: grid; gap: 8px; align-content: start; padding-right: 10px; }
+.appr li::before { content: ""; position: absolute; top: 13px; left: 0; right: 0; height: 2px; background: var(--line); }
+.appr li.done::before { background: var(--accent2); }
+.appr li:first-child::before { left: 13px; } .appr li:last-child::before { right: auto; width: 13px; }
+.ap-dot { position: relative; z-index: 1; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 2px solid var(--line); }
+.appr li.done .ap-dot { background: var(--accent2); border-color: var(--accent2); color: var(--accent-fg); }
+.ap-dot .ico { width: 14px; height: 14px; }
+.appr li > div { display: grid; gap: 2px; font-size: 13px; }
+.ap-date { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.appr small { color: var(--muted); font-size: 12px; line-height: 1.35; }
+@media (max-width: 760px) { .appr { grid-template-columns: 1fr; gap: 12px; } .appr li { grid-template-columns: 28px 1fr; gap: 10px; padding: 0; }
+  .appr li::before { top: 28px; bottom: -12px; left: 13px; right: auto; width: 2px; height: auto; } .appr li:first-child::before { left: 13px; } .appr li:last-child::before { display: none; } }
 .sum-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 980px) { .sum-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .sum-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -536,6 +561,10 @@ table.idp { min-width: 1120px; }
       <div class="eff-grid" id="effGrid"></div>
       <details class="ref"><summary data-i="notYetTitle"></summary><div class="table-scroll"><table><thead><tr><th data-i="thMetric"></th><th data-i="thNeeds"></th></tr></thead><tbody id="notYet"></tbody></table></div></details>
     </div>
+    <div class="grid2">
+      <div class="panel"><div class="section-head"><h2 data-i="covTitle"></h2></div><p class="note" style="margin:0" data-i="covNote"></p><div class="table-scroll"><table class="cov" id="covTable"></table></div><span class="note" id="covJust"></span></div>
+      <div class="panel"><h2 data-i="multiTitle"></h2><div class="table-scroll"><table><thead><tr><th data-i="thCategory"></th><th class="num" data-i="thSuccessors"></th></tr></thead><tbody id="multiRows"></tbody></table></div><p class="note" style="margin:0" data-i="multiNote"></p></div>
+    </div>
     <div class="panel">
       <div class="section-head"><h2 data-i="byDeptTitle"></h2><span class="note" data-i="byDeptNote"></span></div>
       <div class="table-scroll"><table>
@@ -571,6 +600,7 @@ table.idp { min-width: 1120px; }
       <div class="note" id="exNote"></div>
     </div>
     <div class="sum-kpis" id="sumKpis"></div>
+    <div class="panel"><h2 data-i="covTitle"></h2><p class="note" style="margin:0" data-i="covNote"></p><div class="table-scroll"><table class="cov" id="sumCov"></table></div></div>
     <div class="grid2">
       <div class="panel"><h2 data-i="distTitle"></h2><div id="sumDist" class="dist"></div></div>
       <div class="panel"><h2 data-i="effTitle"></h2><div class="table-scroll"><table><thead><tr><th data-i="thMetric"></th><th class="num" data-i="thValue"></th><th data-i="thTarget"></th><th data-i="thStatus2"></th></tr></thead><tbody id="sumEff"></tbody></table></div></div>
@@ -717,6 +747,19 @@ table.idp { min-width: 1120px; }
       thGaps: "Priority gaps", thVal: "SRA validation by HOD", gapsNone: "From the SRA session",
       val: { pending: "Pending", ok: "Validated", rep: "Replacement list", rev: "Revise score" },
       rvProgress: (a, b) => `${a} of ${b} validated`,
+      minRule: "Min. 2 per position · HCC 5 Oct 2026", belowMin: "Below minimum of 2 successors", justified: "Justified: no suitable candidate",
+      markJust: "Mark as justified", unmarkJust: "Remove justification", justKept: "Kept in this browser tab only.",
+      exc: { pend: "Exception pending", app: "Exception approved by HCC", rej: "Exception not approved" },
+      excFlag: { pend: "✗ criteria · pending", app: "✓ exception", rej: "✗ not approved" },
+      excTitle: "Criteria exception", excRemark: "Justification", excRemarkPh: "e.g. completed probation, promotion in progress, restructuring", excStatus: "HCC decision", excNone: "Not yet recorded",
+      excSave: "Save", excSaved: "Exception updated.", excKept: "Kept in this browser tab only. To keep it, add EXCEPTION REMARK and EXCEPTION STATUS columns to the masterlist.",
+      nExc: (a, pe, r) => `Exceptions: ${a} approved by HCC, ${pe} pending, ${r} not approved.`,
+      nBelow: (n, j) => `${n} positions have fewer than 2 internal successors (HCC minimum, 5 Oct 2026)${j ? `; ${j} marked justified` : ""}.`,
+      covTitle: "Successors per position", covNote: "Minimum 2 per position (HCC 5 Oct 2026). No forced nomination where no suitable candidate exists.",
+      covCols: ["3 or more", "2", "1", "None"], covRows: ["Positions", "Successor nominations", "% of positions"], covJust: n => `${n} below the minimum marked justified`,
+      multiTitle: "Successors mapped to more than one position", multiCats: { mm: "Two or more MCP roles", mo: "MCP and OCP roles", oo: "Two or more OCP roles" },
+      multiCross: "Of these, span more than one department", multiNote: "The HCC paper also splits by the successor's own department, which the masterlist does not record.",
+      thCategory: "Category", thSuccessors: "Successors",
       navOv: "Overview", navSum: "Summary", sumEyebrow: "Executive summary", sumTitle: d => `Succession summary · ${d} 2026`,
       sumMeta: (src, sc) => `Source: ${src} · Scale: ${sc} · Data as at 2 Nov 2026`, srcSample: "sample data (fictional)",
       exPdf: "Download PDF", exPpt: "Download PowerPoint", exWorking: "Preparing…",
@@ -738,10 +781,10 @@ table.idp { min-width: 1120px; }
       thPms: "PMS 2025", thBest: "Highest SRA",
       effTitle: "Programme effectiveness", effNote: "Measured on the current scope. Targets are working assumptions for discussion, not approved policy.",
       eff: {
-        bench: ["Bench strength", "Internal successors per critical position", "Target ≥ 2.0"],
-        two: ["Positions with ≥2 successors", "Depth of the bench", "Target 100%"],
+        bench: ["Bench strength", "Internal successors per critical position", "Min. 2.0 · HCC 5 Oct 2026"],
+        two: ["Positions meeting the minimum of 2", "Justified positions count as met", "Min. 2 · HCC 5 Oct 2026"],
         ready: ["Ready-now ratio", "R0 successors per critical position", "Target ≥ 1.0"],
-        meet: ["Successors meeting criteria", "All 6 selection criteria passed", "Target 100%"],
+        meet: ["Successors meeting criteria", "All 6 criteria passed, or exception approved by HCC", "Target 100%"],
         runway: ["Short runway", "Successors leaving < 24 months after the vacancy", "Target ≤ 10%"],
         overlap: ["Successors on several positions", "Concentration risk", "Target ≤ 20%"],
         women: ["Women in successor pool", "Gender diversity of the pipeline", "Reference 30%"],
@@ -846,6 +889,19 @@ table.idp { min-width: 1120px; }
       thGaps: "Jurang utama", thVal: "Pengesahan SRA oleh HOD", gapsNone: "Daripada sesi SRA",
       val: { pending: "Belum disahkan", ok: "Disahkan", rep: "Senarai penggantian", rev: "Semak semula skor" },
       rvProgress: (a, b) => `${a} daripada ${b} disahkan`,
+      minRule: "Min. 2 setiap jawatan · HCC 5 Okt 2026", belowMin: "Bawah minimum 2 pengganti", justified: "Dijustifikasi: tiada calon sesuai",
+      markJust: "Tanda dijustifikasi", unmarkJust: "Buang justifikasi", justKept: "Disimpan dalam tab pelayar ini sahaja.",
+      exc: { pend: "Pengecualian menunggu", app: "Pengecualian diluluskan HCC", rej: "Pengecualian tidak diluluskan" },
+      excFlag: { pend: "✗ kriteria · menunggu", app: "✓ dikecualikan", rej: "✗ tidak diluluskan" },
+      excTitle: "Pengecualian kriteria", excRemark: "Justifikasi", excRemarkPh: "cth. tamat percubaan, kenaikan pangkat dalam proses, penstrukturan semula", excStatus: "Keputusan HCC", excNone: "Belum direkod",
+      excSave: "Simpan", excSaved: "Pengecualian dikemas kini.", excKept: "Disimpan dalam tab pelayar ini sahaja. Untuk kekalkan, tambah lajur EXCEPTION REMARK dan EXCEPTION STATUS dalam masterlist.",
+      nExc: (a, pe, r) => `Pengecualian: ${a} diluluskan HCC, ${pe} menunggu, ${r} tidak diluluskan.`,
+      nBelow: (n, j) => `${n} jawatan ada kurang daripada 2 pengganti dalaman (minimum HCC, 5 Okt 2026)${j ? `; ${j} ditanda dijustifikasi` : ""}.`,
+      covTitle: "Pengganti setiap jawatan", covNote: "Minimum 2 setiap jawatan (HCC 5 Okt 2026). Tiada pencalonan paksa bila calon sesuai tiada.",
+      covCols: ["3 atau lebih", "2", "1", "Tiada"], covRows: ["Jawatan", "Pencalonan pengganti", "% jawatan"], covJust: n => `${n} di bawah minimum ditanda dijustifikasi`,
+      multiTitle: "Pengganti dipetakan kepada lebih satu jawatan", multiCats: { mm: "Dua atau lebih jawatan MCP", mo: "Jawatan MCP dan OCP", oo: "Dua atau lebih jawatan OCP" },
+      multiCross: "Daripadanya, merentas lebih satu jabatan", multiNote: "Kertas HCC juga memecahkan ikut jabatan asal pengganti, yang tiada dalam masterlist.",
+      thCategory: "Kategori", thSuccessors: "Pengganti",
       navOv: "Gambaran", navSum: "Ringkasan", sumEyebrow: "Ringkasan eksekutif", sumTitle: d => `Ringkasan succession · ${d} 2026`,
       sumMeta: (src, sc) => `Sumber: ${src} · Skala: ${sc} · Data setakat 2 Nov 2026`, srcSample: "data contoh (rekaan)",
       exPdf: "Muat turun PDF", exPpt: "Muat turun PowerPoint", exWorking: "Menyediakan…",
@@ -867,10 +923,10 @@ table.idp { min-width: 1120px; }
       thPms: "PMS 2025", thBest: "SRA tertinggi",
       effTitle: "Keberkesanan program", effNote: "Diukur ikut skop semasa. Sasaran ialah andaian kerja untuk perbincangan, bukan polisi yang diluluskan.",
       eff: {
-        bench: ["Kekuatan bangku", "Pengganti dalaman bagi setiap jawatan kritikal", "Sasaran ≥ 2.0"],
-        two: ["Jawatan dengan ≥2 pengganti", "Kedalaman bangku", "Sasaran 100%"],
+        bench: ["Kekuatan bangku", "Pengganti dalaman bagi setiap jawatan kritikal", "Min. 2.0 · HCC 5 Okt 2026"],
+        two: ["Jawatan capai minimum 2", "Jawatan dijustifikasi dikira capai", "Min. 2 · HCC 5 Okt 2026"],
         ready: ["Nisbah ready-now", "Pengganti R0 bagi setiap jawatan kritikal", "Sasaran ≥ 1.0"],
-        meet: ["Pengganti penuhi kriteria", "Lulus semua 6 kriteria pemilihan", "Sasaran 100%"],
+        meet: ["Pengganti penuhi kriteria", "Lulus 6 kriteria, atau pengecualian diluluskan HCC", "Sasaran 100%"],
         runway: ["Runway pendek", "Pengganti keluar < 24 bulan selepas jawatan kosong", "Sasaran ≤ 10%"],
         overlap: ["Pengganti untuk beberapa jawatan", "Risiko tumpuan", "Sasaran ≤ 20%"],
         women: ["Wanita dalam kumpulan pengganti", "Kepelbagaian jantina saluran bakat", "Rujukan 30%"],
@@ -917,6 +973,7 @@ table.idp { min-width: 1120px; }
     ["JOB EX. SCORE (10%) · JSA (HA) SCORE (40%) · FUNC. COMPET. SCORE (50%) · TOTAL SRA", ["SRA score bars and total", "Bar skor SRA dan jumlah"]],
     ["READINESS", ["Compared with the level calculated on the current scale", "Dibanding dengan tahap kiraan skala semasa"]],
     ["CURRENT / PROPOSED READINESS table", ["Scale thresholds per category (MCP and OCP differ)", "Ambang skala ikut kategori (MCP dan OCP berbeza)"]],
+    ["EXCEPTION REMARK · EXCEPTION STATUS (optional new columns)", ["Criteria exception justification and HCC decision (APPROVED / PENDING / NOT APPROVED)", "Justifikasi pengecualian kriteria dan keputusan HCC (APPROVED / PENDING / NOT APPROVED)"]],
     ["EMAIL · GENDER · BIRTHDATE · UNIVERSITY · join and confirm dates", ["Not shown on this screen", "Tidak dipaparkan di skrin ini"]]
   ];
   let lang = "en";
@@ -1039,6 +1096,9 @@ table.idp { min-width: 1120px; }
       age: tick(at("AGE", empIdx)), pms: tick(at("PMS", empIdx)), disc: tick(at("DISCIPLINARYRECORD", sn))
     };
     const meetY = tick(at("MEET", sn)), meetN = tick(at("NOMEET", sn));
+    const exRemark = clean(at("EXCEPTIONREMARK", sn) || at("EXCEPTIONJUSTIFICATION", sn) || at("JUSTIFICATION", sn) || "");
+    const exStRaw = clean(at("EXCEPTIONSTATUS", sn) || at("HCCSTATUS", sn) || "").toUpperCase();
+    const exSt = /NOT|REJECT|TOLAK|TIDAK/.test(exStRaw) ? "rej" : /APPROV|LULUS/.test(exStRaw) ? "app" : (exRemark || exStRaw) ? "pend" : null;
     const exEnd = toYM(at("CONTRACTEXDATE", sn)), rtEnd = toYM(at("RETIREMENTDATE", sn));
     const q1 = clean(row[studyIdx]), q2 = clean(row[study2]);
     const p = {
@@ -1054,7 +1114,8 @@ table.idp { min-width: 1120px; }
     return {
       key: p.key, p, exp: pct(at("JOBEXSCORE10", sn)) || 0, fit: pct(at("JSAHASCORE40", sn)) || 0, fun: pct(at("FUNCCOMPETSCORE50", sn)) || 0,
       fileTotal: pct(at("TOTALSRA", sn)), fileLvl: clean(at("READINESS", sn)) || null,
-      st: meetN === true && meetY !== true ? "nomeet" : "meet", crit, gaps: null, prog: null
+      st: meetN === true && meetY !== true ? "nomeet" : "meet", crit, gaps: null, prog: null,
+      exc: exSt ? { remark: exRemark, status: exSt } : null
     };
   }
   function parseWorkbook(wb, fileName) {
@@ -1182,7 +1243,8 @@ table.idp { min-width: 1120px; }
     $("legend").innerHTML = base.map(([, l], i) => {
       const r = same ? rng(base, i) : cats.map(c => `${c} ${rng(SCALES[scale][c], i)}`).join(" · ");
       return `<span><i class="sw ${lvCls(l)}"></i>${l === "-" ? L().notReady : l + " " + desc(l)} <span class="note">${r}</span></span>`;
-    }).join("") + (DATA.source === "sample" ? `<span><i class="sw rep"></i>${L().repLegend}</span><span><span class="pill p-new">${L().newPill}</span>${L().newLegend}</span>` : `<span><span class="flag bad">${L().noMeetFlag}</span>${L().stat.nomeet}</span>`);
+    }).join("") + (DATA.source === "sample" ? `<span><i class="sw rep"></i>${L().repLegend}</span><span><span class="pill p-new">${L().newPill}</span>${L().newLegend}</span>` : `<span><span class="flag bad">${L().noMeetFlag}</span>${L().stat.nomeet}</span><span><span class="flag ok">${L().excFlag.app}</span>${L().exc.app}</span>`)
+      + ["mm", "mo", "oo"].map(k => `<span><i class="sw mcsw mc-${k}"></i>${L().multiCats[k]}</span>`).join("");
     $("scaleNote").textContent = L().scaleNote(L().scaleName[scale]);
   }
 
@@ -1198,6 +1260,32 @@ table.idp { min-width: 1120px; }
       <div class="panel kpi ${high ? "bad" : "ok"}"><span class="label">${L().kHigh}</span><span class="value">${high}</span><span class="note">${L().kHighN}</span></div>`;
   }
 
+  // HCC rules: minimum 2 successors (5 Oct 2026) and criteria exceptions (in-session edits on top of masterlist values)
+  let EXC = {}, JUST = {};
+  const excKey = (p, s) => p.id + "|" + p.succ.indexOf(s);
+  const excOf = (p, s) => { const k = excKey(p, s); return k in EXC ? EXC[k] : (s.exc || null); };
+  const excSt = (p, s) => { const e = excOf(p, s); return e ? e.status : null; };
+  const meetsOrExc = (p, s) => s.st !== "nomeet" || excSt(p, s) === "app";
+  const belowMin = p => p.succ.filter(isInternal).length < 2;
+  const justified = p => !!JUST[p.id];
+  function multiCats() {
+    const m = new Map();
+    DATA.positions.forEach(p => p.succ.forEach(s => { if (s.st === "struck") return; if (!m.has(s.key)) m.set(s.key, { cats: [], depts: new Set() }); const e = m.get(s.key); e.cats.push(p.cat); e.depts.add(p.dept); }));
+    const out = new Map();
+    m.forEach((e, k) => { if (e.cats.length < 2) return; const mc = e.cats.filter(c => c === "MCP").length, oc = e.cats.length - mc; out.set(k, { cat: mc && oc ? "mo" : mc ? "mm" : "oo", cross: e.depts.size > 1 }); });
+    return out;
+  }
+  function coverageData(ps) {
+    const b = [0, 0, 0, 0], nom = [0, 0, 0, 0]; let just = 0;
+    ps.forEach(p => { const n = p.succ.filter(isInternal).length, i = n >= 3 ? 0 : n === 2 ? 1 : n === 1 ? 2 : 3; b[i]++; nom[i] += n; if (n < 2 && justified(p)) just++; });
+    return { b, nom, pct: b.map(x => ps.length ? (x / ps.length * 100) : 0), just, total: ps.length };
+  }
+  function multiData(ps) {
+    const mc = multiCats(), keys = new Set(ps.flatMap(p => p.succ.filter(s => s.st !== "struck").map(s => s.key)));
+    const c = { mm: 0, mo: 0, oo: 0 }; let cross = 0;
+    keys.forEach(k => { const e = mc.get(k); if (e) { c[e.cat]++; if (e.cross) cross++; } });
+    return { c, cross, total: c.mm + c.mo + c.oo };
+  }
   const RISKC = { high: "p-bad", med: "p-warn", low: "p-ok" };
   function succBtn(p, s, idx) {
     const per = s.p, t = total(s), l = level(t, p.cat), term = q();
@@ -1205,8 +1293,9 @@ table.idp { min-width: 1120px; }
     const nm = `${esc(per.n)}${per.g ? ` (${esc(per.g)})` : ""}`;
     if (s.st === "struck") return `<div class="succ struck${dim ? " dim" : ""}"><div class="succ-main"><span class="succ-name">${nm}</span><span class="succ-sub">${L().removed}</span></div></div>`;
     const flags = (runwayShort(s, p) ? `<span class="flag" title="${L().shortTitle}">⚠ ${L().shortRunway}</span>` : "") +
-      (s.st === "nomeet" ? `<span class="flag bad" title="${esc(failed(s).map(k => L().crit[k]).join(", "))}">${L().noMeetFlag}</span>` : "");
-    return `<button type="button" class="succ${s.st === "rep" ? " rep" : ""}${hit ? " hit" : ""}${dim ? " dim" : ""}" data-p="${p.id}" data-x="${idx}">
+      (s.st === "nomeet" ? (() => { const es = excSt(p, s) || "pend"; return `<span class="flag ${es === "app" ? "ok" : "bad"}" title="${esc(failed(s).map(k => L().crit[k]).join(", "))}">${excOf(p, s) ? L().excFlag[es] : L().noMeetFlag}</span>`; })() : "");
+    const mc = MC && MC.get(s.key);
+    return `<button type="button" class="succ${s.st === "rep" ? " rep" : ""}${mc ? " mc-" + mc.cat : ""}${hit ? " hit" : ""}${dim ? " dim" : ""}" data-p="${p.id}" data-x="${idx}"${mc ? ` title="${esc(L().multiCats[mc.cat])}"` : ""}>
       <span class="succ-main"><span class="succ-name">${nm}</span>
       <span class="succ-sub"><span class="num">${t.toFixed(1)}%</span>${s.st === "new" ? `<span class="pill p-new">${L().newPill}</span>` : ""}${flags}</span></span>
       <span class="chip ${lvCls(l)}">${l}</span></button>`;
@@ -1222,13 +1311,16 @@ table.idp { min-width: 1120px; }
       <div class="pos-head"><b>${esc(tx(p.t))}${p.g ? ` (${esc(p.g)})` : ""}</b>${!dept && p.dept ? `<small>${esc(deptLabel(p.dept))}</small>` : ""}</div>
       ${incRow}
       <div class="pos-meta"><span>${meta}</span><span class="pill ${RISKC[a.risk]}">${L().risk[a.risk]}</span></div>
+      ${belowMin(p) ? `<div class="pos-min ${justified(p) ? "ok" : ""}"><span>${justified(p) ? L().justified : L().belowMin}</span><button type="button" class="btn sm" data-just="${p.id}" title="${L().justKept}">${justified(p) ? L().unmarkJust : L().markJust}</button></div>` : ""}
       <div class="pos-body">
         <div class="grp">${L().internal}</div>
         ${internal.length ? internal.map(([s, i]) => succBtn(p, s, i)).join("") : `<div class="empty-succ">${L().none}</div>`}
         ${reps.length ? `<div class="grp">${L().reps}</div>${reps.map(([s, i]) => succBtn(p, s, i)).join("")}` : ""}
       </div></article>`;
   }
+  let MC = null;
   function renderChart() {
+    MC = multiCats();
     const ps = visible(), m = ps.filter(p => p.cat === "MCP"), o = ps.filter(p => p.cat === "OCP");
     $("mcp").className = m.length === 1 ? "mcp-wrap" : "pos-grid";
     $("mcp").innerHTML = m.map(posCard).join(""); $("ocp").innerHTML = o.map(posCard).join("");
@@ -1246,7 +1338,7 @@ table.idp { min-width: 1120px; }
         <td>${esc(s.p.n)} <span class="sub">${esc(s.p.g)}</span></td>
         <td class="num">${s.exp.toFixed(1)}%</td><td class="num">${s.fit.toFixed(1)}%</td><td class="num">${s.fun.toFixed(1)}%</td>
         <td class="num"><b>${t.toFixed(1)}%</b></td><td>${struck ? "–" : `<span class="rd ${lvCls(l)}">${l}</span>`}</td>
-        <td><span class="pill ${SC[s.st]}">${L().stat[s.st]}</span></td></tr>`;
+        <td>${s.st === "nomeet" && excOf(p, s) ? `<span class="pill ${{ app: "p-ok", pend: "p-warn", rej: "p-bad" }[excSt(p, s)]}">${L().exc[excSt(p, s)]}</span>` : `<span class="pill ${SC[s.st]}">${L().stat[s.st]}</span>`}</td></tr>`;
     })).join("") || `<tr><td colspan="9" class="sub" style="text-align:center;padding:24px">${esc(term ? L().noMatch(term) : L().emptyScope)}</td></tr>`;
   }
   function renderNotes() { $("notes").innerHTML = noteList().map(x => `<li>${x}</li>`).join(""); }
@@ -1270,7 +1362,11 @@ table.idp { min-width: 1120px; }
     if (nm.length) {
       const c = {}; nm.forEach(([, s]) => failed(s).forEach(k => c[k] = (c[k] || 0) + 1));
       out.push(L().nNoMeet(nm.length, Object.entries(c).map(([k, n]) => `${L().critShort[k]} ${n}`).join(", ")));
+      const ex = { app: 0, pend: 0, rej: 0 }; nm.forEach(([p, s]) => { const st = excSt(p, s); if (st) ex[st]++; });
+      if (ex.app + ex.pend + ex.rej) out.push(L().nExc(ex.app, ex.pend, ex.rej));
     }
+    const bm = vis.filter(belowMin);
+    if (bm.length) out.push(L().nBelow(bm.length, bm.filter(justified).length));
     const mis = rowsAll.filter(([p, s]) => s.fileLvl && s.fileLvl !== level(total(s), p.cat, "cur")).length;
     if (mis) out.push(L().nMismatch(mis));
     const est = vis.filter(p => p.inc.et === "est" && !p.inc.vacant).length;
@@ -1344,9 +1440,9 @@ table.idp { min-width: 1120px; }
     const P = v => v + "%";
     const M = [
       ["bench", n ? (rows.length / n) : null, v => v.toFixed(1), v => v >= 2],
-      ["two", pct(per.filter(a => a.length >= 2).length, n), P, v => v >= 100],
+      ["two", pct(per.filter((a, i) => a.length >= 2 || justified(ps[i])).length, n), P, v => v >= 100],
       ["ready", n ? rows.filter(({ p, s }) => level(total(s), p.cat) === "R0").length / n : null, v => v.toFixed(2), v => v >= 1],
-      ["meet", fileMode ? pct(rows.filter(r => r.s.st !== "nomeet").length, rows.length) : null, P, v => v >= 100],
+      ["meet", fileMode ? pct(rows.filter(r => meetsOrExc(r.p, r.s)).length, rows.length) : null, P, v => v >= 100],
       ["runway", pct(rows.filter(({ p, s }) => runwayShort(s, p)).length, rows.length), P, v => v <= 10],
       ["overlap", pct(people.filter(e => e.list.length > 1).length, people.length), P, v => v <= 20],
       ["women", genders.length ? pct(genders.filter(g => g === "F").length, genders.length) : null, P, v => v >= 30],
@@ -1363,8 +1459,23 @@ table.idp { min-width: 1120px; }
     }).join("");
     $("notYet").innerHTML = U.notYet.map(([a, b]) => `<tr><td><b>${a}</b></td><td class="sub">${b}</td></tr>`).join("");
   }
+  function covTableHtml(cv) {
+    const U = L();
+    return `<thead><tr><th></th>${U.covCols.map((c, i) => `<th class="num${i === 3 ? " warn" : ""}">${c}</th>`).join("")}</tr></thead><tbody>
+      <tr><td>${U.covRows[0]}</td>${cv.b.map(v => `<td class="num"><b>${v}</b></td>`).join("")}</tr>
+      <tr><td>${U.covRows[1]}</td>${cv.nom.map(v => `<td class="num">${v}</td>`).join("")}</tr>
+      <tr><td>${U.covRows[2]}</td>${cv.pct.map(v => `<td class="num">${v.toFixed(1)}%</td>`).join("")}</tr></tbody>`;
+  }
+  function renderCovMulti(ps) {
+    const U = L(), cv = coverageData(ps), md = multiData(ps);
+    $("covTable").innerHTML = covTableHtml(cv);
+    $("covJust").textContent = cv.just ? U.covJust(cv.just) : "";
+    $("multiRows").innerHTML = ["mm", "mo", "oo"].map(k => `<tr><td><i class="sw mcsw mc-${k}"></i> ${U.multiCats[k]}</td><td class="num"><b>${md.c[k]}</b></td></tr>`).join("")
+      + `<tr><td class="sub">${U.multiCross}</td><td class="num sub">${md.cross}</td></tr>`;
+  }
   function renderDash() {
     const ps = visible();
+    renderCovMulti(ps);
     renderNineBox(ps); renderEff(ps);
     $("distNote").textContent = L().distNote(L().scaleName[scale]);
     $("dist").innerHTML = ["MCP", "OCP"].filter(c => ps.some(p => p.cat === c)).map(c => {
@@ -1394,7 +1505,7 @@ table.idp { min-width: 1120px; }
 
   // ---------- Readiness validation ----------
   let VAL = {};
-  function initVal() { selNb = null; IDPS = {}; FB = {}; selCard = null; selIdp = null; VAL = {}; DATA.positions.forEach(p => p.succ.forEach((s, i) => { VAL[p.id + "|" + i] = s.st === "ok" ? "ok" : s.st === "rep" ? "rep" : "pending"; })); }
+  function initVal() { EXC = {}; JUST = {}; selNb = null; IDPS = {}; FB = {}; selCard = null; selIdp = null; VAL = {}; DATA.positions.forEach(p => p.succ.forEach((s, i) => { VAL[p.id + "|" + i] = s.st === "ok" ? "ok" : s.st === "rep" ? "rep" : "pending"; })); }
   function renderRV() {
     const term = q(); let html = "", tot = 0, done = 0; const lv = {};
     visible().forEach(p => {
@@ -1403,7 +1514,9 @@ table.idp { min-width: 1120px; }
         const t = total(s), l = level(t, p.cat), key = p.id + "|" + i, v = VAL[key] || "pending";
         tot++; if (v === "ok" || v === "rep") done++; lv[l] = (lv[l] || 0) + 1;
         const f = failed(s);
-        const gaps = s.gaps == null ? (f.length ? `<span class="flag bad">${L().noMeetFlag}: ${f.map(k => L().critShort[k]).join(", ")}</span>` : `<span class="sub">${L().gapsNone}</span>`) : (s.gaps.length ? s.gaps.map(g => esc(tx(g))).join(" · ") : `<span class="sub">${L().notAssessed}</span>`);
+        const es = s.st === "nomeet" && excOf(p, s) ? excSt(p, s) : null;
+        const gaps = (s.gaps == null ? (f.length ? `<span class="flag bad">${L().noMeetFlag}: ${f.map(k => L().critShort[k]).join(", ")}</span>` : `<span class="sub">${L().gapsNone}</span>`) : (s.gaps.length ? s.gaps.map(g => esc(tx(g))).join(" · ") : `<span class="sub">${L().notAssessed}</span>`))
+          + (es ? ` <span class="pill ${{ app: "p-ok", pend: "p-warn", rej: "p-bad" }[es]}">${L().exc[es]}</span>` : "");
         html += `<tr>${j === 0 ? `<td class="role" rowspan="${ss.length}">${esc(tx(p.t))}${p.g ? ` (${esc(p.g)})` : ""}<div class="sub">${p.cat}${!dept ? " · " + esc(deptLabel(p.dept)) : ""}</div></td>` : ""}
           <td><button type="button" class="lnk" data-p="${p.id}" data-x="${i}">${esc(s.p.n)}</button> <span class="sub">${esc(s.p.g)}</span>${s.st === "rep" ? ` <span class="pill p-warn">${L().stat.rep}</span>` : ""}</td>
           <td class="num">${s.exp.toFixed(1)}%</td><td class="num">${s.fit.toFixed(1)}%</td><td class="num">${s.fun.toFixed(1)}%</td><td class="num"><b>${t.toFixed(1)}%</b></td>
@@ -1576,12 +1689,13 @@ table.idp { min-width: 1120px; }
       title: U.sumTitle(dept ? deptLabel(dept) : U.deptAll),
       meta: U.sumMeta(DATA.source === "file" ? DATA.fileName : U.srcSample, U.scaleName[scale]),
       cls: DATA.source === "file" ? U.classFile : U.classSample, kpis, dist, eff, risk, positions,
-      notes: noteList().map(strip).slice(0, 8), showDept: !dept
+      notes: noteList().map(strip).slice(0, 8), showDept: !dept, cov: coverageData(ps)
     };
   }
   function renderSummary() {
     const U = L(), d = summaryData();
     $("sumTitle").textContent = d.title; $("sumMeta").textContent = d.meta;
+    $("sumCov").innerHTML = covTableHtml(d.cov);
     if (!dlKnownMissing) $("exNote").textContent = DATA.source === "file" ? U.exNoteFile : U.exNoteSample; else $("exNote").textContent = U.exUnavailable;
     $("sumKpis").innerHTML = d.kpis.map(([k, v]) => `<div class="panel kpi accent"><span class="label">${esc(k)}</span><span class="value">${esc(v).replace(/%$/, "<small>%</small>")}</span></div>`).join("");
     $("sumDist").innerHTML = d.dist.map(x => `<div class="dist-row"><b>${U.distCat(x.cat, x.n)}</b><div class="stackbar">${x.parts.map(pt => pt.n ? `<div class="${lvCls(pt.l)}" style="flex:${pt.n}">${pt.l} · ${pt.n}</div>` : "").join("")}</div></div>`).join("") || `<p class="note">${U.emptyScope}</p>`;
@@ -1658,9 +1772,15 @@ table.idp { min-width: 1120px; }
       body: d.risk.length ? d.risk.map(r => [r.pos, r.dept, r.cat, r.why].map(pdfSafe)) : [[pdfSafe(U.riskEmpty), "", "", ""]],
       styles: { fontSize: 7.5, cellPadding: 1.4 }, headStyles: { fillColor: hex(BRAND.high) }, columnStyles: { 3: { cellWidth: 120 } } });
     doc.addPage();
-    h2(U.sumPosTitle, 14);
+    h2(U.covTitle, 14);
+    doc.autoTable({ startY: 17, margin: { left: M, right: M }, tableWidth: 170, head: [[""].concat(U.covCols).map(pdfSafe)],
+      body: [[U.covRows[0]].concat(d.cov.b.map(String)), [U.covRows[1]].concat(d.cov.nom.map(String)), [U.covRows[2]].concat(d.cov.pct.map(v => v.toFixed(1) + "%"))].map(r => r.map(pdfSafe)),
+      styles: { fontSize: 7.5, cellPadding: 1.4, halign: "right" }, columnStyles: { 0: { halign: "left", cellWidth: 50 } }, headStyles: { fillColor: hex(BRAND.dark), halign: "right" } });
+    doc.setFontSize(7.5); doc.setTextColor(...hex(BRAND.muted)); doc.text(pdfSafe(U.covNote), M, doc.lastAutoTable.finalY + 4);
+    const yPos = doc.lastAutoTable.finalY + 12;
+    h2(U.sumPosTitle, yPos);
     const head = [U.thCat, U.thPos].concat(d.showDept ? [U.thDept] : []).concat([U.thInc, U.thVacIn, U.thSuccN, U.thReady, U.thRisk]);
-    doc.autoTable({ startY: 18, margin: { left: M, right: M, bottom: 14 }, head: [head.map(pdfSafe)],
+    doc.autoTable({ startY: yPos + 4, margin: { left: M, right: M, bottom: 14 }, head: [head.map(pdfSafe)],
       body: d.positions.map(r => [r.cat, r.pos].concat(d.showDept ? [r.dept] : []).concat([r.inc, r.vac, String(r.succ), r.mix, r.risk]).map(pdfSafe)),
       styles: { fontSize: 7.5, cellPadding: 1.4 }, headStyles: { fillColor: hex(BRAND.dark) }, alternateRowStyles: { fillColor: hex("F0F9EC") },
       didParseCell: c => { if (c.section === "body" && c.column.index === head.length - 1) { c.cell.styles.textColor = hex(BRAND[d.positions[c.row.index].rk]); c.cell.styles.fontStyle = "bold"; } } });
@@ -1702,6 +1822,13 @@ table.idp { min-width: 1120px; }
       sl.addText(k.toUpperCase(), { x: x + 0.15, y: y + 0.08, w: 1.8, h: 0.5, fontFace: F, fontSize: 9, color: BRAND.muted, valign: "top" });
       sl.addText(v, { x: x + 0.15, y: y + 0.55, w: 1.8, h: 0.7, fontFace: F, fontSize: 28, bold: true, color: BRAND.text });
     });
+    sl.addText(U.covTitle, { x: 0.5, y: 4.45, w: 6.4, h: 0.35, fontFace: F, fontSize: 13, bold: true, color: BRAND.text });
+    sl.addTable([[cell("")].concat(U.covCols.map(head))].concat([
+      [cell(U.covRows[0])].concat(d.cov.b.map(v => cell(v, { bold: true, align: "right" }))),
+      [cell(U.covRows[1])].concat(d.cov.nom.map(v => cell(v, { align: "right" }))),
+      [cell(U.covRows[2])].concat(d.cov.pct.map(v => cell(v.toFixed(1) + "%", { align: "right" })))]),
+      { x: 0.5, y: 4.85, w: 6.4, colW: [2.0, 1.1, 1.1, 1.1, 1.1], border: { type: "solid", color: BRAND.line, pt: 0.75 }, fontSize: 10 });
+    sl.addText(U.covNote, { x: 0.5, y: 6.4, w: 6.4, h: 0.5, fontFace: F, fontSize: 9, italic: true, color: BRAND.muted });
     if (d.dist.length) {
       const labels = d.dist.map(x => x.cat), levels = d.dist[0].parts.map(p => p.l);
       const data = levels.map(l => ({ name: l === "-" ? U.notReady : l, labels, values: d.dist.map(x => (x.parts.find(p => p.l === l) || { n: 0 }).n) }));
@@ -1783,7 +1910,10 @@ table.idp { min-width: 1120px; }
       devTitle: "Development mix", devNote: "Every SRA gap becomes an IDP action",
       dev: [["70%", "briefcase", "On-the-job", ["Stretch projects", "Job rotation", "Acting role", "Board papers"]], ["20%", "chat", "Coaching & mentoring", ["Executive coaching", "Mentoring", "GROW feedback"]], ["10%", "book", "Training", ["Exec education", "Certification", "E-learning"]]],
       rolesTitle: "Who does what",
-      roles: [["user", "Successor", "JSA · IDP"], ["tie", "HOD", "Assess · validate · approve IDP"], ["org", "Talent Mgmt", "Run the cycle · HCC papers"], ["users", "HCC", "Review · approve"], ["cpu", "Portal", "Screen · score · track"]],
+      roles: [["user", "Successor", "JSA · IDP"], ["tie", "HOD", "Assess · validate · approve IDP"], ["org", "Talent Mgmt", "Run the cycle · HCC papers"], ["users", "HCC", "Review · approve"], ["award", "NRC", "For information"], ["cpu", "Portal", "Screen · score · track"]],
+      pathTitle: "Approval path 2026", pathNote: "Special HCC 02/2026",
+      path: [["2026-09-03", "3 Sep 2026", "HCC", "Initial successors and readiness presented"], ["2026-10-05", "5 Oct 2026", "HCC", "Second review · minimum 2 successors per position"], ["2026-10-28", "15–28 Oct 2026", "HOD", "Engagement sessions with 13 departments"], ["2026-11-04", "4 Nov 2026", "Special HCC 02/2026", "Approve successors, readiness and enhancements"], ["", "After approval", "NRC", "GHCD updates the NRC for information"]],
+      pathSt: { done: "Done", next: "Upcoming" },
       guideTitle: "Using this portal", open: "Open",
       guide: [["dash", "chart", "Dashboard", "Coverage, 9-Box, metrics"], ["sum", "doc", "Summary", "One-pager · PDF · PowerPoint"], ["chart", "sitemap", "Succession Chart", "Positions and successors"], ["rv", "clipboard", "Readiness Validation", "SRA scores with the HOD"], ["idp", "trend", "IDP", "70 · 20 · 10 plans"], ["card", "user", "Employee Card", "Profile, SRA and gaps"]]
     },
@@ -1808,7 +1938,10 @@ table.idp { min-width: 1120px; }
       devTitle: "Campuran pembangunan", devNote: "Setiap jurang SRA menjadi tindakan IDP",
       dev: [["70%", "briefcase", "On-the-job", ["Projek stretch", "Job rotation", "Memangku", "Kertas Lembaga"]], ["20%", "chat", "Coaching & mentoring", ["Executive coaching", "Mentoring", "GROW feedback"]], ["10%", "book", "Latihan", ["Pendidikan eksekutif", "Pensijilan", "E-learning"]]],
       rolesTitle: "Siapa buat apa",
-      roles: [["user", "Pengganti", "JSA · IDP"], ["tie", "HOD", "Nilai · sahkan · lulus IDP"], ["org", "Talent Mgmt", "Urus kitaran · kertas HCC"], ["users", "HCC", "Semak · lulus"], ["cpu", "Portal", "Tapis · skor · jejak"]],
+      roles: [["user", "Pengganti", "JSA · IDP"], ["tie", "HOD", "Nilai · sahkan · lulus IDP"], ["org", "Talent Mgmt", "Urus kitaran · kertas HCC"], ["users", "HCC", "Semak · lulus"], ["award", "NRC", "Untuk makluman"], ["cpu", "Portal", "Tapis · skor · jejak"]],
+      pathTitle: "Laluan kelulusan 2026", pathNote: "Special HCC 02/2026",
+      path: [["2026-09-03", "3 Sep 2026", "HCC", "Pengganti dan kesediaan awal dibentang"], ["2026-10-05", "5 Okt 2026", "HCC", "Semakan kedua · minimum 2 pengganti setiap jawatan"], ["2026-10-28", "15–28 Okt 2026", "HOD", "Sesi libat urus dengan 13 jabatan"], ["2026-11-04", "4 Nov 2026", "Special HCC 02/2026", "Lulus pengganti, kesediaan dan penambahbaikan"], ["", "Selepas kelulusan", "NRC", "GHCD maklumkan NRC untuk makluman"]],
+      pathSt: { done: "Selesai", next: "Akan datang" },
       guideTitle: "Cara guna portal ini", open: "Buka",
       guide: [["dash", "chart", "Dashboard", "Liputan, 9-Box, metrik"], ["sum", "doc", "Ringkasan", "Satu halaman · PDF · PowerPoint"], ["chart", "sitemap", "Carta Pengganti", "Jawatan dan pengganti"], ["rv", "clipboard", "Readiness Validation", "Skor SRA bersama HOD"], ["idp", "trend", "IDP", "Pelan 70 · 20 · 10"], ["card", "user", "Kad Pekerja", "Profil, SRA dan jurang"]]
     }
@@ -1952,6 +2085,10 @@ table.idp { min-width: 1120px; }
         </div>
       </div>
       <div class="panel">
+        <div class="section-head"><h2>${O.pathTitle}</h2><span class="note">${O.pathNote}</span></div>
+        <ol class="appr">${O.path.map(([iso, d, who, what]) => { const done = iso && new Date(iso + "T23:59:59") < new Date(); return `<li class="${done ? "done" : "next"}"><span class="ap-dot">${done ? ico("check") : ""}</span><div><span class="ap-date">${d} · ${done ? O.pathSt.done : O.pathSt.next}</span><b>${who}</b><small>${what}</small></div></li>`; }).join("")}</ol>
+      </div>
+      <div class="panel">
         ${cycleHead(O)}
         ${cycleJourney(O)}
       </div>
@@ -2040,6 +2177,11 @@ table.idp { min-width: 1120px; }
           </div></div>
       </div>
       ${fails.length ? `<div class="callout bad">${L().noMeetCallout(fails.map(k => L().crit[k]).join(", "))}</div>` : ""}
+      ${s.st === "nomeet" ? (() => { const e = excOf(p, s) || { remark: "", status: "" }; return `<div class="box exc-box"><span class="label">${L().excTitle}</span>
+        <label class="exc-f"><span>${L().excRemark}</span><textarea id="excRemark" rows="2" placeholder="${L().excRemarkPh}">${esc(e.remark)}</textarea></label>
+        <div class="exc-row"><label class="exc-f"><span>${L().excStatus}</span><select id="excStatus"><option value="">${L().excNone}</option>${["pend", "app", "rej"].map(k => `<option value="${k}"${e.status === k ? " selected" : ""}>${L().exc[k]}</option>`).join("")}</select></label>
+        <button type="button" class="btn primary sm" data-exc-save="${p.id}|${i}">${L().excSave}</button></div>
+        <span class="note">${L().excKept}</span></div>`; })() : ""}
       ${runwayShort(s, p) ? `<div class="callout">${L().runwayCallout(L().endCap[per.et], fmtYM(per.end), runwayGap(s, p))}</div>` : ""}
       <div class="dlg-grid">
         ${s.crit ? `<div class="box"><span class="label">${L().critTitle}</span><ul class="asp">${Object.keys(L().crit).map(k => { const v = s.crit[k]; return `<li><span class="tick ${v === false ? "n" : "y"}">${v === false ? "✗" : v ? "✓" : "–"}</span><span>${L().crit[k]}</span></li>`; }).join("")}</ul></div>` : ""}
@@ -2076,6 +2218,14 @@ table.idp { min-width: 1120px; }
     if (dr && IDPS[selIdp]) { IDPS[selIdp].rows.splice(+dr.dataset.delrow, 1); renderIDP(); return; }
     const is = e.target.closest("[data-idpst]");
     if (is && IDPS[selIdp]) { IDPS[selIdp].status = is.dataset.idpst; toast(L().idpToast[is.dataset.idpst]); renderIDP(); return; }
+    const ju = e.target.closest("[data-just]");
+    if (ju) { const id = ju.dataset.just; if (JUST[id]) delete JUST[id]; else JUST[id] = true; render(); return; }
+    const xs = e.target.closest("[data-exc-save]");
+    if (xs) {
+      const [pid, ix] = xs.dataset.excSave.split("|"), p = DATA.positions.find(x => x.id === pid), sx = p && p.succ[+ix];
+      if (sx) { const remark = $("excRemark").value.trim(), status = $("excStatus").value; if (remark || status) EXC[pid + "|" + ix] = { remark, status: status || "pend" }; else EXC[pid + "|" + ix] = null; toast(L().excSaved); render(); }
+      return;
+    }
     const cy = e.target.closest("[data-cy]");
     if (cy) {
       const a = cy.dataset.cy;
