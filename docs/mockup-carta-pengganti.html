@@ -622,6 +622,7 @@ table.idp { min-width: 1120px; }
           <button type="button" id="vChart" aria-pressed="true" data-i="vChart"></button>
           <button type="button" id="vTable" aria-pressed="false" data-i="vTable"></button>
         </div>
+        <select id="chDept" class="ch-cat"></select>
         <select id="chCat" class="ch-cat"><option value="" data-i="catAll"></option><option value="MCP" data-i="catMCP"></option><option value="OCP" data-i="catOCP"></option></select>
         <button type="button" class="btn" id="chPdf" data-i="exPdf"></button>
         <button type="button" class="btn" id="chPpt" data-i="exPpt"></button>
@@ -748,7 +749,7 @@ table.idp { min-width: 1120px; }
       thGaps: "Priority gaps", thVal: "SRA validation by HOD", gapsNone: "From the SRA session",
       val: { pending: "Pending", ok: "Validated", rep: "Replacement list", rev: "Revise score" },
       rvProgress: (a, b) => `${a} of ${b} validated`,
-      chMcpTitle: d => `MCP successor readiness 2026${d ? " · " + d : ""}`, chOcpTitle: d => `OCP successor readiness 2026 · ${d}`, chCatLabel: "Content to download",
+      chCatLabel: "Category to download", chDeptLabel: "Department to download",
       minRule: "Min. 2 per position · HCC 5 Oct 2026", belowMin: "Below minimum of 2 successors", justified: "Justified: no suitable candidate",
       markJust: "Mark as justified", unmarkJust: "Remove justification", justKept: "Kept in this browser tab only.",
       exc: { pend: "Exception pending", app: "Exception approved by HCC", rej: "Exception not approved" },
@@ -895,7 +896,7 @@ table.idp { min-width: 1120px; }
       thGaps: "Jurang utama", thVal: "Pengesahan SRA oleh HOD", gapsNone: "Daripada sesi SRA",
       val: { pending: "Belum disahkan", ok: "Disahkan", rep: "Senarai penggantian", rev: "Semak semula skor" },
       rvProgress: (a, b) => `${a} daripada ${b} disahkan`,
-      chMcpTitle: d => `Kesediaan pengganti MCP 2026${d ? " · " + d : ""}`, chOcpTitle: d => `Kesediaan pengganti OCP 2026 · ${d}`, chCatLabel: "Kandungan untuk dimuat turun",
+      chCatLabel: "Kategori untuk dimuat turun", chDeptLabel: "Jabatan untuk dimuat turun",
       minRule: "Min. 2 setiap jawatan · HCC 5 Okt 2026", belowMin: "Bawah minimum 2 pengganti", justified: "Dijustifikasi: tiada calon sesuai",
       markJust: "Tanda dijustifikasi", unmarkJust: "Buang justifikasi", justKept: "Disimpan dalam tab pelayar ini sahaja.",
       exc: { pend: "Pengecualian menunggu", app: "Pengecualian diluluskan HCC", rej: "Pengecualian tidak diluluskan" },
@@ -1235,7 +1236,10 @@ table.idp { min-width: 1120px; }
     $("fSearch").placeholder = L().search; $("fSearch").setAttribute("aria-label", L().search);
     $("fDept").setAttribute("aria-label", lang === "en" ? "Department" : "Jabatan");
     $("fCat").setAttribute("aria-label", lang === "en" ? "Category" : "Kategori");
-    { const cv = $("chCat").value; $("chCat").setAttribute("aria-label", L().chCatLabel); $("chCat").title = L().chCatLabel; $("chCat").value = cv; }
+    { const cv = $("chCat").value; $("chCat").setAttribute("aria-label", L().chCatLabel); $("chCat").title = L().chCatLabel; $("chCat").value = cv;
+      const dv = chDeptSel == null ? dept : chDeptSel;
+      $("chDept").innerHTML = `<option value="">${L().deptAll}</option>` + DATA.depts.map(([k, lab]) => `<option value="${esc(k)}"${k === dv ? " selected" : ""}>${esc(tx(lab))}</option>`).join("");
+      $("chDept").setAttribute("aria-label", L().chDeptLabel); $("chDept").title = L().chDeptLabel; }
     $("scaleGrp").setAttribute("aria-label", lang === "en" ? "Readiness scale" : "Skala kesediaan");
     $("viewGrp").setAttribute("aria-label", lang === "en" ? "View" : "Paparan");
     $("nav").setAttribute("aria-label", lang === "en" ? "Portal sections" : "Bahagian portal");
@@ -1530,7 +1534,7 @@ table.idp { min-width: 1120px; }
 
   // ---------- Readiness validation ----------
   let VAL = {};
-  function initVal() { EXC = {}; JUST = {}; selNb = null; IDPS = {}; FB = {}; selCard = null; selIdp = null; VAL = {}; DATA.positions.forEach(p => p.succ.forEach((s, i) => { VAL[p.id + "|" + i] = s.st === "ok" ? "ok" : s.st === "rep" ? "rep" : "pending"; })); }
+  function initVal() { chDeptSel = null; EXC = {}; JUST = {}; selNb = null; IDPS = {}; FB = {}; selCard = null; selIdp = null; VAL = {}; DATA.positions.forEach(p => p.succ.forEach((s, i) => { VAL[p.id + "|" + i] = s.st === "ok" ? "ok" : s.st === "rep" ? "rep" : "pending"; })); }
   function renderRV() {
     const term = q(); let html = "", tot = 0, done = 0; const lv = {};
     visible().forEach(p => {
@@ -2149,23 +2153,13 @@ table.idp { min-width: 1120px; }
         <div class="guide">${O.guide.map(([v, ic, t, d]) => `<button type="button" class="guide-item" data-view="${v}">${ico(ic, "ico-tile")}<span class="gi-txt"><b>${t}</b><span>${d}</span></span><span class="go">→</span></button>`).join("")}</div>
       </div>`;
   }
-  // ---------- Succession chart export (PDF / PowerPoint, org-chart layout) ----------
-  function chartData(catSel) {
-    const U = L(), all = DATA.positions.filter(p => (!dept || p.dept === dept) && (!catSel || p.cat === catSel));
-    const pagesOf = (list, title) => {
-      const n = list.length; if (!n) return [];
-      const pages = Math.ceil(n / 7), per = Math.ceil(n / pages), out = [];
-      for (let i = 0; i < n; i += per) out.push({ title, part: pages > 1 ? `${out.length + 1}/${pages}` : "", items: list.slice(i, i + per) });
-      return out;
-    };
-    const groups = [];
-    const mcp = all.filter(p => p.cat === "MCP"), ocp = all.filter(p => p.cat === "OCP");
-    groups.push(...pagesOf(mcp, U.chMcpTitle(dept ? deptLabel(dept) : "")));
-    if (dept) groups.push(...pagesOf(ocp, U.chOcpTitle(deptLabel(dept))));
-    else DATA.depts.forEach(([k]) => groups.push(...pagesOf(ocp.filter(p => p.dept === k), U.chOcpTitle(deptLabel(k)))));
+  // ---------- Succession chart export (PDF / PowerPoint) ----------
+  function chartData(catSel, deptSel) {
+    const U = L(), ps = DATA.positions.filter(p => (!deptSel || p.dept === deptSel) && (!catSel || p.cat === catSel)), groups = [];
+    ["MCP", "OCP"].forEach(cat => { const list = ps.filter(p => p.cat === cat); for (let i = 0; i < list.length; i += 4) groups.push({ cat, items: list.slice(i, i + 4) }); });
     const plain = h => String(h).replace(/<\/?b>/g, "");
     return {
-      title: U.chartTitle(dept ? deptLabel(dept) : U.deptAll) + (catSel ? ` · ${catSel}` : ""),
+      title: U.chartTitle(deptSel ? deptLabel(deptSel) : U.deptAll) + (catSel ? ` · ${catSel}` : ""),
       meta: U.sumMeta(DATA.source === "file" ? DATA.fileName : U.srcSample, U.scaleName[scale]),
       cls: DATA.source === "file" ? U.classFile : U.classSample, groups,
       card: p => {
@@ -2177,9 +2171,8 @@ table.idp { min-width: 1120px; }
           return { name: s.p.n + (s.p.g ? ` (${s.p.g})` : ""), t, l, rep: s.st === "rep", flag, flagOk: es === "app" };
         });
         return {
-          title: tx(p.t) + (p.g ? ` (${p.g})` : ""), cat: p.cat, dept: deptLabel(p.dept), grade: p.g || (p.cat === "MCP" ? "C-1" : "C-2"),
-          inc: inc.vacant ? U.vacantName : inc.n, vacant: !!inc.vacant,
-          incSub: inc.vacant ? U.vacantSub : (inc.end ? `${U.end[inc.et]} ${fmtYM(inc.end)}` : U.noEnd),
+          title: tx(p.t) + (p.g ? ` (${p.g})` : ""), dept: deptLabel(p.dept),
+          inc: inc.vacant ? U.vacantName : inc.n, incSub: inc.vacant ? U.vacantSub : (inc.end ? `${U.incumbent} · ${U.end[inc.et]} ${fmtYM(inc.end)}` : U.noEnd),
           meta: plain(inc.vacant ? U.vacantNow : a.mo == null ? U.noEnd : a.mo < 0 ? U.overdue(-a.mo) : U.vacantIn(a.mo)),
           risk: U.risk[a.risk], rk: a.risk, levels: SCALES[scale][p.cat].map(b => b[1]), cnt, succ, below: belowMin(p) && !justified(p)
         };
@@ -2188,7 +2181,6 @@ table.idp { min-width: 1120px; }
   }
   const LVC = { R0: [BRAND.R0, "FFFFFF"], R1: [BRAND.R1, BRAND.text], R2: [BRAND.R2, "FFFFFF"], R3: [BRAND.R3, BRAND.text], "-": [BRAND.R3, BRAND.text] };
   const lvc = l => LVC[l] || LVC["-"];
-  const RING = { R0: "4A9437", R1: "D9B100", R2: "C62828", R3: "9A9C9E", "-": "9A9C9E" };
 
   async function buildChartPpt(d) {
     await loadLibs("ppt");
@@ -2196,48 +2188,45 @@ table.idp { min-width: 1120px; }
     pptx.layout = "LAYOUT_WIDE"; pptx.title = d.title;
     pptx.defineSlideMaster({ title: "SC", background: { color: "FFFFFF" },
       objects: [{ rect: { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: "52DE56" } } },
-        { text: { text: `Succession Planning Portal · ${d.cls}`, options: { x: 0.4, y: 7.12, w: 8, h: 0.28, fontFace: F, fontSize: 8, color: BRAND.muted } } }],
-      slideNumber: { x: 12.4, y: 7.12, fontFace: F, fontSize: 8, color: BRAND.muted } });
+        { text: { text: `Succession Planning Portal · ${d.cls}`, options: { x: 0.5, y: 7.05, w: 8, h: 0.3, fontFace: F, fontSize: 9, color: BRAND.muted } } }],
+      slideNumber: { x: 12.3, y: 7.05, fontFace: F, fontSize: 9, color: BRAND.muted } });
     let sl = pptx.addSlide({ masterName: "SC" });
     sl.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.35, h: 7.5, fill: { color: BRAND.dark }, line: { color: BRAND.dark } });
     sl.addText(d.title, { x: 0.9, y: 2.7, w: 11.5, h: 1.2, fontFace: F, fontSize: 34, bold: true, color: BRAND.text });
     sl.addText(d.meta, { x: 0.9, y: 4.0, w: 11.5, h: 0.5, fontFace: F, fontSize: 14, color: BRAND.muted });
-    const X0 = 0.4, WT = 13.333 - 0.8;
+    const colW = 2.95, gap = 0.17, x0 = 0.5, MAXS = 5;
     d.groups.forEach(g => {
       sl = pptx.addSlide({ masterName: "SC" });
-      sl.addText(g.title + (g.part ? ` (${g.part})` : ""), { x: X0, y: 0.15, w: WT, h: 0.5, fontFace: F, fontSize: 20, bold: true, color: BRAND.dark });
-      const n = g.items.length, cw = Math.min(WT / n, WT / 3), XS = X0 + (WT - cw * n) / 2, cards = g.items.map(d.card);
-      const fs = n >= 6 ? 8 : n >= 4 ? 9 : 10.5;
-      // connector bar between position nodes
-      if (n > 1) sl.addShape(pptx.ShapeType.rect, { x: XS + cw / 2, y: 0.98, w: cw * (n - 1), h: 0.14, fill: { color: "B7BCC0" }, line: { color: "B7BCC0" } });
-      const maxS = Math.max(1, ...cards.map(c => c.succ.length));
-      const topS = 3.25, botS = 6.6, sh = Math.min(0.85, (botS - topS) / maxS - 0.08);
-      cards.forEach((c, i) => {
-        const x = XS + i * cw, cx = x + cw / 2, inner = cw - 0.16;
-        if (i) sl.addShape(pptx.ShapeType.line, { x, y: 1.45, w: 0, h: 5.2, line: { color: BRAND.mid, width: 1 } });
-        const nw = Math.min(1.25, inner);
-        sl.addShape(pptx.ShapeType.roundRect, { x: cx - nw / 2, y: 0.7, w: nw, h: 0.7, rectRadius: 0.08, fill: { color: c.vacant ? "EEEEEE" : "DCE8F7" }, line: { color: c.vacant ? "9A9C9E" : "6E8FBF", width: 1.25 } });
-        sl.addText([{ text: c.grade, options: { bold: true, breakLine: true } }, { text: c.cat, options: { fontSize: fs - 1.5, color: BRAND.muted } }], { x: cx - nw / 2, y: 0.7, w: nw, h: 0.7, fontFace: F, fontSize: fs + 2, color: BRAND.text, align: "center", valign: "middle" });
-        sl.addText([{ text: c.inc, options: { bold: true, color: c.vacant ? BRAND.high : BRAND.mid, breakLine: true } }, { text: c.title, options: { color: BRAND.text, breakLine: true } }, { text: c.incSub, options: { fontSize: fs - 1.5, color: BRAND.muted } }],
-          { x: x + 0.08, y: 1.48, w: inner, h: 0.95, fontFace: F, fontSize: fs, align: "left", valign: "top" });
-        const tw = Math.min(1.5, inner);
-        sl.addTable(c.levels.map(l => [{ text: l === "-" ? "–" : l, options: { bold: true, fill: { color: lvc(l)[0] }, color: lvc(l)[1] } }, { text: String(c.cnt[l] || "–"), options: { align: "center", color: BRAND.text } }]),
-          { x: x + 0.08, y: 2.45, w: tw, colW: [tw * 0.55, tw * 0.45], rowH: 0.17, fontFace: F, fontSize: fs - 1, border: { type: "solid", color: BRAND.line, pt: 0.75 } });
-        if (c.below) sl.addText(U.belowMin, { x: x + 0.08 + tw + 0.04, y: 2.45, w: Math.max(0.4, inner - tw - 0.04), h: 0.68, fontFace: F, fontSize: fs - 2, bold: true, color: BRAND.med, valign: "middle" });
-        c.succ.forEach((s, k) => {
-          const y = topS + k * (sh + 0.08);
-          sl.addShape(pptx.ShapeType.roundRect, { x: x + 0.08, y, w: inner, h: sh, rectRadius: 0.06, fill: { color: "FFFFFF" }, line: { color: RING[s.l] || RING["-"], width: 2.25, dashType: s.rep ? "dash" : "solid" } });
-          sl.addText(s.l === "-" ? "–" : s.l, { x: x + 0.08 + inner - 0.42, y: y + 0.06, w: 0.36, h: Math.min(0.3, sh - 0.12), fontFace: F, fontSize: fs - 1, bold: true, align: "center", valign: "middle", color: lvc(s.l)[1], fill: { color: lvc(s.l)[0] } });
-          sl.addText([{ text: s.name, options: { bold: true, breakLine: true } }, { text: `${s.t.toFixed(1)}%${s.rep ? " · " + U.dType.rep : ""}${s.flag ? " · " + s.flag : ""}`, options: { fontSize: fs - 1.5, color: s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted } }],
-            { x: x + 0.12, y, w: inner - 0.5, h: sh, fontFace: F, fontSize: fs - 0.5, color: BRAND.text, valign: "middle" });
+      sl.addText(`${g.cat} · ${d.title}`, { x: 0.5, y: 0.2, w: 12.3, h: 0.5, fontFace: F, fontSize: 20, bold: true, color: BRAND.text });
+      g.items.forEach((p, i) => {
+        const c = d.card(p), x = x0 + i * (colW + gap); let y = 0.85;
+        sl.addText([{ text: c.title, options: { bold: true, breakLine: true } }, { text: c.dept, options: { fontSize: 8, bold: false, color: BRAND.muted } }],
+          { x, y, w: colW, h: 0.72, fontFace: F, fontSize: 10, color: BRAND.text, fill: { color: "E9ECEF" }, align: "center", valign: "middle" });
+        y += 0.74;
+        sl.addText([{ text: c.inc, options: { bold: true, breakLine: true } }, { text: c.incSub, options: { fontSize: 8, bold: false, color: BRAND.muted } }],
+          { x, y, w: colW, h: 0.62, fontFace: F, fontSize: 9.5, color: BRAND.text, fill: { color: "FBEEE2" }, align: "center", valign: "middle" });
+        y += 0.66;
+        sl.addText(c.meta, { x, y, w: colW - 1.1, h: 0.28, fontFace: F, fontSize: 8.5, color: BRAND.muted });
+        sl.addText(c.risk, { x: x + colW - 1.2, y, w: 1.2, h: 0.28, fontFace: F, fontSize: 8.5, bold: true, color: BRAND[c.rk], align: "right" });
+        y += 0.32;
+        sl.addTable([c.levels.map(l => ({ text: l === "-" ? "–" : l, options: { bold: true, fill: { color: lvc(l)[0] }, color: lvc(l)[1], align: "center" } })),
+          c.levels.map(l => ({ text: String(c.cnt[l] || "–"), options: { align: "center", color: BRAND.text } }))],
+          { x, y, w: colW, colW: c.levels.map(() => colW / c.levels.length), rowH: 0.24, fontFace: F, fontSize: 9, border: { type: "solid", color: BRAND.line, pt: 0.75 } });
+        y += 0.6;
+        if (c.below) { sl.addText(U.belowMin, { x, y, w: colW, h: 0.28, fontFace: F, fontSize: 8.5, bold: true, color: BRAND.med, fill: { color: "FDF0DC" }, align: "center", valign: "middle" }); y += 0.32; }
+        c.succ.slice(0, MAXS).forEach(s => {
+          sl.addShape(pptx.ShapeType.rect, { x, y, w: colW, h: 0.56, fill: { color: "FFFFFF" }, line: { color: s.rep ? BRAND.muted : BRAND.text, width: 0.75, dashType: s.rep ? "dash" : "solid" } });
+          sl.addText([{ text: s.name, options: { bold: true, breakLine: true } }, { text: `${s.t.toFixed(1)}%${s.flag ? "   " + s.flag : ""}`, options: { bold: false, fontSize: 8, color: s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted } }],
+            { x: x + 0.04, y, w: colW - 0.54, h: 0.56, fontFace: F, fontSize: 8.5, color: BRAND.text, valign: "middle" });
+          sl.addText(s.l === "-" ? "–" : s.l, { x: x + colW - 0.47, y: y + 0.02, w: 0.45, h: 0.52, fontFace: F, fontSize: 10, bold: true, align: "center", valign: "middle", color: lvc(s.l)[1], fill: { color: lvc(s.l)[0] } });
+          y += 0.62;
         });
+        if (c.succ.length > MAXS) sl.addText(`+${c.succ.length - MAXS}`, { x, y, w: colW, h: 0.25, fontFace: F, fontSize: 9, color: BRAND.muted });
       });
-      const lv = SCALES[scale][g.items[0].cat].map(b => b[1]);
-      lv.forEach((l, k) => {
-        sl.addShape(pptx.ShapeType.roundRect, { x: X0 + k * 2.3, y: 6.8, w: 0.32, h: 0.2, rectRadius: 0.04, fill: { color: "FFFFFF" }, line: { color: RING[l] || RING["-"], width: 2 } });
-        sl.addText(l === "-" ? U.notReady : `${l} ${desc(l)}`, { x: X0 + 0.38 + k * 2.3, y: 6.74, w: 1.9, h: 0.32, fontFace: F, fontSize: 8.5, color: BRAND.muted });
+      SCALES[scale][g.cat].map(b => b[1]).forEach((l, k) => {
+        sl.addShape(pptx.ShapeType.rect, { x: 0.5 + k * 2.1, y: 6.74, w: 0.3, h: 0.2, fill: { color: lvc(l)[0] }, line: { color: lvc(l)[0] } });
+        sl.addText(l === "-" ? U.notReady : `${l} ${desc(l)}`, { x: 0.85 + k * 2.1, y: 6.68, w: 1.8, h: 0.3, fontFace: F, fontSize: 8.5, color: BRAND.muted });
       });
-      sl.addText(U.repLegend + " = - - -", { x: X0 + lv.length * 2.3, y: 6.74, w: 3, h: 0.32, fontFace: F, fontSize: 8.5, color: BRAND.muted });
     });
     if (!d.groups.length) { sl = pptx.addSlide({ masterName: "SC" }); sl.addText(U.emptyScope, { x: 0.5, y: 3, w: 12, h: 1, fontFace: F, fontSize: 18, color: BRAND.muted }); }
     return pptx.write({ outputType: "blob" });
@@ -2246,66 +2235,62 @@ table.idp { min-width: 1120px; }
   async function buildChartPdf(d) {
     await loadLibs("pdf");
     const { jsPDF } = window.jspdf, doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" }), U = L();
-    const W = 297, M = 10, WT = W - 2 * M;
+    const W = 297, M = 14, cw = (W - 2 * M - 3 * 5) / 4, MAXS = 6;
     const hex = h => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
-    const fill = h => doc.setFillColor(...hex(h)), ink = h => doc.setTextColor(...hex(h)), draw = h => doc.setDrawColor(...hex(h));
+    const fill = h => doc.setFillColor(...hex(h)), ink = h => doc.setTextColor(...hex(h));
     const font = (b, sz) => { doc.setFont("helvetica", b ? "bold" : "normal"); doc.setFontSize(sz); };
     const wrap = (t, w) => doc.splitTextToSize(pdfSafe(t), w);
-    const top = (t) => { fill("52DE56"); doc.rect(0, 0, W, 2.5, "F"); font(true, 14); ink(BRAND.dark); doc.text(pdfSafe(t), M, 11); font(false, 7); ink(BRAND.muted); doc.text(pdfSafe(d.meta), W - M, 11, { align: "right" }); };
-    if (!d.groups.length) { top(d.title); font(false, 12); ink(BRAND.muted); doc.text(pdfSafe(U.emptyScope), M, 40); }
+    const head = (t) => { fill("52DE56"); doc.rect(0, 0, W, 3, "F"); font(true, 14); ink(BRAND.text); doc.text(pdfSafe(t), M, 13); font(false, 8); ink(BRAND.muted); doc.text(pdfSafe(d.meta), M, 18); };
+    if (!d.groups.length) { head(d.title); font(false, 12); ink(BRAND.muted); doc.text(pdfSafe(U.emptyScope), M, 40); }
     d.groups.forEach((g, gi) => {
       if (gi) doc.addPage();
-      top(g.title + (g.part ? ` (${g.part})` : ""));
-      const n = g.items.length, cw = Math.min(WT / n, WT / 3), XS = M + (WT - cw * n) / 2, cards = g.items.map(d.card);
-      const fs = n >= 6 ? 6.6 : n >= 4 ? 7.4 : 8.5;
-      if (n > 1) { fill("B7BCC0"); doc.rect(XS + cw / 2, 21, cw * (n - 1), 3, "F"); }
-      const maxS = Math.max(1, ...cards.map(c => c.succ.length));
-      const topS = 70, botS = 188, sh = Math.min(26, (botS - topS) / maxS - 2.5);
-      cards.forEach((c, i) => {
-        const x = XS + i * cw, cx = x + cw / 2, inner = cw - 4;
-        if (i) { draw(BRAND.mid); doc.setLineWidth(0.3); doc.line(x, 32, x, 190); }
-        const nw = Math.min(30, inner);
-        fill(c.vacant ? "EEEEEE" : "DCE8F7"); draw(c.vacant ? "9A9C9E" : "6E8FBF"); doc.setLineWidth(0.4); doc.roundedRect(cx - nw / 2, 16, nw, 14, 2, 2, "FD");
-        font(true, fs + 2); ink(BRAND.text); doc.text(pdfSafe(c.grade), cx, 22.5, { align: "center" }); font(false, fs - 1); ink(BRAND.muted); doc.text(c.cat, cx, 27, { align: "center" });
-        let y = 35;
-        font(true, fs); ink(c.vacant ? BRAND.high : BRAND.mid); const il = wrap(c.inc, inner).slice(0, 2); doc.text(il, x + 2, y); y += il.length * fs * 0.42 + 0.8;
-        font(false, fs); ink(BRAND.text); const tl = wrap(c.title, inner).slice(0, 3); doc.text(tl, x + 2, y); y += tl.length * fs * 0.42 + 0.8;
-        font(false, fs - 1); ink(BRAND.muted); doc.text(wrap(c.incSub, inner)[0] || "", x + 2, y);
-        const tw = Math.min(26, inner * 0.6), ty = 53;
+      head(`${g.cat} · ${d.title}`);
+      g.items.forEach((p, i) => {
+        const c = d.card(p), x = M + i * (cw + 5); let y = 23;
+        font(true, 8.5); const tl = wrap(c.title, cw - 4).slice(0, 2), hh = 16;
+        fill("E9ECEF"); doc.rect(x, y, cw, hh, "F"); ink(BRAND.text); doc.text(tl, x + cw / 2, y + 5, { align: "center" });
+        font(false, 6.5); ink(BRAND.muted); doc.text(pdfSafe(c.dept), x + cw / 2, y + hh - 2, { align: "center" });
+        y += hh;
+        fill("FBEEE2"); doc.rect(x, y, cw, 11, "F"); font(true, 7.5); ink(BRAND.text); doc.text(wrap(c.inc, cw - 4)[0] || "", x + cw / 2, y + 4.8, { align: "center" });
+        font(false, 6.3); ink(BRAND.muted); doc.text(wrap(c.incSub, cw - 4)[0] || "", x + cw / 2, y + 8.8, { align: "center" });
+        y += 15;
+        font(false, 6.5); ink(BRAND.muted); doc.text(pdfSafe(c.meta), x, y); font(true, 6.5); ink(BRAND[c.rk]); doc.text(pdfSafe(c.risk), x + cw, y, { align: "right" });
+        y += 2.5;
+        const lw = cw / c.levels.length;
         c.levels.forEach((l, k) => {
-          const [bg, fg] = lvc(l), ry = ty + k * 4;
-          fill(bg); doc.rect(x + 2, ry, tw * 0.55, 4, "F"); font(true, fs - 1); ink(fg); doc.text(l, x + 3, ry + 2.9);
-          draw(BRAND.line); doc.setLineWidth(0.2); doc.rect(x + 2 + tw * 0.55, ry, tw * 0.45, 4, "S"); font(false, fs - 1); ink(BRAND.text); doc.text(String(c.cnt[l] || "-"), x + 2 + tw * 0.775, ry + 2.9, { align: "center" });
+          const [bg, fg] = lvc(l); fill(bg); doc.rect(x + k * lw, y, lw, 5, "F"); font(true, 7); ink(fg); doc.text(l, x + k * lw + lw / 2, y + 3.5, { align: "center" });
+          doc.setDrawColor(...hex(BRAND.line)); doc.setLineWidth(0.2); doc.rect(x + k * lw, y + 5, lw, 5, "S"); font(false, 7); ink(BRAND.text); doc.text(String(c.cnt[l] || "-"), x + k * lw + lw / 2, y + 8.6, { align: "center" });
         });
-        if (c.below) { font(true, fs - 1.5); ink(BRAND.med); doc.text(wrap(U.belowMin, inner - tw - 3).slice(0, 3), x + tw + 4, ty + 3); }
-        c.succ.forEach((s, k) => {
-          const sy = topS + k * (sh + 2.5);
-          draw(RING[s.l] || RING["-"]); doc.setLineWidth(0.8); if (s.rep) doc.setLineDashPattern([1.5, 1], 0);
-          fill("FFFFFF"); doc.roundedRect(x + 2, sy, inner, sh, 1.5, 1.5, "FD"); doc.setLineDashPattern([], 0);
-          const [bg, fg] = lvc(s.l); fill(bg); doc.rect(x + 2 + inner - 8.5, sy + 1.5, 7, 4.5, "F"); font(true, fs - 1); ink(fg); doc.text(s.l, x + 2 + inner - 5, sy + 4.7, { align: "center" });
-          font(true, fs - 0.4); ink(BRAND.text); const nl = wrap(s.name, inner - 11).slice(0, 2); doc.text(nl, x + 3.5, sy + 4.2);
-          font(false, fs - 1.2); ink(s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted);
-          doc.text(wrap(`${s.t.toFixed(1)}%${s.rep ? " · " + U.dType.rep : ""}${s.flag ? " · " + s.flag : ""}`, inner - 3)[0], x + 3.5, Math.min(sy + sh - 1.8, sy + 4.2 + nl.length * fs * 0.42 + 2));
+        y += 13;
+        if (c.below) { fill("FDF0DC"); doc.rect(x, y, cw, 5, "F"); font(true, 6.5); ink(BRAND.med); doc.text(pdfSafe(U.belowMin), x + cw / 2, y + 3.5, { align: "center" }); y += 7; }
+        c.succ.slice(0, MAXS).forEach(s => {
+          doc.setDrawColor(...hex(s.rep ? BRAND.muted : BRAND.text)); doc.setLineWidth(0.25); if (s.rep) doc.setLineDashPattern([1, 1], 0);
+          doc.rect(x, y, cw, 11, "S"); doc.setLineDashPattern([], 0);
+          const [bg, fg] = lvc(s.l); fill(bg); doc.rect(x + cw - 9, y, 9, 11, "F"); font(true, 7.5); ink(fg); doc.text(s.l, x + cw - 4.5, y + 6.5, { align: "center" });
+          font(true, 7); ink(BRAND.text); doc.text(wrap(s.name, cw - 12).slice(0, 2), x + 1.5, y + 3.8);
+          font(false, 6.3); ink(s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted); doc.text(pdfSafe(`${s.t.toFixed(1)}%${s.flag ? "   " + s.flag : ""}`), x + 1.5, y + 9.4);
+          y += 12.5;
         });
+        if (c.succ.length > MAXS) { font(false, 6.5); ink(BRAND.muted); doc.text(`+${c.succ.length - MAXS}`, x, y + 2); }
       });
-      const lv = SCALES[scale][g.items[0].cat].map(b => b[1]);
-      lv.forEach((l, k) => { draw(RING[l] || RING["-"]); doc.setLineWidth(0.7); fill("FFFFFF"); doc.roundedRect(M + k * 52, 194, 7, 4, 1, 1, "FD"); font(false, 7); ink(BRAND.muted); doc.text(pdfSafe(l === "-" ? U.notReady : `${l} ${desc(l)}`), M + 9 + k * 52, 197); });
-      font(false, 7); ink(BRAND.muted); doc.text(pdfSafe(`${U.repLegend} = - - -`), M + lv.length * 52, 197);
+      SCALES[scale][g.cat].map(b => b[1]).forEach((l, k) => {
+        fill(lvc(l)[0]); doc.rect(M + k * 50, 194, 5, 3.5, "F"); font(false, 7); ink(BRAND.muted); doc.text(pdfSafe(l === "-" ? U.notReady : `${l} ${desc(l)}`), M + 7 + k * 50, 196.8);
+      });
     });
     const pages = doc.getNumberOfPages();
-    for (let i = 1; i <= pages; i++) { doc.setPage(i); font(false, 7); ink(BRAND.muted); doc.text(pdfSafe(`Succession Planning Portal · ${d.cls}`), M, 205); doc.text(pdfSafe(`${U.page} ${i} / ${pages}`), W - M, 205, { align: "right" }); }
+    for (let i = 1; i <= pages; i++) { doc.setPage(i); font(false, 7.5); ink(BRAND.muted); doc.text(pdfSafe(`Succession Planning Portal · ${d.cls}`), M, 204); doc.text(pdfSafe(`${U.page} ${i} / ${pages}`), W - M, 204, { align: "right" }); }
     return doc.output("blob");
   }
 
   async function doChartExport(kind) {
-    const U = L(), btn = $(kind === "pdf" ? "chPdf" : "chPpt"), label = btn.textContent, catSel = $("chCat").value;
+    const U = L(), btn = $(kind === "pdf" ? "chPdf" : "chPpt"), label = btn.textContent, catSel = $("chCat").value, deptSel = $("chDept").value;
     const dl = await getDownloads();
     if (!dl) { toast(U.exUnavailable); return; }
     btn.disabled = true; btn.textContent = U.exWorking;
     let blob;
-    try { blob = kind === "pdf" ? await buildChartPdf(chartData(catSel)) : await buildChartPpt(chartData(catSel)); }
+    try { blob = kind === "pdf" ? await buildChartPdf(chartData(catSel, deptSel)) : await buildChartPpt(chartData(catSel, deptSel)); }
     catch (err) { toast(err && err.message === "lib" ? U.exLib : U.exFailed); btn.disabled = false; btn.textContent = label; return; }
-    const filename = "Succession-Chart-" + (dept ? deptLabel(dept).replace(/[^A-Za-z0-9]+/g, "-") : "All") + "-" + (catSel || "MCP-OCP") + "-2026" + (kind === "pdf" ? ".pdf" : ".pptx");
+    const filename = "Succession-Chart-" + (deptSel ? deptLabel(deptSel).replace(/[^A-Za-z0-9]+/g, "-") : "All") + "-" + (catSel || "MCP-OCP") + "-2026" + (kind === "pdf" ? ".pdf" : ".pptx");
     try { await dl.save({ filename, data: blob }); toast(U.exSaved(filename)); }
     catch (err) {
       const c = err && err.code;
@@ -2452,7 +2437,9 @@ table.idp { min-width: 1120px; }
   });
   $("useSample").addEventListener("click", () => { SCALES = JSON.parse(JSON.stringify(DEFAULT_SCALES)); DATA = sampleData(); initVal(); dept = ""; render(); });
   $("sendTrc").addEventListener("click", () => toast(L().trcToast(dept ? deptLabel(dept) : L().deptAll)));
-  $("fDept").addEventListener("change", e => { dept = e.target.value; render(); });
+  let chDeptSel = null;
+  $("fDept").addEventListener("change", e => { dept = e.target.value; chDeptSel = null; render(); });
+  $("chDept").addEventListener("change", e => { chDeptSel = e.target.value; });
   $("fCat").addEventListener("change", () => { $("chCat").value = $("fCat").value; render(); });
   $("fSearch").addEventListener("input", render);
   const setScale = v => { scale = v; $("scCur").setAttribute("aria-pressed", String(v === "cur")); $("scNew").setAttribute("aria-pressed", String(v === "neu")); render(); };
@@ -2487,7 +2474,7 @@ table.idp { min-width: 1120px; }
   $("exPpt").addEventListener("click", () => doExport("ppt"));
   $("chPdf").addEventListener("click", () => doChartExport("pdf"));
   $("chPpt").addEventListener("click", () => doChartExport("ppt"));
-  if (window.claude && typeof window.claude.use === "function") getDownloads().then(dl => { if (!dl) { dlKnownMissing = true; $("exportBox").hidden = true; $("chPdf").hidden = $("chPpt").hidden = $("chCat").hidden = true; $("exNote").textContent = L().exUnavailable; } });
+  if (window.claude && typeof window.claude.use === "function") getDownloads().then(dl => { if (!dl) { dlKnownMissing = true; $("exportBox").hidden = true; $("chPdf").hidden = $("chPpt").hidden = $("chCat").hidden = $("chDept").hidden = true; $("exNote").textContent = L().exUnavailable; } });
   initVal(); readHash();
   render();
   initCycle();
