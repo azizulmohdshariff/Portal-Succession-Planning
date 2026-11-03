@@ -383,6 +383,7 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 .gi-txt { display: grid; gap: 1px; min-width: 0; }
 .guide-item .go { font-size: 16px; }
 .flag.ok { color: var(--ok); }
+.load-audit { margin: 4px 0 0; padding-left: 18px; display: grid; gap: 2px; }
 .succ.mc-mm { box-shadow: inset 5px 0 0 #3b6fd6; } .succ.mc-mo { box-shadow: inset 5px 0 0 #2fbf9b; } .succ.mc-oo { box-shadow: inset 5px 0 0 #e07fd6; }
 .succ.mc-mm .succ-main, .succ.mc-mo .succ-main, .succ.mc-oo .succ-main { padding-left: 13px; }
 .sw.mcsw { width: 6px; height: 14px; border-radius: 2px; } .sw.mc-mm { background: #3b6fd6; } .sw.mc-mo { background: #2fbf9b; } .sw.mc-oo { background: #e07fd6; }
@@ -518,6 +519,7 @@ table.idp { min-width: 1120px; }
       <div class="localtext">
         <h2 data-i="loadTitle"></h2>
         <div class="note" id="loadNote"></div>
+        <ul class="note load-audit" id="loadAudit" hidden></ul>
       </div>
       <div class="localactions">
         <label class="btn primary" for="fileIn" data-i="chooseFile"></label>
@@ -681,6 +683,10 @@ table.idp { min-width: 1120px; }
       loadTitle: "Load the MCP/OCP Masterlist",
       loadNote: "Choose the Masterlist Excel file (.xlsx) with the sheets MASTERLIST MCP and MASTERLIST OCP. The file is read in your browser only. It is not uploaded or sent anywhere.",
       loadedNote: (m, o, s, v) => `${m} MCP and ${o} OCP positions, ${s} successor rows, ${v} vacant positions.`,
+      auRead: (c, n, max) => `${c}: ${n} successor rows read${max && max !== n ? ` · the NO column ends at ${max}, check for gaps or repeated numbers` : ""}.`,
+      auSkip: (c, rows) => `${c}: ${rows.length} numbered row(s) have no STAFF NAME and were not counted (Excel row ${rows.join(", ")}).`,
+      auNoNo: (c, rows) => `${c}: ${rows.length} row(s) have a STAFF NAME but no NO number; they are counted (Excel row ${rows.join(", ")}).`,
+      auDup: (c, nos) => `${c}: NO number repeated: ${nos.join(", ")}.`,
       chooseFile: "Choose file…", useSample: "Back to sample data",
       loadErr: e => `Could not read this file: ${e}. Use the Masterlist Excel with the MASTERLIST MCP / OCP sheets.`,
       noSheets: "no MASTERLIST MCP or MASTERLIST OCP sheet found",
@@ -823,6 +829,10 @@ table.idp { min-width: 1120px; }
       loadTitle: "Muatkan Masterlist MCP/OCP",
       loadNote: "Pilih fail Excel Masterlist (.xlsx) yang ada helaian MASTERLIST MCP dan MASTERLIST OCP. Fail dibaca dalam pelayar anda sahaja. Ia tidak dimuat naik atau dihantar ke mana-mana.",
       loadedNote: (m, o, s, v) => `${m} jawatan MCP dan ${o} jawatan OCP, ${s} baris pengganti, ${v} jawatan kosong.`,
+      auRead: (c, n, max) => `${c}: ${n} baris pengganti dibaca${max && max !== n ? ` · lajur NO berakhir pada ${max}, semak nombor yang tertinggal atau berulang` : ""}.`,
+      auSkip: (c, rows) => `${c}: ${rows.length} baris bernombor tiada STAFF NAME dan tidak dikira (baris Excel ${rows.join(", ")}).`,
+      auNoNo: (c, rows) => `${c}: ${rows.length} baris ada STAFF NAME tetapi tiada nombor NO; baris ini dikira (baris Excel ${rows.join(", ")}).`,
+      auDup: (c, nos) => `${c}: nombor NO berulang: ${nos.join(", ")}.`,
       chooseFile: "Pilih fail…", useSample: "Kembali ke data contoh",
       loadErr: e => `Fail ini tidak dapat dibaca: ${e}. Gunakan Excel Masterlist yang ada helaian MASTERLIST MCP / OCP.`,
       noSheets: "helaian MASTERLIST MCP atau MASTERLIST OCP tidak dijumpai",
@@ -1124,8 +1134,12 @@ table.idp { min-width: 1120px; }
     const mName = find(/MASTERLIST\s*MCP/), oName = find(/MASTERLIST\s*OCP/);
     if (!mName && !oName) throw new Error(L().noSheets);
     const positions = [], deptBM = {}, people = {};
+    const audit = {};
+    const mkAudit = (c, ws) => { let off = 0; try { off = XLSX.utils.decode_range(ws["!ref"]).s.r; } catch (e) {} return (audit[c] = { rows: 0, nos: [], noNo: [], skipped: [], off }); };
+    const noteRow = (A, r, no) => { A.rows++; if (no == null) A.noNo.push(r + 1 + A.off); else A.nos.push(no); };
     if (mName) {
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[mName], { header: 1, raw: true, defval: null });
+      const A = mkAudit("MCP", wb.Sheets[mName]);
       const h = headerInfo(rows); if (!h) throw new Error("MCP header");
       readScale(rows, "MCP");
       const noIdx = h.after("NO"), deptIdx = h.after("DEPTDIV");
@@ -1142,7 +1156,10 @@ table.idp { min-width: 1120px; }
             inc: { key: clean(row[2]), staff: clean(row[2]), n: clean(row[3]), end: toYM(row[6]), et: endTxt === "CONTRACT" ? "contract" : "retire" }, succ: [] };
           positions.push(cur);
         }
-        if (cur && noIdx >= 0 && num(row[noIdx]) != null && row[h.after("STAFFNAME")]) {
+        const hasName = clean(row[h.after("STAFFNAME")]), no = noIdx >= 0 ? num(row[noIdx]) : null;
+        if (!hasName && no != null) A.skipped.push(r + 1 + A.off);
+        if (cur && hasName) {
+          noteRow(A, r, no);
           const dept = clean(row[deptIdx]).toUpperCase();
           if (!cur.dept) { cur.dept = dept; if (cur.deptLabel) deptBM[dept] = cur.deptLabel; }
           const s = succFrom(row, h); cur.succ.push(s); people[s.key] = s.p;
@@ -1151,13 +1168,16 @@ table.idp { min-width: 1120px; }
     }
     if (oName) {
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[oName], { header: 1, raw: true, defval: null });
+      const A = mkAudit("OCP", wb.Sheets[oName]);
       const h = headerInfo(rows); if (!h) throw new Error("OCP header");
       readScale(rows, "OCP");
       const iDept = h.after("DEPTDIV"), iDiv = h.after("DIV"), iStaff = h.after("STAFFNO"), iInc = h.after("INCUMBENTNAME"), iAge = h.after("AGE");
       const byKey = {};
       for (let r = h.hr + 1; r < rows.length; r++) {
         const row = rows[r] || [];
-        if (num(row[0]) == null || !row[h.after("STAFFNAME")]) continue;
+        const noO = num(row[h.after("NO") >= 0 ? h.after("NO") : 0]), hasNameO = clean(row[h.after("STAFFNAME")]);
+        if (!hasNameO) { if (noO != null) A.skipped.push(r + 1 + A.off); continue; }
+        noteRow(A, r, noO);
         const dept = clean(row[iDept]).toUpperCase(), div = clean(row[iDiv]), incN = clean(row[iInc]);
         const k = dept + "|" + div + "|" + incN;
         if (!byKey[k]) {
@@ -1179,7 +1199,7 @@ table.idp { min-width: 1120px; }
       else if (inc.age != null) { inc.end = (NOW.y + Math.max(0, 60 - inc.age)) + "-" + String(NOW.m).padStart(2, "0"); inc.et = "est"; est++; }
     });
     const depts = [...new Set(positions.map(p => p.dept).filter(Boolean))].map(d => [d, deptBM[d] || [title(d), title(d)]]);
-    return { source: "file", positions, depts, fileName, est };
+    return { source: "file", positions, depts, fileName, est, audit };
   }
 
   // ---------- State + helpers ----------
@@ -1228,6 +1248,13 @@ table.idp { min-width: 1120px; }
     const m = DATA.positions.filter(p => p.cat === "MCP").length, o = DATA.positions.length - m;
     $("loadNote").textContent = file ? L().loadedNote(m, o, DATA.positions.reduce((a, p) => a + p.succ.length, 0), DATA.positions.filter(p => p.inc.vacant).length) : L().loadNote;
     $("useSample").hidden = !file;
+    const au = file && DATA.audit ? Object.entries(DATA.audit).flatMap(([c, A]) => {
+      const max = A.nos.length ? Math.max(...A.nos) : 0, seen = {}, dup = [];
+      A.nos.forEach(n => { if (seen[n]) dup.push(n); seen[n] = 1; });
+      return [L().auRead(c, A.rows, max)].concat(A.skipped.length ? [L().auSkip(c, A.skipped)] : [], A.noNo.length ? [L().auNoNo(c, A.noNo)] : [], dup.length ? [L().auDup(c, [...new Set(dup)])] : []);
+    }) : [];
+    $("loadAudit").hidden = !au.length;
+    $("loadAudit").innerHTML = au.map(x => `<li>${esc(x)}</li>`).join("");
     $("fDept").innerHTML = `<option value="">${L().deptAll}</option>` + DATA.depts.map(([k, lab]) => `<option value="${esc(k)}"${k === dept ? " selected" : ""}>${esc(tx(lab))}</option>`).join("");
     $("chartTitle").textContent = L().chartTitle(dept ? deptLabel(dept) : L().deptAll);
     $("rvTitle").textContent = L().rvTitle(dept ? deptLabel(dept) : L().deptAll);
