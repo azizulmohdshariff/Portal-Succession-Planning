@@ -1911,7 +1911,7 @@ table.idp { min-width: 1120px; }
       tier: "Talent, Succession & Leadership Pipeline", title: "Succession Planning 2026 · MCP & OCP",
       lead: "Ready successors for every critical position: identified, assessed, validated, then developed.",
       flow: ["Identify", "Assess (SRA)", "Validate (HOD · HCC)", "Develop (IDP)"],
-      stats: ["critical positions", "successors", "departments"],
+      stats: ["critical positions", "successor nominations", "unique successors (by staff no.)", "departments"],
       goalLabel: "Programme goal", goal: "A strong successor pool that keeps critical roles filled and the business running.",
       cards: [["check", "Position-focused", "Assessed against one target role"], ["x", "Not a promotion", "No automatic appointment or entitlement"], ["shield", "Develop & review", "IDP for every successor · reviewed twice a year"]],
       pipeTitle: "Four-tier talent pipeline", focus: "This portal",
@@ -1939,7 +1939,7 @@ table.idp { min-width: 1120px; }
       tier: "Talent, Succession & Leadership Pipeline", title: "Succession Planning 2026 · MCP & OCP",
       lead: "Pengganti yang sedia untuk setiap jawatan kritikal: dikenal pasti, dinilai, disahkan, kemudian dibangunkan.",
       flow: ["Kenal pasti", "Nilai (SRA)", "Sahkan (HOD · HCC)", "Bangun (IDP)"],
-      stats: ["jawatan kritikal", "pengganti", "jabatan"],
+      stats: ["jawatan kritikal", "pencalonan pengganti", "pengganti unik (ikut no. pekerja)", "jabatan"],
       goalLabel: "Matlamat program", goal: "Kumpulan pengganti yang kukuh supaya jawatan kritikal sentiasa terisi dan perniagaan terus berjalan.",
       cards: [["check", "Ikut jawatan", "Dinilai berbanding satu jawatan sasaran"], ["x", "Bukan kenaikan pangkat", "Tiada lantikan automatik atau hak"], ["shield", "Bangun & semak", "IDP untuk setiap pengganti · disemak dua kali setahun"]],
       pipeTitle: "Saluran bakat empat peringkat", focus: "Portal ini",
@@ -2066,7 +2066,8 @@ table.idp { min-width: 1120px; }
     const O = OV[lang], ps = DATA.positions;
     const succ = new Set(ps.flatMap(p => p.succ.filter(s => s.st !== "struck").map(s => s.key))).size;
     const depts = new Set(ps.map(p => p.dept)).size;
-    const statIco = ["sitemap", "users", "org"];
+    const statIco = ["sitemap", "clipboard", "users", "org"];
+    const noms = ps.reduce((a, p) => a + p.succ.filter(s => s.st !== "struck").length, 0);
     // donut: circumference 100 on r = 15.915
     let off = 25;
     const donut = O.sra.map((c, i) => { const v = parseFloat(c[0]); const seg = `<circle class="dn dn-${i}" cx="21" cy="21" r="15.915" stroke-dasharray="${v} ${100 - v}" stroke-dashoffset="${off}"/>`; off -= v; return seg; }).join("");
@@ -2075,7 +2076,7 @@ table.idp { min-width: 1120px; }
       <div class="panel ov-hero">
         <div class="ov-hero-text"><div class="tier">${O.tier}</div><h2 class="ov-title">${O.title}</h2><p class="ov-lead">${O.lead}</p>
           <div class="ov-flow">${O.flow.map((f, i) => `${i ? '<span class="ov-arrow" aria-hidden="true"></span>' : ""}<span class="ov-step"><b>${i + 1}</b>${f}</span>`).join("")}</div>
-          <div class="ov-stats">${[ps.length, succ, depts].map((v, i) => `<div class="ov-stat">${ico(statIco[i], "ico-tile")}<span><b>${v}</b><small>${O.stats[i]}</small></span></div>`).join("")}</div>
+          <div class="ov-stats">${[ps.length, noms, succ, depts].map((v, i) => `<div class="ov-stat">${ico(statIco[i], "ico-tile")}<span><b>${v}</b><small>${O.stats[i]}</small></span></div>`).join("")}</div>
         </div>
         <div class="ov-goal">${ico("flag", "ico-lg")}<div class="label">${O.goalLabel}</div><p>${O.goal}</p></div>
       </div>
