@@ -2153,15 +2153,15 @@ table.idp { min-width: 1120px; }
         <div class="guide">${O.guide.map(([v, ic, t, d]) => `<button type="button" class="guide-item" data-view="${v}">${ico(ic, "ico-tile")}<span class="gi-txt"><b>${t}</b><span>${d}</span></span><span class="go">→</span></button>`).join("")}</div>
       </div>`;
   }
-  // ---------- Succession chart export (PDF / PowerPoint) ----------
+  // ---------- Succession chart export (PDF / PowerPoint, compact card grid) ----------
   function chartData(catSel, deptSel) {
-    const U = L(), ps = DATA.positions.filter(p => (!deptSel || p.dept === deptSel) && (!catSel || p.cat === catSel)), groups = [];
-    ["MCP", "OCP"].forEach(cat => { const list = ps.filter(p => p.cat === cat); for (let i = 0; i < list.length; i += 4) groups.push({ cat, items: list.slice(i, i + 4) }); });
+    const U = L(), ps = DATA.positions.filter(p => (!deptSel || p.dept === deptSel) && (!catSel || p.cat === catSel));
+    const sections = ["MCP", "OCP"].map(cat => ({ cat, items: ps.filter(p => p.cat === cat) })).filter(x => x.items.length);
     const plain = h => String(h).replace(/<\/?b>/g, "");
     return {
       title: U.chartTitle(deptSel ? deptLabel(deptSel) : U.deptAll) + (catSel ? ` · ${catSel}` : ""),
       meta: U.sumMeta(DATA.source === "file" ? DATA.fileName : U.srcSample, U.scaleName[scale]),
-      cls: DATA.source === "file" ? U.classFile : U.classSample, groups,
+      cls: DATA.source === "file" ? U.classFile : U.classSample, sections, showDept: !deptSel,
       card: p => {
         const a = analyse(p), inc = p.inc, cnt = {};
         a.internal.forEach(s => { const l = level(total(s), p.cat); cnt[l] = (cnt[l] || 0) + 1; });
@@ -2172,7 +2172,8 @@ table.idp { min-width: 1120px; }
         });
         return {
           title: tx(p.t) + (p.g ? ` (${p.g})` : ""), dept: deptLabel(p.dept),
-          inc: inc.vacant ? U.vacantName : inc.n, incSub: inc.vacant ? U.vacantSub : (inc.end ? `${U.incumbent} · ${U.end[inc.et]} ${fmtYM(inc.end)}` : U.noEnd),
+          inc: inc.vacant ? U.vacantName : inc.n, vacant: !!inc.vacant,
+          incSub: inc.vacant ? U.vacantSub : (inc.end ? `${U.end[inc.et]} ${fmtYM(inc.end)}` : U.noEnd),
           meta: plain(inc.vacant ? U.vacantNow : a.mo == null ? U.noEnd : a.mo < 0 ? U.overdue(-a.mo) : U.vacantIn(a.mo)),
           risk: U.risk[a.risk], rk: a.risk, levels: SCALES[scale][p.cat].map(b => b[1]), cnt, succ, below: belowMin(p) && !justified(p)
         };
@@ -2181,105 +2182,133 @@ table.idp { min-width: 1120px; }
   }
   const LVC = { R0: [BRAND.R0, "FFFFFF"], R1: [BRAND.R1, BRAND.text], R2: [BRAND.R2, "FFFFFF"], R3: [BRAND.R3, BRAND.text], "-": [BRAND.R3, BRAND.text] };
   const lvc = l => LVC[l] || LVC["-"];
+  // Flow cards into rows of `cols`, rows of equal height (tallest card), new page when full; a heading starts each section.
+  function planPages(d, cols, top, bottom, headH, gapY, cardH) {
+    const pages = []; let page = [], y = top;
+    const newPage = () => { if (page.length) pages.push(page); page = []; y = top; };
+    d.sections.forEach(sec => {
+      const cards = sec.items.map(d.card);
+      for (let i = 0; i < cards.length; i += cols) {
+        const row = cards.slice(i, i + cols), rh = Math.max(...row.map(cardH));
+        const needHead = i === 0;
+        if (y + (needHead ? headH : 0) + rh > bottom) newPage();
+        if (needHead || !page.length) { page.push({ head: sec.cat + (i ? ` (${L().cont})` : ""), y }); y += headH; }
+        row.forEach((c, k) => page.push({ c, col: k, y, h: rh }));
+        y += rh + gapY;
+      }
+    });
+    newPage();
+    return pages;
+  }
+
+  async function buildChartPdf(d) {
+    await loadLibs("pdf");
+    const { jsPDF } = window.jspdf, doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" }), U = L();
+    const W = 297, M = 10, COLS = 5, GX = 4, cw = (W - 2 * M - (COLS - 1) * GX) / COLS;
+    const hex = h => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    const fill = h => doc.setFillColor(...hex(h)), ink = h => doc.setTextColor(...hex(h)), draw = h => doc.setDrawColor(...hex(h));
+    const font = (b, sz) => { doc.setFont("helvetica", b ? "bold" : "normal"); doc.setFontSize(sz); };
+    const fit = (t, w, b, sz) => { font(b, sz); return doc.splitTextToSize(pdfSafe(t), w); };
+    const HH = d.showDept ? 11 : 8.5, SH = 8, SG = 1;
+    const cardH = c => HH + 7.5 + 4 + 5 + (c.below ? 4.5 : 0) + Math.max(1, c.succ.length) * (SH + SG) + 1;
+    const pages = planPages(d, COLS, 20, 192, 6, 3, cardH);
+    if (!pages.length) pages.push([]);
+    pages.forEach((items, pi) => {
+      if (pi) doc.addPage();
+      fill("52DE56"); doc.rect(0, 0, W, 2.5, "F");
+      font(true, 13); ink(BRAND.text); doc.text(pdfSafe(d.title), M, 11); font(false, 7); ink(BRAND.muted); doc.text(pdfSafe(d.meta), M, 16);
+      if (!items.length) { font(false, 11); doc.text(pdfSafe(U.emptyScope), M, 40); }
+      items.forEach(it => {
+        if (it.head) { font(true, 9); ink(BRAND.dark); doc.text(it.head, M, it.y + 4); draw(BRAND.mid); doc.setLineWidth(0.4); doc.line(M + 12, it.y + 3, W - M, it.y + 3); return; }
+        const c = it.c, x = M + it.col * (cw + GX); let y = it.y;
+        fill("E9ECEF"); doc.rect(x, y, cw, HH, "F");
+        const tl = fit(c.title, cw - 3, true, 6.4).slice(0, 2); ink(BRAND.text); doc.text(tl, x + cw / 2, y + 3.4, { align: "center" });
+        if (d.showDept) { font(false, 5.5); ink(BRAND.muted); doc.text(fit(c.dept, cw - 3, false, 5.5)[0], x + cw / 2, y + HH - 1.4, { align: "center" }); }
+        y += HH;
+        fill("FBEEE2"); doc.rect(x, y, cw, 7.5, "F");
+        ink(c.vacant ? BRAND.high : BRAND.text); doc.text(fit(c.inc, cw - 3, true, 6.2)[0] || "", x + cw / 2, y + 3.2, { align: "center" });
+        ink(BRAND.muted); doc.text(fit(c.incSub, cw - 3, false, 5.3)[0] || "", x + cw / 2, y + 6.3, { align: "center" });
+        y += 7.5;
+        font(false, 5.4); ink(BRAND.muted); doc.text(pdfSafe(c.meta), x + 0.5, y + 3); font(true, 5.4); ink(BRAND[c.rk]); doc.text(pdfSafe(c.risk), x + cw - 0.5, y + 3, { align: "right" });
+        y += 4;
+        const lw = cw / c.levels.length;
+        c.levels.forEach((l, k) => { const [bg, fg] = lvc(l); fill(bg); doc.rect(x + k * lw, y, lw, 4, "F"); font(true, 5.6); ink(fg); doc.text(`${l}  ${c.cnt[l] || "-"}`, x + k * lw + lw / 2, y + 2.9, { align: "center" }); });
+        y += 5;
+        if (c.below) { fill("FDF0DC"); doc.rect(x, y, cw, 3.8, "F"); font(true, 5.3); ink(BRAND.med); doc.text(pdfSafe(U.belowMin), x + cw / 2, y + 2.7, { align: "center" }); y += 4.5; }
+        if (!c.succ.length) { font(false, 5.6); ink(BRAND.high); doc.text(pdfSafe(U.none), x + 1, y + 4); }
+        c.succ.forEach(s => {
+          draw(s.rep ? BRAND.muted : BRAND.text); doc.setLineWidth(0.2); if (s.rep) doc.setLineDashPattern([0.8, 0.8], 0);
+          doc.rect(x, y, cw, SH, "S"); doc.setLineDashPattern([], 0);
+          const [bg, fg] = lvc(s.l); fill(bg); doc.rect(x + cw - 6.5, y, 6.5, SH, "F"); font(true, 6); ink(fg); doc.text(s.l, x + cw - 3.25, y + 4.9, { align: "center" });
+          ink(BRAND.text); doc.text(fit(s.name, cw - 8.5, true, 5.8)[0], x + 1, y + 3.2);
+          font(false, 5.1); ink(s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted);
+          doc.text(fit(`${s.t.toFixed(1)}%${s.rep ? " · " + U.dType.rep : ""}${s.flag ? " · " + s.flag : ""}`, cw - 8.5, false, 5.1)[0], x + 1, y + 6.6);
+          y += SH + SG;
+        });
+      });
+      const lv = (d.sections[0] ? SCALES[scale][d.sections[0].cat] : SCALES[scale].MCP).map(b => b[1]);
+      lv.forEach((l, k) => { fill(lvc(l)[0]); doc.rect(M + k * 48, 195, 5, 3.2, "F"); font(false, 6.5); ink(BRAND.muted); doc.text(pdfSafe(l === "-" ? U.notReady : `${l} ${desc(l)}`), M + 7 + k * 48, 197.6); });
+    });
+    const n = doc.getNumberOfPages();
+    for (let i = 1; i <= n; i++) { doc.setPage(i); font(false, 7); ink(BRAND.muted); doc.text(pdfSafe(`Succession Planning Portal · ${d.cls}`), M, 205); doc.text(pdfSafe(`${U.page} ${i} / ${n}`), W - M, 205, { align: "right" }); }
+    return doc.output("blob");
+  }
 
   async function buildChartPpt(d) {
     await loadLibs("ppt");
     const U = L(), pptx = new window.PptxGenJS(), F = "Calibri";
     pptx.layout = "LAYOUT_WIDE"; pptx.title = d.title;
     pptx.defineSlideMaster({ title: "SC", background: { color: "FFFFFF" },
-      objects: [{ rect: { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: "52DE56" } } },
-        { text: { text: `Succession Planning Portal · ${d.cls}`, options: { x: 0.5, y: 7.05, w: 8, h: 0.3, fontFace: F, fontSize: 9, color: BRAND.muted } } }],
-      slideNumber: { x: 12.3, y: 7.05, fontFace: F, fontSize: 9, color: BRAND.muted } });
-    let sl = pptx.addSlide({ masterName: "SC" });
-    sl.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.35, h: 7.5, fill: { color: BRAND.dark }, line: { color: BRAND.dark } });
-    sl.addText(d.title, { x: 0.9, y: 2.7, w: 11.5, h: 1.2, fontFace: F, fontSize: 34, bold: true, color: BRAND.text });
-    sl.addText(d.meta, { x: 0.9, y: 4.0, w: 11.5, h: 0.5, fontFace: F, fontSize: 14, color: BRAND.muted });
-    const colW = 2.95, gap = 0.17, x0 = 0.5, MAXS = 5;
-    d.groups.forEach(g => {
-      sl = pptx.addSlide({ masterName: "SC" });
-      sl.addText(`${g.cat} · ${d.title}`, { x: 0.5, y: 0.2, w: 12.3, h: 0.5, fontFace: F, fontSize: 20, bold: true, color: BRAND.text });
-      g.items.forEach((p, i) => {
-        const c = d.card(p), x = x0 + i * (colW + gap); let y = 0.85;
-        sl.addText([{ text: c.title, options: { bold: true, breakLine: true } }, { text: c.dept, options: { fontSize: 8, bold: false, color: BRAND.muted } }],
-          { x, y, w: colW, h: 0.72, fontFace: F, fontSize: 10, color: BRAND.text, fill: { color: "E9ECEF" }, align: "center", valign: "middle" });
-        y += 0.74;
-        sl.addText([{ text: c.inc, options: { bold: true, breakLine: true } }, { text: c.incSub, options: { fontSize: 8, bold: false, color: BRAND.muted } }],
-          { x, y, w: colW, h: 0.62, fontFace: F, fontSize: 9.5, color: BRAND.text, fill: { color: "FBEEE2" }, align: "center", valign: "middle" });
-        y += 0.66;
-        sl.addText(c.meta, { x, y, w: colW - 1.1, h: 0.28, fontFace: F, fontSize: 8.5, color: BRAND.muted });
-        sl.addText(c.risk, { x: x + colW - 1.2, y, w: 1.2, h: 0.28, fontFace: F, fontSize: 8.5, bold: true, color: BRAND[c.rk], align: "right" });
-        y += 0.32;
-        sl.addTable([c.levels.map(l => ({ text: l === "-" ? "–" : l, options: { bold: true, fill: { color: lvc(l)[0] }, color: lvc(l)[1], align: "center" } })),
-          c.levels.map(l => ({ text: String(c.cnt[l] || "–"), options: { align: "center", color: BRAND.text } }))],
-          { x, y, w: colW, colW: c.levels.map(() => colW / c.levels.length), rowH: 0.24, fontFace: F, fontSize: 9, border: { type: "solid", color: BRAND.line, pt: 0.75 } });
-        y += 0.6;
-        if (c.below) { sl.addText(U.belowMin, { x, y, w: colW, h: 0.28, fontFace: F, fontSize: 8.5, bold: true, color: BRAND.med, fill: { color: "FDF0DC" }, align: "center", valign: "middle" }); y += 0.32; }
-        c.succ.slice(0, MAXS).forEach(s => {
-          sl.addShape(pptx.ShapeType.rect, { x, y, w: colW, h: 0.56, fill: { color: "FFFFFF" }, line: { color: s.rep ? BRAND.muted : BRAND.text, width: 0.75, dashType: s.rep ? "dash" : "solid" } });
-          sl.addText([{ text: s.name, options: { bold: true, breakLine: true } }, { text: `${s.t.toFixed(1)}%${s.flag ? "   " + s.flag : ""}`, options: { bold: false, fontSize: 8, color: s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted } }],
-            { x: x + 0.04, y, w: colW - 0.54, h: 0.56, fontFace: F, fontSize: 8.5, color: BRAND.text, valign: "middle" });
-          sl.addText(s.l === "-" ? "–" : s.l, { x: x + colW - 0.47, y: y + 0.02, w: 0.45, h: 0.52, fontFace: F, fontSize: 10, bold: true, align: "center", valign: "middle", color: lvc(s.l)[1], fill: { color: lvc(s.l)[0] } });
-          y += 0.62;
-        });
-        if (c.succ.length > MAXS) sl.addText(`+${c.succ.length - MAXS}`, { x, y, w: colW, h: 0.25, fontFace: F, fontSize: 9, color: BRAND.muted });
-      });
-      SCALES[scale][g.cat].map(b => b[1]).forEach((l, k) => {
-        sl.addShape(pptx.ShapeType.rect, { x: 0.5 + k * 2.1, y: 6.74, w: 0.3, h: 0.2, fill: { color: lvc(l)[0] }, line: { color: lvc(l)[0] } });
-        sl.addText(l === "-" ? U.notReady : `${l} ${desc(l)}`, { x: 0.85 + k * 2.1, y: 6.68, w: 1.8, h: 0.3, fontFace: F, fontSize: 8.5, color: BRAND.muted });
-      });
-    });
-    if (!d.groups.length) { sl = pptx.addSlide({ masterName: "SC" }); sl.addText(U.emptyScope, { x: 0.5, y: 3, w: 12, h: 1, fontFace: F, fontSize: 18, color: BRAND.muted }); }
-    return pptx.write({ outputType: "blob" });
-  }
-
-  async function buildChartPdf(d) {
-    await loadLibs("pdf");
-    const { jsPDF } = window.jspdf, doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" }), U = L();
-    const W = 297, M = 14, cw = (W - 2 * M - 3 * 5) / 4, MAXS = 6;
-    const hex = h => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
-    const fill = h => doc.setFillColor(...hex(h)), ink = h => doc.setTextColor(...hex(h));
-    const font = (b, sz) => { doc.setFont("helvetica", b ? "bold" : "normal"); doc.setFontSize(sz); };
-    const wrap = (t, w) => doc.splitTextToSize(pdfSafe(t), w);
-    const head = (t) => { fill("52DE56"); doc.rect(0, 0, W, 3, "F"); font(true, 14); ink(BRAND.text); doc.text(pdfSafe(t), M, 13); font(false, 8); ink(BRAND.muted); doc.text(pdfSafe(d.meta), M, 18); };
-    if (!d.groups.length) { head(d.title); font(false, 12); ink(BRAND.muted); doc.text(pdfSafe(U.emptyScope), M, 40); }
-    d.groups.forEach((g, gi) => {
-      if (gi) doc.addPage();
-      head(`${g.cat} · ${d.title}`);
-      g.items.forEach((p, i) => {
-        const c = d.card(p), x = M + i * (cw + 5); let y = 23;
-        font(true, 8.5); const tl = wrap(c.title, cw - 4).slice(0, 2), hh = 16;
-        fill("E9ECEF"); doc.rect(x, y, cw, hh, "F"); ink(BRAND.text); doc.text(tl, x + cw / 2, y + 5, { align: "center" });
-        font(false, 6.5); ink(BRAND.muted); doc.text(pdfSafe(c.dept), x + cw / 2, y + hh - 2, { align: "center" });
-        y += hh;
-        fill("FBEEE2"); doc.rect(x, y, cw, 11, "F"); font(true, 7.5); ink(BRAND.text); doc.text(wrap(c.inc, cw - 4)[0] || "", x + cw / 2, y + 4.8, { align: "center" });
-        font(false, 6.3); ink(BRAND.muted); doc.text(wrap(c.incSub, cw - 4)[0] || "", x + cw / 2, y + 8.8, { align: "center" });
-        y += 15;
-        font(false, 6.5); ink(BRAND.muted); doc.text(pdfSafe(c.meta), x, y); font(true, 6.5); ink(BRAND[c.rk]); doc.text(pdfSafe(c.risk), x + cw, y, { align: "right" });
-        y += 2.5;
+      objects: [{ rect: { x: 0, y: 0, w: "100%", h: 0.07, fill: { color: "52DE56" } } },
+        { text: { text: `Succession Planning Portal · ${d.cls}`, options: { x: 0.35, y: 7.15, w: 8, h: 0.26, fontFace: F, fontSize: 8, color: BRAND.muted } } }],
+      slideNumber: { x: 12.45, y: 7.15, fontFace: F, fontSize: 8, color: BRAND.muted } });
+    const X0 = 0.35, COLS = 6, GX = 0.1, cw = (13.333 - 2 * X0 - (COLS - 1) * GX) / COLS;
+    const HH = d.showDept ? 0.46 : 0.34, SH = 0.36, SG = 0.04;
+    const cardH = c => HH + 0.34 + 0.18 + 0.22 + (c.below ? 0.2 : 0) + Math.max(1, c.succ.length) * (SH + SG) + 0.04;
+    const pages = planPages(d, COLS, 0.72, 6.78, 0.26, 0.12, cardH);
+    if (!pages.length) pages.push([]);
+    pages.forEach(items => {
+      const sl = pptx.addSlide({ masterName: "SC" });
+      sl.addText(d.title, { x: X0, y: 0.12, w: 8.5, h: 0.4, fontFace: F, fontSize: 16, bold: true, color: BRAND.text });
+      sl.addText(d.meta, { x: 8.9, y: 0.12, w: 4.1, h: 0.4, fontFace: F, fontSize: 7.5, color: BRAND.muted, align: "right", valign: "middle" });
+      if (!items.length) sl.addText(U.emptyScope, { x: X0, y: 3, w: 12, h: 1, fontFace: F, fontSize: 18, color: BRAND.muted });
+      items.forEach(it => {
+        if (it.head) {
+          sl.addText(it.head, { x: X0, y: it.y, w: 1.4, h: 0.24, fontFace: F, fontSize: 11, bold: true, color: BRAND.dark, valign: "middle" });
+          sl.addShape(pptx.ShapeType.line, { x: X0 + 1.3, y: it.y + 0.12, w: 13.333 - 2 * X0 - 1.3, h: 0, line: { color: BRAND.mid, width: 1 } });
+          return;
+        }
+        const c = it.c, x = X0 + it.col * (cw + GX); let y = it.y;
+        const head = [{ text: c.title, options: { bold: true, breakLine: d.showDept } }];
+        if (d.showDept) head.push({ text: c.dept, options: { fontSize: 6.5, bold: false, color: BRAND.muted } });
+        sl.addText(head, { x, y, w: cw, h: HH, fontFace: F, fontSize: 7.5, color: BRAND.text, fill: { color: "E9ECEF" }, align: "center", valign: "middle", margin: 2 });
+        y += HH;
+        sl.addText([{ text: c.inc, options: { bold: true, color: c.vacant ? BRAND.high : BRAND.text, breakLine: true } }, { text: c.incSub, options: { fontSize: 6.5, color: BRAND.muted } }],
+          { x, y, w: cw, h: 0.34, fontFace: F, fontSize: 7.5, fill: { color: "FBEEE2" }, align: "center", valign: "middle", margin: 1 });
+        y += 0.34;
+        sl.addText(c.meta, { x, y, w: cw * 0.6, h: 0.18, fontFace: F, fontSize: 6.5, color: BRAND.muted, margin: 1 });
+        sl.addText(c.risk, { x: x + cw * 0.5, y, w: cw * 0.5, h: 0.18, fontFace: F, fontSize: 6.5, bold: true, color: BRAND[c.rk], align: "right", margin: 1 });
+        y += 0.18;
         const lw = cw / c.levels.length;
-        c.levels.forEach((l, k) => {
-          const [bg, fg] = lvc(l); fill(bg); doc.rect(x + k * lw, y, lw, 5, "F"); font(true, 7); ink(fg); doc.text(l, x + k * lw + lw / 2, y + 3.5, { align: "center" });
-          doc.setDrawColor(...hex(BRAND.line)); doc.setLineWidth(0.2); doc.rect(x + k * lw, y + 5, lw, 5, "S"); font(false, 7); ink(BRAND.text); doc.text(String(c.cnt[l] || "-"), x + k * lw + lw / 2, y + 8.6, { align: "center" });
+        c.levels.forEach((l, k) => sl.addText(`${l === "-" ? "–" : l} ${c.cnt[l] || "–"}`, { x: x + k * lw, y, w: lw, h: 0.18, fontFace: F, fontSize: 6.5, bold: true, align: "center", valign: "middle", color: lvc(l)[1], fill: { color: lvc(l)[0] }, margin: 0 }));
+        y += 0.22;
+        if (c.below) { sl.addText(U.belowMin, { x, y, w: cw, h: 0.17, fontFace: F, fontSize: 6.5, bold: true, color: BRAND.med, fill: { color: "FDF0DC" }, align: "center", valign: "middle", margin: 0 }); y += 0.2; }
+        if (!c.succ.length) sl.addText(U.none, { x, y, w: cw, h: SH, fontFace: F, fontSize: 7, color: BRAND.high });
+        c.succ.forEach(s => {
+          sl.addShape(pptx.ShapeType.rect, { x, y, w: cw, h: SH, fill: { color: "FFFFFF" }, line: { color: s.rep ? BRAND.muted : BRAND.text, width: 0.5, dashType: s.rep ? "dash" : "solid" } });
+          sl.addText([{ text: s.name, options: { bold: true, breakLine: true } }, { text: `${s.t.toFixed(1)}%${s.rep ? " · " + U.dType.rep : ""}${s.flag ? " · " + s.flag : ""}`, options: { bold: false, fontSize: 6, color: s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted } }],
+            { x, y, w: cw - 0.3, h: SH, fontFace: F, fontSize: 6.8, color: BRAND.text, valign: "middle", margin: 2 });
+          sl.addText(s.l === "-" ? "–" : s.l, { x: x + cw - 0.28, y, w: 0.28, h: SH, fontFace: F, fontSize: 7.5, bold: true, align: "center", valign: "middle", color: lvc(s.l)[1], fill: { color: lvc(s.l)[0] }, margin: 0 });
+          y += SH + SG;
         });
-        y += 13;
-        if (c.below) { fill("FDF0DC"); doc.rect(x, y, cw, 5, "F"); font(true, 6.5); ink(BRAND.med); doc.text(pdfSafe(U.belowMin), x + cw / 2, y + 3.5, { align: "center" }); y += 7; }
-        c.succ.slice(0, MAXS).forEach(s => {
-          doc.setDrawColor(...hex(s.rep ? BRAND.muted : BRAND.text)); doc.setLineWidth(0.25); if (s.rep) doc.setLineDashPattern([1, 1], 0);
-          doc.rect(x, y, cw, 11, "S"); doc.setLineDashPattern([], 0);
-          const [bg, fg] = lvc(s.l); fill(bg); doc.rect(x + cw - 9, y, 9, 11, "F"); font(true, 7.5); ink(fg); doc.text(s.l, x + cw - 4.5, y + 6.5, { align: "center" });
-          font(true, 7); ink(BRAND.text); doc.text(wrap(s.name, cw - 12).slice(0, 2), x + 1.5, y + 3.8);
-          font(false, 6.3); ink(s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted); doc.text(pdfSafe(`${s.t.toFixed(1)}%${s.flag ? "   " + s.flag : ""}`), x + 1.5, y + 9.4);
-          y += 12.5;
-        });
-        if (c.succ.length > MAXS) { font(false, 6.5); ink(BRAND.muted); doc.text(`+${c.succ.length - MAXS}`, x, y + 2); }
       });
-      SCALES[scale][g.cat].map(b => b[1]).forEach((l, k) => {
-        fill(lvc(l)[0]); doc.rect(M + k * 50, 194, 5, 3.5, "F"); font(false, 7); ink(BRAND.muted); doc.text(pdfSafe(l === "-" ? U.notReady : `${l} ${desc(l)}`), M + 7 + k * 50, 196.8);
+      const lv = (d.sections[0] ? SCALES[scale][d.sections[0].cat] : SCALES[scale].MCP).map(b => b[1]);
+      lv.forEach((l, k) => {
+        sl.addShape(pptx.ShapeType.rect, { x: X0 + k * 2.2, y: 6.9, w: 0.26, h: 0.16, fill: { color: lvc(l)[0] }, line: { color: lvc(l)[0] } });
+        sl.addText(l === "-" ? U.notReady : `${l} ${desc(l)}`, { x: X0 + 0.32 + k * 2.2, y: 6.84, w: 1.85, h: 0.28, fontFace: F, fontSize: 7.5, color: BRAND.muted });
       });
     });
-    const pages = doc.getNumberOfPages();
-    for (let i = 1; i <= pages; i++) { doc.setPage(i); font(false, 7.5); ink(BRAND.muted); doc.text(pdfSafe(`Succession Planning Portal · ${d.cls}`), M, 204); doc.text(pdfSafe(`${U.page} ${i} / ${pages}`), W - M, 204, { align: "right" }); }
-    return doc.output("blob");
+    return pptx.write({ outputType: "blob" });
   }
 
   async function doChartExport(kind) {
