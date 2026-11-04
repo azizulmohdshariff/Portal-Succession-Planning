@@ -377,6 +377,13 @@ dialog::backdrop { background: rgba(10, 16, 24, .45); }
 .gi-txt { display: grid; gap: 1px; min-width: 0; }
 .guide-item .go { font-size: 16px; }
 .flag.ok { color: var(--ok); }
+.org-pages { display: grid; gap: 16px; overflow-x: auto; }
+.org-page { position: relative; aspect-ratio: 13.333 / 7.5; min-width: 860px; container-type: inline-size; background: #ffffff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; color: #2a2b2e; }
+.org-page::before { content: ""; position: absolute; left: 0; top: 0; right: 0; height: 0.5cqw; background: #52de56; }
+.org-page .ol, .org-page .or, .org-page .ot { position: absolute; box-sizing: border-box; }
+.org-page .ot { display: flex; flex-direction: column; padding: 0.15cqw 0.35cqw; overflow: hidden; line-height: 1.18; font-family: var(--font); }
+.org-page .ot span { display: block; overflow-wrap: anywhere; }
+.org-pn { position: absolute; right: 1cqw; bottom: 0.6cqw; font-size: 0.8cqw; color: #6a6b6d; }
 .succ-pos { font-size: 11px; color: var(--muted); line-height: 1.3; overflow-wrap: anywhere; }
 .ch-cat { border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; background: var(--surface); font: inherit; color: inherit; }
 .load-audit { margin: 4px 0 0; padding-left: 18px; display: grid; gap: 2px; }
@@ -621,6 +628,7 @@ table.idp { min-width: 1120px; }
       <div class="head-actions">
         <div class="seg" role="group" id="viewGrp">
           <button type="button" id="vChart" aria-pressed="true" data-i="vChart"></button>
+          <button type="button" id="vOrg" aria-pressed="false" data-i="vOrg"></button>
           <button type="button" id="vTable" aria-pressed="false" data-i="vTable"></button>
         </div>
         <select id="chDept" class="ch-cat"></select>
@@ -641,6 +649,7 @@ table.idp { min-width: 1120px; }
       <div class="empty" id="chartEmpty" hidden data-i="emptyScope"></div>
     </div>
 
+    <div id="orgView" class="org-pages" hidden></div>
     <div id="tableView" hidden>
       <div class="table-scroll"><table>
         <thead><tr><th data-i="thPos"></th><th data-i="thCat"></th><th data-i="thSucc"></th><th class="num" data-i="thExp"></th><th class="num" data-i="thFit"></th><th class="num" data-i="thFun"></th><th class="num" data-i="thTot"></th><th data-i="thLvl"></th><th data-i="thStat"></th></tr></thead>
@@ -690,7 +699,7 @@ table.idp { min-width: 1120px; }
       noSheets: "no MASTERLIST MCP or MASTERLIST OCP sheet found",
       scope: "Scope", deptAll: "All departments", catAll: "MCP & OCP", catMCP: "MCP only", catOCP: "OCP only", search: "Search successor name…",
       scale: "Scale", scCur: "Current", scNew: "Proposed",
-      chartTitle: d => `Succession chart · ${d} 2026`, vChart: "Chart", vTable: "Table", sendTrc: "Send to HCC",
+      chartTitle: d => `Succession chart · ${d} 2026`, vChart: "Cards", vOrg: "Org chart", vTable: "Table", nrcMcpTitle: "Succession planning chart · overall MCP", nrcDeptTitle: d => `Succession planning chart : ${d}`, nrcCeo: "Group Managing Director & Chief Executive Officer", sendTrc: "Send to HCC",
       mcpNote: "Reports directly to the GMD & CEO", ocpNote: "Division Heads, grade TH9 and above",
       emptyScope: "No critical positions in this scope.",
       thPos: "Critical position", thCat: "Cat.", thSucc: "Successor", thExp: "Experience<br>10%", thFit: "Job fit<br>40%", thFun: "Functional<br>50%", thTot: "Total", thLvl: "Level", thStat: "Status",
@@ -838,7 +847,7 @@ table.idp { min-width: 1120px; }
       noSheets: "helaian MASTERLIST MCP atau MASTERLIST OCP tidak dijumpai",
       scope: "Skop", deptAll: "Semua jabatan", catAll: "MCP & OCP", catMCP: "MCP sahaja", catOCP: "OCP sahaja", search: "Cari nama pengganti…",
       scale: "Skala", scCur: "Semasa", scNew: "Cadangan",
-      chartTitle: d => `Carta pengganti · ${d} 2026`, vChart: "Carta", vTable: "Jadual", sendTrc: "Hantar ke HCC",
+      chartTitle: d => `Carta pengganti · ${d} 2026`, vChart: "Kad", vOrg: "Carta organisasi", vTable: "Jadual", nrcMcpTitle: "Carta pelan penggantian · keseluruhan MCP", nrcDeptTitle: d => `Carta pelan penggantian : ${d}`, nrcCeo: "Pengarah Urusan Kumpulan & Ketua Pegawai Eksekutif", sendTrc: "Hantar ke HCC",
       mcpNote: "Melapor terus kepada GMD & CEO", ocpNote: "Ketua Bahagian, gred TH9 ke atas",
       emptyScope: "Tiada jawatan kritikal dalam skop ini.",
       thPos: "Jawatan kritikal", thCat: "Kat.", thSucc: "Pengganti", thExp: "Pengalaman<br>10%", thFit: "Job fit<br>40%", thFun: "Fungsian<br>50%", thTot: "Jumlah", thLvl: "Tahap", thStat: "Status",
@@ -1362,6 +1371,7 @@ table.idp { min-width: 1120px; }
     $("ocpHead").hidden = $("ocp").hidden = !o.length;
     $("chartEmpty").hidden = ps.length > 0;
   }
+  function renderOrg() { $("orgView").innerHTML = orgToHtml(orgPages($("fCat").value, dept, $("chRd").value !== "no")); }
   function renderTable() {
     const term = q(), SC = { ok: "p-ok", new: "p-mute", struck: "p-bad", rep: "p-warn", meet: "p-ok", nomeet: "p-bad" };
     $("rows").innerHTML = visible().flatMap(p => p.succ.map((s, i) => {
@@ -2158,179 +2168,192 @@ table.idp { min-width: 1120px; }
         <div class="guide">${O.guide.map(([v, ic, t, d]) => `<button type="button" class="guide-item" data-view="${v}">${ico(ic, "ico-tile")}<span class="gi-txt"><b>${t}</b><span>${d}</span></span><span class="go">→</span></button>`).join("")}</div>
       </div>`;
   }
-  // ---------- Succession chart export (PDF / PowerPoint, compact card grid) ----------
-  function chartData(catSel, deptSel, withRd = true) {
-    const U = L(), ps = DATA.positions.filter(p => (!deptSel || p.dept === deptSel) && (!catSel || p.cat === catSel));
-    const sections = ["MCP", "OCP"].map(cat => ({ cat, items: ps.filter(p => p.cat === cat) })).filter(x => x.items.length);
-    const plain = h => String(h).replace(/<\/?b>/g, "");
+  // ---------- Org-chart layout engine (NRC format) ----------
+  // Pages are lists of primitives in inches on a 13.333 x 7.5 page; rendered to HTML, PowerPoint and PDF.
+  const PG = { W: 13.333, H: 7.5, X0: 0.4, X1: 12.933, BOT: 6.95 };
+  const OC = { dark: "0D6636", mid: "4A9437", incFill: "E8F1E4", incText: "0D6636", line: "8C9196", box: "B7BCC0", text: "2A2B2E", muted: "6A6B6D", title: "1F2A24" };
+  function orgCard(p, rd) {
+    const U = L(), a = analyse(p), inc = p.inc;
     return {
-      title: U.chartTitle(deptSel ? deptLabel(deptSel) : U.deptAll) + (catSel ? ` · ${catSel}` : ""),
-      meta: withRd ? U.sumMeta(DATA.source === "file" ? DATA.fileName : U.srcSample, U.scaleName[scale]) : U.chMetaNoRd(DATA.source === "file" ? DATA.fileName : U.srcSample),
-      cls: DATA.source === "file" ? U.classFile : U.classSample, sections, showDept: !deptSel, rd: withRd,
-      card: p => {
-        const a = analyse(p), inc = p.inc, cnt = {};
-        a.internal.forEach(s => { const l = level(total(s), p.cat); cnt[l] = (cnt[l] || 0) + 1; });
-        const succ = p.succ.filter(s => s.st !== "struck").map(s => {
-          const t = total(s), l = level(t, p.cat), es = s.st === "nomeet" ? (excSt(p, s) || "none") : null;
-          const flag = es ? (es === "none" ? U.noMeetFlag : U.excFlag[es]) : (runwayShort(s, p) ? U.shortRunway : "");
-          return { name: s.p.n + (s.p.g ? ` (${s.p.g})` : ""), pos: tx(s.p.pos) || "", t, l, rep: s.st === "rep", flag, flagOk: es === "app" };
-        });
-        return {
-          title: tx(p.t) + (p.g ? ` (${p.g})` : ""), dept: deptLabel(p.dept),
-          inc: inc.vacant ? U.vacantName : inc.n, vacant: !!inc.vacant,
-          incSub: inc.vacant ? U.vacantSub : (inc.end ? `${U.end[inc.et]} ${fmtYM(inc.end)}` : U.noEnd),
-          meta: plain(inc.vacant ? U.vacantNow : a.mo == null ? U.noEnd : a.mo < 0 ? U.overdue(-a.mo) : U.vacantIn(a.mo)),
-          risk: U.risk[a.risk], rk: a.risk, levels: SCALES[scale][p.cat].map(b => b[1]), cnt, succ, below: belowMin(p) && !justified(p)
-        };
-      }
+      cat: p.cat, title: tx(p.t) + (p.g ? ` (${p.g})` : ""), dept: deptLabel(p.dept), inc: inc.vacant ? U.vacantName : inc.n, vacant: !!inc.vacant,
+      succ: p.succ.filter(s => s.st !== "struck").map(s => {
+        const t = total(s), l = level(t, p.cat), es = s.st === "nomeet" ? (excSt(p, s) || "none") : null;
+        return { name: s.p.n + (s.p.g ? ` (${s.p.g})` : ""), pos: tx(s.p.pos) || "", t, l, rep: s.st === "rep", flag: rd ? (es ? (es === "none" ? U.noMeetFlag : U.excFlag[es]) : (runwayShort(s, p) ? U.shortRunway : "")) : "", flagOk: es === "app" };
+      }),
+      below: belowMin(p) && !justified(p)
     };
   }
+  function orgSizes(cols, rd) {
+    const dense = cols >= 8 ? 2 : cols >= 6 ? 1 : 0;
+    return [
+      { hH: 0.5, hI: 0.32, hS: rd ? 0.56 : 0.44, g: 0.06, fH: 9, fI: 8.5, fN: 7.5, fT: 6.5 },
+      { hH: 0.5, hI: 0.3, hS: rd ? 0.54 : 0.42, g: 0.05, fH: 8, fI: 7.5, fN: 7, fT: 6 },
+      { hH: 0.55, hI: 0.34, hS: rd ? 0.56 : 0.44, g: 0.05, fH: 6.8, fI: 6.6, fN: 6.2, fT: 5.4 }
+    ][dense];
+  }
+  function oText(P, x, y, w, h, runs, o = {}) { P.push(Object.assign({ t: "text", x, y, w, h, runs, align: "center", valign: "middle" }, o)); }
+  function oRect(P, x, y, w, h, o = {}) { P.push(Object.assign({ t: "rect", x, y, w, h }, o)); }
+  function oLine(P, x1, y1, x2, y2, o = {}) { P.push(Object.assign({ t: "line", x1, y1, x2, y2, color: OC.line, width: 1 }, o)); }
+  function oNode(P, c, x, y, w, S, headFill) {
+    oText(P, x, y, w, S.hH, [{ text: c.title, bold: true, size: S.fH, color: "FFFFFF" }], { fill: headFill });
+    oText(P, x, y + S.hH, w, S.hI, [{ text: c.inc, bold: true, size: S.fI, color: c.vacant ? "C62828" : OC.incText }], { fill: OC.incFill, line: "C9D8C2" });
+    return y + S.hH + S.hI;
+  }
+  function oSuccs(P, c, x, y, w, S, rd, maxY) {
+    const U = L();
+    if (c.below) { oText(P, x, y, w, 0.2, [{ text: U.belowMin, bold: true, size: S.fT, color: "945800" }], { fill: "FDF0DC" }); y += 0.24; }
+    if (!c.succ.length) { oText(P, x, y, w, S.hS * 0.6, [{ text: U.none, size: S.fT, color: "C62828" }]); return y + S.hS * 0.6; }
+    c.succ.forEach(s => {
+      if (maxY && y + S.hS > maxY) return;
+      oRect(P, x, y, w, S.hS, { fill: "FFFFFF", line: s.rep ? OC.muted : OC.box, dash: s.rep });
+      const chip = rd ? 0.26 : 0, pad = rd ? 0.1 : 0.04;
+      if (rd) { const [bg, fg] = lvc(s.l); oRect(P, x, y, 0.06, S.hS, { fill: bg }); oText(P, x + w - chip, y, chip, S.hS, [{ text: s.l === "-" ? "–" : s.l, bold: true, size: S.fN, color: fg }], { fill: bg }); }
+      const runs = [{ text: s.name + (s.rep ? ` · ${U.dType.rep}` : ""), bold: true, size: S.fN, color: OC.text }, { text: s.pos || "-", size: S.fT, color: OC.muted }];
+      if (rd) runs.push({ text: `${s.t.toFixed(1)}%${s.flag ? " · " + s.flag : ""}`, size: S.fT, color: s.flag ? (s.flagOk ? "0D6636" : "C62828") : OC.muted });
+      oText(P, x + pad, y, w - pad - chip - 0.03, S.hS, runs, { align: "left" });
+      y += S.hS + S.g;
+    });
+    return y;
+  }
+  // a row of nodes hanging from a horizontal bar; returns bottom y
+  function oRow(P, cards, y, rd, headFill, S, colW, gap, maxY) {
+    const n = cards.length, tw = n * colW + (n - 1) * gap, xs = PG.X0 + ((PG.X1 - PG.X0) - tw) / 2;
+    const cx = i => xs + i * (colW + gap) + colW / 2;
+    if (n > 1) oLine(P, cx(0), y, cx(n - 1), y);
+    let bottom = y;
+    cards.forEach((c, i) => {
+      const x = xs + i * (colW + gap);
+      oLine(P, cx(i), y, cx(i), y + 0.15);
+      const yb = oNode(P, c, x, y + 0.15, colW, S, headFill);
+      bottom = Math.max(bottom, oSuccs(P, c, x, yb + 0.06, colW, S, rd, maxY));
+    });
+    return { bottom, center: xs + tw / 2 };
+  }
+  function orgPages(catSel, deptSel, rd) {
+    const U = L(), pages = [];
+    const all = DATA.positions.filter(p => (!deptSel || p.dept === deptSel) && (!catSel || p.cat === catSel));
+    const title = (txt, sub) => { const P = []; if (sub) oText(P, PG.X0, 0.22, 10, 0.26, [{ text: sub, bold: true, size: 11, color: OC.mid }], { align: "left" }); oText(P, PG.X0, sub ? 0.48 : 0.3, 11, 0.42, [{ text: txt, bold: true, size: 16, color: OC.title }], { align: "left" }); return P; };
+    const legend = P => { if (!rd) return; SCALES[scale].MCP.map(b => b[1]).forEach((l, k) => { oRect(P, PG.X0 + k * 2.1, 7.0, 0.24, 0.15, { fill: lvc(l)[0] }); oText(P, PG.X0 + 0.3 + k * 2.1, 6.95, 1.75, 0.25, [{ text: l === "-" ? U.notReady : `${l} ${desc(l)}`, size: 7.5, color: OC.muted }], { align: "left" }); }); };
+    // 1) MCP summary (all departments)
+    const mcpAll = all.filter(p => p.cat === "MCP");
+    if (!deptSel && mcpAll.length) {
+      const P = title(U.nrcMcpTitle);
+      const cards = mcpAll.map(p => orgCard(p, rd)), rows = [], perMax = rd ? 7 : 10;
+      const nRows = Math.ceil(cards.length / perMax), per = rd ? Math.ceil(cards.length / nRows) : perMax;
+      for (let i = 0; i < cards.length; i += per) rows.push(cards.slice(i, i + per));
+      const k = Math.max(...rows.map(r => r.length)), S = orgSizes(k, rd), gap = 0.08, colW = Math.min(1.9, ((PG.X1 - PG.X0) - (k - 1) * gap) / k);
+      const ceoW = 2.8, ceoX = PG.W / 2 - ceoW / 2;
+      oText(P, ceoX, 0.95, ceoW, 0.5, [{ text: U.nrcCeo, bold: true, size: 9.5, color: "FFFFFF" }], { fill: OC.dark });
+      const maxS = Math.max(1, ...cards.map(c => c.succ.length + (c.below ? 0.5 : 0)));
+      const avail = PG.BOT - 1.7 - rows.length * (0.21 + S.hH + S.hI + 0.06) - (rows.length - 1) * 0.15;
+      S.hS = Math.min(S.hS, avail / rows.length / maxS - S.g);
+      let y = 1.62; oLine(P, PG.W / 2, 1.45, PG.W / 2, y);
+      rows.forEach((r, ri) => {
+        if (ri) { oLine(P, PG.W / 2, y - 0.02, PG.W / 2, y); }
+        const res = oRow(P, r, y, rd, OC.mid, S, colW, gap);
+        if (ri < rows.length - 1) { const ny = res.bottom + 0.15; oLine(P, PG.W / 2, y, PG.W / 2, ny); y = ny; }
+      });
+      legend(P); pages.push(P);
+    }
+    // 2) one page per department: MCP (C-1) on top, OCP (C-2) below
+    const depts = deptSel ? [deptSel] : DATA.depts.map(([k]) => k);
+    depts.forEach(dk => {
+      const mcp = all.filter(p => p.dept === dk && p.cat === "MCP").map(p => orgCard(p, rd));
+      const ocp = all.filter(p => p.dept === dk && p.cat === "OCP").map(p => orgCard(p, rd));
+      if (!mcp.length && !ocp.length) return;
+      const chunks = []; if (ocp.length) { const pg = Math.ceil(ocp.length / 6), per = Math.ceil(ocp.length / pg); for (let i = 0; i < ocp.length; i += per) chunks.push(ocp.slice(i, i + per)); } else chunks.push([]);
+      chunks.forEach((oc, ci) => {
+        const P = title(U.nrcDeptTitle(deptLabel(dk)) + (chunks.length > 1 ? ` (${ci + 1}/${chunks.length})` : ""));
+        let y = 1.05, trunkX = null, trunkY = null;
+        if (mcp.length && ci === 0) {
+          oText(P, PG.X0, y, 2, 0.3, [{ text: "MCP (C-1)", bold: true, size: 13, color: OC.mid }], { align: "left" });
+          if (mcp.length === 1) {
+            const c = mcp[0], S = orgSizes(1, rd), w = 2.6, x = PG.W / 2 - w / 2;
+            const yb = oNode(P, c, x, y, w, S, OC.dark);
+            const sb = oSuccs(P, c, PG.W / 2 + 0.15, yb + 0.12, 2.6, S, rd);
+            trunkX = PG.W / 2; trunkY = yb; y = Math.max(yb, sb);
+            if (!oc.length) oLine(P, trunkX, yb, trunkX, Math.max(yb + 0.12, sb - 0.1));
+          } else {
+            const S = orgSizes(mcp.length, rd), colW = Math.min(2.2, ((PG.X1 - PG.X0) - (mcp.length - 1) * 0.12) / mcp.length);
+            y = oRow(P, mcp, y, rd, OC.dark, S, colW, 0.12).bottom;
+          }
+          if (oc.length) { y += 0.15; oLine(P, PG.X0, y, PG.X1, y, { dash: true, color: "9A9C9E" }); y += 0.08; }
+        }
+        if (oc.length) {
+          oText(P, PG.X0, y, 2, 0.3, [{ text: "OCP (C-2)", bold: true, size: 13, color: OC.mid }], { align: "left" });
+          const barY = y + 0.4, k = oc.length, S = orgSizes(k, rd), gap = 0.12, colW = Math.min(2.05, ((PG.X1 - PG.X0) - (k - 1) * gap) / k);
+          const maxS = Math.max(1, ...oc.map(c => c.succ.length + (c.below ? 0.5 : 0)));
+          S.hS = Math.min(S.hS, (PG.BOT - (barY + 0.15 + S.hH + S.hI + 0.06)) / maxS - S.g);
+          if (trunkX != null) oLine(P, trunkX, trunkY, trunkX, barY);
+          oRow(P, oc, barY, rd, OC.mid, S, colW, gap);
+        }
+        legend(P); pages.push(P);
+      });
+    });
+    return {
+      pages, title: U.chartTitle(deptSel ? deptLabel(deptSel) : U.deptAll) + (catSel ? ` · ${catSel}` : ""),
+      meta: rd ? U.sumMeta(DATA.source === "file" ? DATA.fileName : U.srcSample, U.scaleName[scale]) : U.chMetaNoRd(DATA.source === "file" ? DATA.fileName : U.srcSample),
+      cls: DATA.source === "file" ? U.classFile : U.classSample
+    };
+  }
+  // ---- renderers ----
+  function orgToHtml(doc) {
+    const pct = (v, t) => (v / t * 100).toFixed(3) + "%", fs = s => (s * 0.10417).toFixed(3) + "cqw";
+    return doc.pages.map((P, i) => `<div class="org-page" role="img" aria-label="${esc(doc.title)} ${i + 1}">${P.map(o => {
+      if (o.t === "line") { const hor = Math.abs(o.y2 - o.y1) < 1e-6; const x = Math.min(o.x1, o.x2), y = Math.min(o.y1, o.y2);
+        return `<div class="ol" style="left:${pct(x, PG.W)};top:${pct(y, PG.H)};${hor ? `width:${pct(Math.abs(o.x2 - o.x1), PG.W)};border-top:1px ${o.dash ? "dashed" : "solid"} #${o.color}` : `height:${pct(Math.abs(o.y2 - o.y1), PG.H)};border-left:1px ${o.dash ? "dashed" : "solid"} #${o.color}`}"></div>`; }
+      const box = `left:${pct(o.x, PG.W)};top:${pct(o.y, PG.H)};width:${pct(o.w, PG.W)};height:${pct(o.h, PG.H)};${o.fill ? `background:#${o.fill};` : ""}${o.line ? `border:1px ${o.dash ? "dashed" : "solid"} #${o.line};` : ""}`;
+      if (o.t === "rect") return `<div class="or" style="${box}"></div>`;
+      return `<div class="ot" style="${box}justify-content:${o.valign === "top" ? "flex-start" : "center"};text-align:${o.align}">${o.runs.map(r => `<span style="font-size:${fs(r.size)};${r.bold ? "font-weight:700;" : ""}color:#${r.color}">${esc(r.text)}</span>`).join("")}</div>`;
+    }).join("")}<span class="org-pn">${i + 1} / ${doc.pages.length}</span></div>`).join("");
+  }
+  function orgToPpt(pptx, doc) {
+    const F = "Calibri";
+    pptx.defineSlideMaster({ title: "ORG", background: { color: "FFFFFF" },
+      objects: [{ rect: { x: 0, y: 0, w: "100%", h: 0.07, fill: { color: "52DE56" } } },
+        { text: { text: `Succession Planning Portal · ${doc.cls}`, options: { x: 0.4, y: 7.18, w: 8, h: 0.25, fontFace: F, fontSize: 8, color: "6A6B6D" } } }],
+      slideNumber: { x: 12.45, y: 7.18, fontFace: F, fontSize: 8, color: "6A6B6D" } });
+    doc.pages.forEach(P => {
+      const sl = pptx.addSlide({ masterName: "ORG" });
+      P.forEach(o => {
+        if (o.t === "line") sl.addShape(pptx.ShapeType.line, { x: Math.min(o.x1, o.x2), y: Math.min(o.y1, o.y2), w: Math.abs(o.x2 - o.x1), h: Math.abs(o.y2 - o.y1), line: { color: o.color, width: o.width, dashType: o.dash ? "dash" : "solid" } });
+        else if (o.t === "rect") sl.addShape(pptx.ShapeType.rect, { x: o.x, y: o.y, w: o.w, h: o.h, fill: o.fill ? { color: o.fill } : { color: "FFFFFF", transparency: 100 }, line: o.line ? { color: o.line, width: 0.75, dashType: o.dash ? "dash" : "solid" } : { type: "none" } });
+        else sl.addText(o.runs.map((r, k) => ({ text: r.text, options: { bold: !!r.bold, fontSize: r.size, color: r.color, breakLine: k < o.runs.length - 1 } })),
+          { x: o.x, y: o.y, w: o.w, h: o.h, fontFace: F, align: o.align, valign: o.valign, margin: 2, fill: o.fill ? { color: o.fill } : undefined, line: o.line ? { color: o.line, width: 0.75 } : undefined });
+      });
+    });
+  }
+  function orgToPdf(jsPDF, doc, U) {
+    const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" }), K = 297 / PG.W, FS = 0.877, OY = 6;
+    const hex = h => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    const X = v => v * K, Y = v => OY + v * K;
+    doc.pages.forEach((P, pi) => {
+      if (pi) pdf.addPage();
+      pdf.setFillColor(...hex("52DE56")); pdf.rect(0, 0, 297, 2.5, "F");
+      P.forEach(o => {
+        if (o.t === "line") { pdf.setDrawColor(...hex(o.color)); pdf.setLineWidth(0.3); if (o.dash) pdf.setLineDashPattern([1.5, 1], 0); pdf.line(X(o.x1), Y(o.y1), X(o.x2), Y(o.y2)); pdf.setLineDashPattern([], 0); return; }
+        const style = o.fill && o.line ? "FD" : o.fill ? "F" : o.line ? "S" : null;
+        if (style) { if (o.fill) pdf.setFillColor(...hex(o.fill)); if (o.line) { pdf.setDrawColor(...hex(o.line)); pdf.setLineWidth(0.25); if (o.dash) pdf.setLineDashPattern([1, 0.8], 0); } pdf.rect(X(o.x), Y(o.y), X(o.w), o.h * K, style); pdf.setLineDashPattern([], 0); }
+        if (o.t !== "text") return;
+        const w = X(o.w) - 1.6, lines = [];
+        o.runs.forEach(r => { pdf.setFont("helvetica", r.bold ? "bold" : "normal"); pdf.setFontSize(r.size * FS); pdfSafeLines(pdf, r.text, w).forEach(t => lines.push({ t, r, lh: r.size * FS * 0.3528 * 1.18 })); });
+        const maxH = o.h * K - 0.8; let used = [], tot = 0;
+        for (const ln of lines) { if (tot + ln.lh > maxH && used.length) break; used.push(ln); tot += ln.lh; }
+        let yy = Y(o.y) + (o.valign === "top" ? 0.6 : (o.h * K - tot) / 2);
+        used.forEach(ln => { yy += ln.lh; pdf.setFont("helvetica", ln.r.bold ? "bold" : "normal"); pdf.setFontSize(ln.r.size * FS); pdf.setTextColor(...hex(ln.r.color));
+          const xx = o.align === "left" ? X(o.x) + 0.8 : X(o.x) + X(o.w) / 2; pdf.text(ln.t, xx, yy - ln.lh * 0.22, { align: o.align === "left" ? "left" : "center" }); });
+      });
+    });
+    const n = pdf.getNumberOfPages();
+    for (let i = 1; i <= n; i++) { pdf.setPage(i); pdf.setFont("helvetica", "normal"); pdf.setFontSize(7); pdf.setTextColor(106, 107, 109); pdf.text(pdfSafe(`Succession Planning Portal · ${doc.cls}`), 10, 205); pdf.text(pdfSafe(`${U.page} ${i} / ${n}`), 287, 205, { align: "right" }); }
+    return pdf.output("blob");
+  }
+  const pdfSafeLines = (pdf, t, w) => pdf.splitTextToSize(pdfSafe(t), w);
+
   const LVC = { R0: [BRAND.R0, "FFFFFF"], R1: [BRAND.R1, BRAND.text], R2: [BRAND.R2, "FFFFFF"], R3: [BRAND.R3, BRAND.text], "-": [BRAND.R3, BRAND.text] };
   const lvc = l => LVC[l] || LVC["-"];
-  // Flow cards into rows of `cols`, rows of equal height (tallest card), new page when full; a heading starts each section.
-  function planPages(d, cols, top, bottom, headH, gapY, cardH) {
-    const pages = []; let page = [], y = top;
-    const newPage = () => { if (page.length) pages.push(page); page = []; y = top; };
-    d.sections.forEach(sec => {
-      const cards = sec.items.map(d.card);
-      for (let i = 0; i < cards.length; i += cols) {
-        const row = cards.slice(i, i + cols), rh = Math.max(...row.map(cardH));
-        const needHead = i === 0;
-        if (y + (needHead ? headH : 0) + rh > bottom) newPage();
-        if (needHead || !page.length) { page.push({ head: sec.cat + (i ? ` (${L().cont})` : ""), y }); y += headH; }
-        row.forEach((c, k) => page.push({ c, col: k, y, h: rh }));
-        y += rh + gapY;
-      }
-    });
-    newPage();
-    return pages;
-  }
-
-  async function buildChartPdf(d) {
-    await loadLibs("pdf");
-    const { jsPDF } = window.jspdf, doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" }), U = L();
-    const W = 297, M = 10, COLS = 5, GX = 4, cw = (W - 2 * M - (COLS - 1) * GX) / COLS;
-    const hex = h => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
-    const fill = h => doc.setFillColor(...hex(h)), ink = h => doc.setTextColor(...hex(h)), draw = h => doc.setDrawColor(...hex(h));
-    const font = (b, sz) => { doc.setFont("helvetica", b ? "bold" : "normal"); doc.setFontSize(sz); };
-    const fit = (t, w, b, sz) => { font(b, sz); return doc.splitTextToSize(pdfSafe(t), w); };
-    const HH = d.showDept ? 11 : 8.5, SH = d.rd ? 10.4 : 7.6, SG = 1;
-    const cardH = c => HH + 7.5 + 4 + (d.rd ? 5 : 0) + (c.below ? 4.5 : 0) + Math.max(1, c.succ.length) * (SH + SG) + 1;
-    const pages = planPages(d, COLS, 20, 192, 6, 3, cardH);
-    if (!pages.length) pages.push([]);
-    pages.forEach((items, pi) => {
-      if (pi) doc.addPage();
-      fill("52DE56"); doc.rect(0, 0, W, 2.5, "F");
-      font(true, 13); ink(BRAND.text); doc.text(pdfSafe(d.title), M, 11); font(false, 7); ink(BRAND.muted); doc.text(pdfSafe(d.meta), M, 16);
-      if (!items.length) { font(false, 11); doc.text(pdfSafe(U.emptyScope), M, 40); }
-      items.forEach(it => {
-        if (it.head) { font(true, 9); ink(BRAND.dark); doc.text(it.head, M, it.y + 4); draw(BRAND.mid); doc.setLineWidth(0.4); doc.line(M + 12, it.y + 3, W - M, it.y + 3); return; }
-        const c = it.c, x = M + it.col * (cw + GX); let y = it.y;
-        fill("E9ECEF"); doc.rect(x, y, cw, HH, "F");
-        const tl = fit(c.title, cw - 3, true, 6.4).slice(0, 2); ink(BRAND.text); doc.text(tl, x + cw / 2, y + 3.4, { align: "center" });
-        if (d.showDept) { font(false, 5.5); ink(BRAND.muted); doc.text(fit(c.dept, cw - 3, false, 5.5)[0], x + cw / 2, y + HH - 1.4, { align: "center" }); }
-        y += HH;
-        fill("FBEEE2"); doc.rect(x, y, cw, 7.5, "F");
-        ink(c.vacant ? BRAND.high : BRAND.text); doc.text(fit(c.inc, cw - 3, true, 6.2)[0] || "", x + cw / 2, y + 3.2, { align: "center" });
-        ink(BRAND.muted); doc.text(fit(c.incSub, cw - 3, false, 5.3)[0] || "", x + cw / 2, y + 6.3, { align: "center" });
-        y += 7.5;
-        font(false, 5.4); ink(BRAND.muted); doc.text(pdfSafe(c.meta), x + 0.5, y + 3);
-        if (d.rd) { font(true, 5.4); ink(BRAND[c.rk]); doc.text(pdfSafe(c.risk), x + cw - 0.5, y + 3, { align: "right" }); }
-        y += 4;
-        if (d.rd) {
-          const lw = cw / c.levels.length;
-          c.levels.forEach((l, k) => { const [bg, fg] = lvc(l); fill(bg); doc.rect(x + k * lw, y, lw, 4, "F"); font(true, 5.6); ink(fg); doc.text(`${l}  ${c.cnt[l] || "-"}`, x + k * lw + lw / 2, y + 2.9, { align: "center" }); });
-          y += 5;
-        }
-        if (c.below) { fill("FDF0DC"); doc.rect(x, y, cw, 3.8, "F"); font(true, 5.3); ink(BRAND.med); doc.text(pdfSafe(U.belowMin), x + cw / 2, y + 2.7, { align: "center" }); y += 4.5; }
-        if (!c.succ.length) { font(false, 5.6); ink(BRAND.high); doc.text(pdfSafe(U.none), x + 1, y + 4); }
-        c.succ.forEach(s => {
-          draw(s.rep ? BRAND.muted : BRAND.text); doc.setLineWidth(0.2); if (s.rep) doc.setLineDashPattern([0.8, 0.8], 0);
-          doc.rect(x, y, cw, SH, "S"); doc.setLineDashPattern([], 0);
-          if (d.rd) {
-            const [bg, fg] = lvc(s.l); fill(bg); doc.rect(x + cw - 6.5, y, 6.5, SH, "F"); font(true, 6); ink(fg); doc.text(s.l, x + cw - 3.25, y + SH / 2 + 1, { align: "center" });
-            ink(BRAND.text); doc.text(fit(s.name, cw - 8.5, true, 5.8)[0], x + 1, y + 3.2);
-            ink(BRAND.muted); doc.text(fit(s.pos || "-", cw - 8.5, false, 5)[0], x + 1, y + 6);
-            font(false, 5.1); ink(s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted);
-            doc.text(fit(`${s.t.toFixed(1)}%${s.rep ? " · " + U.dType.rep : ""}${s.flag ? " · " + s.flag : ""}`, cw - 8.5, false, 5.1)[0], x + 1, y + 9);
-          } else {
-            ink(BRAND.text); doc.text(fit(s.name + (s.rep ? " · " + U.dType.rep : ""), cw - 2, true, 5.8)[0], x + 1, y + 3.2);
-            ink(BRAND.muted); doc.text(fit(s.pos || "-", cw - 2, false, 5)[0], x + 1, y + 6.1);
-          }
-          y += SH + SG;
-        });
-      });
-      const lv = !d.rd ? [] : (d.sections[0] ? SCALES[scale][d.sections[0].cat] : SCALES[scale].MCP).map(b => b[1]);
-      lv.forEach((l, k) => { fill(lvc(l)[0]); doc.rect(M + k * 48, 195, 5, 3.2, "F"); font(false, 6.5); ink(BRAND.muted); doc.text(pdfSafe(l === "-" ? U.notReady : `${l} ${desc(l)}`), M + 7 + k * 48, 197.6); });
-    });
-    const n = doc.getNumberOfPages();
-    for (let i = 1; i <= n; i++) { doc.setPage(i); font(false, 7); ink(BRAND.muted); doc.text(pdfSafe(`Succession Planning Portal · ${d.cls}`), M, 205); doc.text(pdfSafe(`${U.page} ${i} / ${n}`), W - M, 205, { align: "right" }); }
-    return doc.output("blob");
-  }
-
-  async function buildChartPpt(d) {
-    await loadLibs("ppt");
-    const U = L(), pptx = new window.PptxGenJS(), F = "Calibri";
-    pptx.layout = "LAYOUT_WIDE"; pptx.title = d.title;
-    pptx.defineSlideMaster({ title: "SC", background: { color: "FFFFFF" },
-      objects: [{ rect: { x: 0, y: 0, w: "100%", h: 0.07, fill: { color: "52DE56" } } },
-        { text: { text: `Succession Planning Portal · ${d.cls}`, options: { x: 0.35, y: 7.15, w: 8, h: 0.26, fontFace: F, fontSize: 8, color: BRAND.muted } } }],
-      slideNumber: { x: 12.45, y: 7.15, fontFace: F, fontSize: 8, color: BRAND.muted } });
-    const X0 = 0.35, COLS = 6, GX = 0.1, cw = (13.333 - 2 * X0 - (COLS - 1) * GX) / COLS;
-    const HH = d.showDept ? 0.46 : 0.34, SH = d.rd ? 0.56 : 0.42, SG = 0.04;
-    const short = (t, n) => t.length > n ? t.slice(0, n - 1).trimEnd() + "…" : t;
-    const cardH = c => HH + 0.34 + 0.18 + (d.rd ? 0.22 : 0) + (c.below ? 0.2 : 0) + Math.max(1, c.succ.length) * (SH + SG) + 0.04;
-    const pages = planPages(d, COLS, 0.72, 6.78, 0.26, 0.12, cardH);
-    if (!pages.length) pages.push([]);
-    pages.forEach(items => {
-      const sl = pptx.addSlide({ masterName: "SC" });
-      sl.addText(d.title, { x: X0, y: 0.12, w: 8.5, h: 0.4, fontFace: F, fontSize: 16, bold: true, color: BRAND.text });
-      sl.addText(d.meta, { x: 8.9, y: 0.12, w: 4.1, h: 0.4, fontFace: F, fontSize: 7.5, color: BRAND.muted, align: "right", valign: "middle" });
-      if (!items.length) sl.addText(U.emptyScope, { x: X0, y: 3, w: 12, h: 1, fontFace: F, fontSize: 18, color: BRAND.muted });
-      items.forEach(it => {
-        if (it.head) {
-          sl.addText(it.head, { x: X0, y: it.y, w: 1.4, h: 0.24, fontFace: F, fontSize: 11, bold: true, color: BRAND.dark, valign: "middle" });
-          sl.addShape(pptx.ShapeType.line, { x: X0 + 1.3, y: it.y + 0.12, w: 13.333 - 2 * X0 - 1.3, h: 0, line: { color: BRAND.mid, width: 1 } });
-          return;
-        }
-        const c = it.c, x = X0 + it.col * (cw + GX); let y = it.y;
-        const head = [{ text: c.title, options: { bold: true, breakLine: d.showDept } }];
-        if (d.showDept) head.push({ text: c.dept, options: { fontSize: 6.5, bold: false, color: BRAND.muted } });
-        sl.addText(head, { x, y, w: cw, h: HH, fontFace: F, fontSize: 7.5, color: BRAND.text, fill: { color: "E9ECEF" }, align: "center", valign: "middle", margin: 2 });
-        y += HH;
-        sl.addText([{ text: c.inc, options: { bold: true, color: c.vacant ? BRAND.high : BRAND.text, breakLine: true } }, { text: c.incSub, options: { fontSize: 6.5, color: BRAND.muted } }],
-          { x, y, w: cw, h: 0.34, fontFace: F, fontSize: 7.5, fill: { color: "FBEEE2" }, align: "center", valign: "middle", margin: 1 });
-        y += 0.34;
-        sl.addText(c.meta, { x, y, w: cw * 0.6, h: 0.18, fontFace: F, fontSize: 6.5, color: BRAND.muted, margin: 1 });
-        if (d.rd) sl.addText(c.risk, { x: x + cw * 0.5, y, w: cw * 0.5, h: 0.18, fontFace: F, fontSize: 6.5, bold: true, color: BRAND[c.rk], align: "right", margin: 1 });
-        y += 0.18;
-        if (d.rd) {
-          const lw = cw / c.levels.length;
-          c.levels.forEach((l, k) => sl.addText(`${l === "-" ? "–" : l} ${c.cnt[l] || "–"}`, { x: x + k * lw, y, w: lw, h: 0.18, fontFace: F, fontSize: 6.5, bold: true, align: "center", valign: "middle", color: lvc(l)[1], fill: { color: lvc(l)[0] }, margin: 0 }));
-          y += 0.22;
-        }
-        if (c.below) { sl.addText(U.belowMin, { x, y, w: cw, h: 0.17, fontFace: F, fontSize: 6.5, bold: true, color: BRAND.med, fill: { color: "FDF0DC" }, align: "center", valign: "middle", margin: 0 }); y += 0.2; }
-        if (!c.succ.length) sl.addText(U.none, { x, y, w: cw, h: SH, fontFace: F, fontSize: 7, color: BRAND.high });
-        c.succ.forEach(s => {
-          sl.addShape(pptx.ShapeType.rect, { x, y, w: cw, h: SH, fill: { color: "FFFFFF" }, line: { color: s.rep ? BRAND.muted : BRAND.text, width: 0.5, dashType: s.rep ? "dash" : "solid" } });
-          if (d.rd) {
-            sl.addText([{ text: s.name, options: { bold: true, breakLine: true } }, { text: short(s.pos || "-", 44), options: { bold: false, fontSize: 6, color: BRAND.muted, breakLine: true } }, { text: `${s.t.toFixed(1)}%${s.rep ? " · " + U.dType.rep : ""}${s.flag ? " · " + s.flag : ""}`, options: { bold: false, fontSize: 6, color: s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted } }],
-              { x, y, w: cw - 0.3, h: SH, fontFace: F, fontSize: 6.8, color: BRAND.text, valign: "middle", margin: 2 });
-            sl.addText(s.l === "-" ? "–" : s.l, { x: x + cw - 0.28, y, w: 0.28, h: SH, fontFace: F, fontSize: 7.5, bold: true, align: "center", valign: "middle", color: lvc(s.l)[1], fill: { color: lvc(s.l)[0] }, margin: 0 });
-          } else {
-            sl.addText([{ text: s.name + (s.rep ? " · " + U.dType.rep : ""), options: { bold: true, breakLine: true } }, { text: short(s.pos || "-", 52), options: { bold: false, fontSize: 6, color: BRAND.muted } }], { x, y, w: cw, h: SH, fontFace: F, fontSize: 6.8, color: BRAND.text, valign: "middle", margin: 2 });
-          }
-          y += SH + SG;
-        });
-      });
-      const lv = !d.rd ? [] : (d.sections[0] ? SCALES[scale][d.sections[0].cat] : SCALES[scale].MCP).map(b => b[1]);
-      lv.forEach((l, k) => {
-        sl.addShape(pptx.ShapeType.rect, { x: X0 + k * 2.2, y: 6.9, w: 0.26, h: 0.16, fill: { color: lvc(l)[0] }, line: { color: lvc(l)[0] } });
-        sl.addText(l === "-" ? U.notReady : `${l} ${desc(l)}`, { x: X0 + 0.32 + k * 2.2, y: 6.84, w: 1.85, h: 0.28, fontFace: F, fontSize: 7.5, color: BRAND.muted });
-      });
-    });
-    return pptx.write({ outputType: "blob" });
-  }
+  async function buildChartPdf(d) { await loadLibs("pdf"); return orgToPdf(window.jspdf.jsPDF, d, L()); }
+  async function buildChartPpt(d) { await loadLibs("ppt"); const pptx = new window.PptxGenJS(); pptx.layout = "LAYOUT_WIDE"; pptx.title = d.title; orgToPpt(pptx, d); return pptx.write({ outputType: "blob" }); }
 
   async function doChartExport(kind) {
     const U = L(), btn = $(kind === "pdf" ? "chPdf" : "chPpt"), label = btn.textContent, catSel = $("chCat").value, deptSel = $("chDept").value, withRd = $("chRd").value !== "no";
@@ -2338,7 +2361,7 @@ table.idp { min-width: 1120px; }
     if (!dl) { toast(U.exUnavailable); return; }
     btn.disabled = true; btn.textContent = U.exWorking;
     let blob;
-    try { blob = kind === "pdf" ? await buildChartPdf(chartData(catSel, deptSel, withRd)) : await buildChartPpt(chartData(catSel, deptSel, withRd)); }
+    try { blob = kind === "pdf" ? await buildChartPdf(orgPages(catSel, deptSel, withRd)) : await buildChartPpt(orgPages(catSel, deptSel, withRd)); }
     catch (err) { toast(err && err.message === "lib" ? U.exLib : U.exFailed); btn.disabled = false; btn.textContent = label; return; }
     const filename = "Succession-Chart-" + (deptSel ? deptLabel(deptSel).replace(/[^A-Za-z0-9]+/g, "-") : "All") + "-" + (catSel || "MCP-OCP") + (withRd ? "" : "-NoReadiness") + "-2026" + (kind === "pdf" ? ".pdf" : ".pptx");
     try { await dl.save({ filename, data: blob }); toast(U.exSaved(filename)); }
@@ -2367,7 +2390,7 @@ table.idp { min-width: 1120px; }
     if (page === "ov") renderOverview();
     if (page === "dash") renderDash();
     if (page === "rv") renderRV();
-    if (page === "chart") { if (view === "chart") renderChart(); else renderTable(); }
+    if (page === "chart") { if (view === "chart") renderChart(); else if (view === "org") renderOrg(); else renderTable(); }
     renderNotes();
     if ($("dlg").open && openRef) openDetail(openRef[0], openRef[1]);
   }
@@ -2495,9 +2518,11 @@ table.idp { min-width: 1120px; }
   const setScale = v => { scale = v; $("scCur").setAttribute("aria-pressed", String(v === "cur")); $("scNew").setAttribute("aria-pressed", String(v === "neu")); render(); };
   $("scCur").addEventListener("click", () => setScale("cur"));
   $("scNew").addEventListener("click", () => setScale("neu"));
-  const setView = v => { view = v; $("vChart").setAttribute("aria-pressed", String(v === "chart")); $("vTable").setAttribute("aria-pressed", String(v === "table")); $("chartView").hidden = v !== "chart"; $("tableView").hidden = v !== "table"; render(); };
+  const setView = v => { view = v; ["Chart", "Org", "Table"].forEach(k => $("v" + k).setAttribute("aria-pressed", String(v === k.toLowerCase()))); $("chartView").hidden = v !== "chart"; $("orgView").hidden = v !== "org"; $("tableView").hidden = v !== "table"; render(); };
   $("vChart").addEventListener("click", () => setView("chart"));
   $("vTable").addEventListener("click", () => setView("table"));
+  $("vOrg").addEventListener("click", () => setView("org"));
+  $("chRd").addEventListener("change", () => { if (view === "org") renderOrg(); });
 
   document.addEventListener("input", e => {
     if (cycleDraft && e.target.dataset && e.target.dataset.cyNote != null) { cycleDraft.notes[+e.target.dataset.cyNote] = e.target.value; return; }
