@@ -624,6 +624,7 @@ table.idp { min-width: 1120px; }
         </div>
         <select id="chDept" class="ch-cat"></select>
         <select id="chCat" class="ch-cat"><option value="" data-i="catAll"></option><option value="MCP" data-i="catMCP"></option><option value="OCP" data-i="catOCP"></option></select>
+        <select id="chRd" class="ch-cat"><option value="yes" data-i="chRdYes"></option><option value="no" data-i="chRdNo"></option></select>
         <button type="button" class="btn" id="chPdf" data-i="exPdf"></button>
         <button type="button" class="btn" id="chPpt" data-i="exPpt"></button>
         <button type="button" class="btn primary" id="sendTrc" data-i="sendTrc"></button>
@@ -750,6 +751,7 @@ table.idp { min-width: 1120px; }
       val: { pending: "Pending", ok: "Validated", rep: "Replacement list", rev: "Revise score" },
       rvProgress: (a, b) => `${a} of ${b} validated`,
       chCatLabel: "Category to download", chDeptLabel: "Department to download",
+      chRdYes: "With readiness", chRdNo: "Without readiness", chRdLabel: "Show readiness in the download", chMetaNoRd: src => `Source: ${src} · Readiness not shown · Data as at 2 Nov 2026`,
       minRule: "Min. 2 per position · HCC 5 Oct 2026", belowMin: "Below minimum of 2 successors", justified: "Justified: no suitable candidate",
       markJust: "Mark as justified", unmarkJust: "Remove justification", justKept: "Kept in this browser tab only.",
       exc: { pend: "Exception pending", app: "Exception approved by HCC", rej: "Exception not approved" },
@@ -897,6 +899,7 @@ table.idp { min-width: 1120px; }
       val: { pending: "Belum disahkan", ok: "Disahkan", rep: "Senarai penggantian", rev: "Semak semula skor" },
       rvProgress: (a, b) => `${a} daripada ${b} disahkan`,
       chCatLabel: "Kategori untuk dimuat turun", chDeptLabel: "Jabatan untuk dimuat turun",
+      chRdYes: "Dengan readiness", chRdNo: "Tanpa readiness", chRdLabel: "Papar readiness dalam muat turun", chMetaNoRd: src => `Sumber: ${src} · Readiness tidak dipaparkan · Data setakat 2 Nov 2026`,
       minRule: "Min. 2 setiap jawatan · HCC 5 Okt 2026", belowMin: "Bawah minimum 2 pengganti", justified: "Dijustifikasi: tiada calon sesuai",
       markJust: "Tanda dijustifikasi", unmarkJust: "Buang justifikasi", justKept: "Disimpan dalam tab pelayar ini sahaja.",
       exc: { pend: "Pengecualian menunggu", app: "Pengecualian diluluskan HCC", rej: "Pengecualian tidak diluluskan" },
@@ -1240,6 +1243,7 @@ table.idp { min-width: 1120px; }
       const dv = chDeptSel == null ? dept : chDeptSel;
       $("chDept").innerHTML = `<option value="">${L().deptAll}</option>` + DATA.depts.map(([k, lab]) => `<option value="${esc(k)}"${k === dv ? " selected" : ""}>${esc(tx(lab))}</option>`).join("");
       $("chDept").setAttribute("aria-label", L().chDeptLabel); $("chDept").title = L().chDeptLabel; }
+    { const rv = $("chRd").value; $("chRd").setAttribute("aria-label", L().chRdLabel); $("chRd").title = L().chRdLabel; $("chRd").value = rv || "yes"; }
     $("scaleGrp").setAttribute("aria-label", lang === "en" ? "Readiness scale" : "Skala kesediaan");
     $("viewGrp").setAttribute("aria-label", lang === "en" ? "View" : "Paparan");
     $("nav").setAttribute("aria-label", lang === "en" ? "Portal sections" : "Bahagian portal");
@@ -2154,14 +2158,14 @@ table.idp { min-width: 1120px; }
       </div>`;
   }
   // ---------- Succession chart export (PDF / PowerPoint, compact card grid) ----------
-  function chartData(catSel, deptSel) {
+  function chartData(catSel, deptSel, withRd = true) {
     const U = L(), ps = DATA.positions.filter(p => (!deptSel || p.dept === deptSel) && (!catSel || p.cat === catSel));
     const sections = ["MCP", "OCP"].map(cat => ({ cat, items: ps.filter(p => p.cat === cat) })).filter(x => x.items.length);
     const plain = h => String(h).replace(/<\/?b>/g, "");
     return {
       title: U.chartTitle(deptSel ? deptLabel(deptSel) : U.deptAll) + (catSel ? ` · ${catSel}` : ""),
-      meta: U.sumMeta(DATA.source === "file" ? DATA.fileName : U.srcSample, U.scaleName[scale]),
-      cls: DATA.source === "file" ? U.classFile : U.classSample, sections, showDept: !deptSel,
+      meta: withRd ? U.sumMeta(DATA.source === "file" ? DATA.fileName : U.srcSample, U.scaleName[scale]) : U.chMetaNoRd(DATA.source === "file" ? DATA.fileName : U.srcSample),
+      cls: DATA.source === "file" ? U.classFile : U.classSample, sections, showDept: !deptSel, rd: withRd,
       card: p => {
         const a = analyse(p), inc = p.inc, cnt = {};
         a.internal.forEach(s => { const l = level(total(s), p.cat); cnt[l] = (cnt[l] || 0) + 1; });
@@ -2209,8 +2213,8 @@ table.idp { min-width: 1120px; }
     const fill = h => doc.setFillColor(...hex(h)), ink = h => doc.setTextColor(...hex(h)), draw = h => doc.setDrawColor(...hex(h));
     const font = (b, sz) => { doc.setFont("helvetica", b ? "bold" : "normal"); doc.setFontSize(sz); };
     const fit = (t, w, b, sz) => { font(b, sz); return doc.splitTextToSize(pdfSafe(t), w); };
-    const HH = d.showDept ? 11 : 8.5, SH = 8, SG = 1;
-    const cardH = c => HH + 7.5 + 4 + 5 + (c.below ? 4.5 : 0) + Math.max(1, c.succ.length) * (SH + SG) + 1;
+    const HH = d.showDept ? 11 : 8.5, SH = d.rd ? 8 : 5.2, SG = 1;
+    const cardH = c => HH + 7.5 + 4 + (d.rd ? 5 : 0) + (c.below ? 4.5 : 0) + Math.max(1, c.succ.length) * (SH + SG) + 1;
     const pages = planPages(d, COLS, 20, 192, 6, 3, cardH);
     if (!pages.length) pages.push([]);
     pages.forEach((items, pi) => {
@@ -2229,24 +2233,31 @@ table.idp { min-width: 1120px; }
         ink(c.vacant ? BRAND.high : BRAND.text); doc.text(fit(c.inc, cw - 3, true, 6.2)[0] || "", x + cw / 2, y + 3.2, { align: "center" });
         ink(BRAND.muted); doc.text(fit(c.incSub, cw - 3, false, 5.3)[0] || "", x + cw / 2, y + 6.3, { align: "center" });
         y += 7.5;
-        font(false, 5.4); ink(BRAND.muted); doc.text(pdfSafe(c.meta), x + 0.5, y + 3); font(true, 5.4); ink(BRAND[c.rk]); doc.text(pdfSafe(c.risk), x + cw - 0.5, y + 3, { align: "right" });
+        font(false, 5.4); ink(BRAND.muted); doc.text(pdfSafe(c.meta), x + 0.5, y + 3);
+        if (d.rd) { font(true, 5.4); ink(BRAND[c.rk]); doc.text(pdfSafe(c.risk), x + cw - 0.5, y + 3, { align: "right" }); }
         y += 4;
-        const lw = cw / c.levels.length;
-        c.levels.forEach((l, k) => { const [bg, fg] = lvc(l); fill(bg); doc.rect(x + k * lw, y, lw, 4, "F"); font(true, 5.6); ink(fg); doc.text(`${l}  ${c.cnt[l] || "-"}`, x + k * lw + lw / 2, y + 2.9, { align: "center" }); });
-        y += 5;
+        if (d.rd) {
+          const lw = cw / c.levels.length;
+          c.levels.forEach((l, k) => { const [bg, fg] = lvc(l); fill(bg); doc.rect(x + k * lw, y, lw, 4, "F"); font(true, 5.6); ink(fg); doc.text(`${l}  ${c.cnt[l] || "-"}`, x + k * lw + lw / 2, y + 2.9, { align: "center" }); });
+          y += 5;
+        }
         if (c.below) { fill("FDF0DC"); doc.rect(x, y, cw, 3.8, "F"); font(true, 5.3); ink(BRAND.med); doc.text(pdfSafe(U.belowMin), x + cw / 2, y + 2.7, { align: "center" }); y += 4.5; }
         if (!c.succ.length) { font(false, 5.6); ink(BRAND.high); doc.text(pdfSafe(U.none), x + 1, y + 4); }
         c.succ.forEach(s => {
           draw(s.rep ? BRAND.muted : BRAND.text); doc.setLineWidth(0.2); if (s.rep) doc.setLineDashPattern([0.8, 0.8], 0);
           doc.rect(x, y, cw, SH, "S"); doc.setLineDashPattern([], 0);
-          const [bg, fg] = lvc(s.l); fill(bg); doc.rect(x + cw - 6.5, y, 6.5, SH, "F"); font(true, 6); ink(fg); doc.text(s.l, x + cw - 3.25, y + 4.9, { align: "center" });
-          ink(BRAND.text); doc.text(fit(s.name, cw - 8.5, true, 5.8)[0], x + 1, y + 3.2);
-          font(false, 5.1); ink(s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted);
-          doc.text(fit(`${s.t.toFixed(1)}%${s.rep ? " · " + U.dType.rep : ""}${s.flag ? " · " + s.flag : ""}`, cw - 8.5, false, 5.1)[0], x + 1, y + 6.6);
+          if (d.rd) {
+            const [bg, fg] = lvc(s.l); fill(bg); doc.rect(x + cw - 6.5, y, 6.5, SH, "F"); font(true, 6); ink(fg); doc.text(s.l, x + cw - 3.25, y + 4.9, { align: "center" });
+            ink(BRAND.text); doc.text(fit(s.name, cw - 8.5, true, 5.8)[0], x + 1, y + 3.2);
+            font(false, 5.1); ink(s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted);
+            doc.text(fit(`${s.t.toFixed(1)}%${s.rep ? " · " + U.dType.rep : ""}${s.flag ? " · " + s.flag : ""}`, cw - 8.5, false, 5.1)[0], x + 1, y + 6.6);
+          } else {
+            ink(BRAND.text); doc.text(fit(s.name + (s.rep ? " · " + U.dType.rep : ""), cw - 2, true, 5.8)[0], x + 1, y + 3.4);
+          }
           y += SH + SG;
         });
       });
-      const lv = (d.sections[0] ? SCALES[scale][d.sections[0].cat] : SCALES[scale].MCP).map(b => b[1]);
+      const lv = !d.rd ? [] : (d.sections[0] ? SCALES[scale][d.sections[0].cat] : SCALES[scale].MCP).map(b => b[1]);
       lv.forEach((l, k) => { fill(lvc(l)[0]); doc.rect(M + k * 48, 195, 5, 3.2, "F"); font(false, 6.5); ink(BRAND.muted); doc.text(pdfSafe(l === "-" ? U.notReady : `${l} ${desc(l)}`), M + 7 + k * 48, 197.6); });
     });
     const n = doc.getNumberOfPages();
@@ -2263,8 +2274,8 @@ table.idp { min-width: 1120px; }
         { text: { text: `Succession Planning Portal · ${d.cls}`, options: { x: 0.35, y: 7.15, w: 8, h: 0.26, fontFace: F, fontSize: 8, color: BRAND.muted } } }],
       slideNumber: { x: 12.45, y: 7.15, fontFace: F, fontSize: 8, color: BRAND.muted } });
     const X0 = 0.35, COLS = 6, GX = 0.1, cw = (13.333 - 2 * X0 - (COLS - 1) * GX) / COLS;
-    const HH = d.showDept ? 0.46 : 0.34, SH = 0.36, SG = 0.04;
-    const cardH = c => HH + 0.34 + 0.18 + 0.22 + (c.below ? 0.2 : 0) + Math.max(1, c.succ.length) * (SH + SG) + 0.04;
+    const HH = d.showDept ? 0.46 : 0.34, SH = d.rd ? 0.36 : 0.24, SG = 0.04;
+    const cardH = c => HH + 0.34 + 0.18 + (d.rd ? 0.22 : 0) + (c.below ? 0.2 : 0) + Math.max(1, c.succ.length) * (SH + SG) + 0.04;
     const pages = planPages(d, COLS, 0.72, 6.78, 0.26, 0.12, cardH);
     if (!pages.length) pages.push([]);
     pages.forEach(items => {
@@ -2287,22 +2298,28 @@ table.idp { min-width: 1120px; }
           { x, y, w: cw, h: 0.34, fontFace: F, fontSize: 7.5, fill: { color: "FBEEE2" }, align: "center", valign: "middle", margin: 1 });
         y += 0.34;
         sl.addText(c.meta, { x, y, w: cw * 0.6, h: 0.18, fontFace: F, fontSize: 6.5, color: BRAND.muted, margin: 1 });
-        sl.addText(c.risk, { x: x + cw * 0.5, y, w: cw * 0.5, h: 0.18, fontFace: F, fontSize: 6.5, bold: true, color: BRAND[c.rk], align: "right", margin: 1 });
+        if (d.rd) sl.addText(c.risk, { x: x + cw * 0.5, y, w: cw * 0.5, h: 0.18, fontFace: F, fontSize: 6.5, bold: true, color: BRAND[c.rk], align: "right", margin: 1 });
         y += 0.18;
-        const lw = cw / c.levels.length;
-        c.levels.forEach((l, k) => sl.addText(`${l === "-" ? "–" : l} ${c.cnt[l] || "–"}`, { x: x + k * lw, y, w: lw, h: 0.18, fontFace: F, fontSize: 6.5, bold: true, align: "center", valign: "middle", color: lvc(l)[1], fill: { color: lvc(l)[0] }, margin: 0 }));
-        y += 0.22;
+        if (d.rd) {
+          const lw = cw / c.levels.length;
+          c.levels.forEach((l, k) => sl.addText(`${l === "-" ? "–" : l} ${c.cnt[l] || "–"}`, { x: x + k * lw, y, w: lw, h: 0.18, fontFace: F, fontSize: 6.5, bold: true, align: "center", valign: "middle", color: lvc(l)[1], fill: { color: lvc(l)[0] }, margin: 0 }));
+          y += 0.22;
+        }
         if (c.below) { sl.addText(U.belowMin, { x, y, w: cw, h: 0.17, fontFace: F, fontSize: 6.5, bold: true, color: BRAND.med, fill: { color: "FDF0DC" }, align: "center", valign: "middle", margin: 0 }); y += 0.2; }
         if (!c.succ.length) sl.addText(U.none, { x, y, w: cw, h: SH, fontFace: F, fontSize: 7, color: BRAND.high });
         c.succ.forEach(s => {
           sl.addShape(pptx.ShapeType.rect, { x, y, w: cw, h: SH, fill: { color: "FFFFFF" }, line: { color: s.rep ? BRAND.muted : BRAND.text, width: 0.5, dashType: s.rep ? "dash" : "solid" } });
-          sl.addText([{ text: s.name, options: { bold: true, breakLine: true } }, { text: `${s.t.toFixed(1)}%${s.rep ? " · " + U.dType.rep : ""}${s.flag ? " · " + s.flag : ""}`, options: { bold: false, fontSize: 6, color: s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted } }],
-            { x, y, w: cw - 0.3, h: SH, fontFace: F, fontSize: 6.8, color: BRAND.text, valign: "middle", margin: 2 });
-          sl.addText(s.l === "-" ? "–" : s.l, { x: x + cw - 0.28, y, w: 0.28, h: SH, fontFace: F, fontSize: 7.5, bold: true, align: "center", valign: "middle", color: lvc(s.l)[1], fill: { color: lvc(s.l)[0] }, margin: 0 });
+          if (d.rd) {
+            sl.addText([{ text: s.name, options: { bold: true, breakLine: true } }, { text: `${s.t.toFixed(1)}%${s.rep ? " · " + U.dType.rep : ""}${s.flag ? " · " + s.flag : ""}`, options: { bold: false, fontSize: 6, color: s.flag ? (s.flagOk ? BRAND.low : BRAND.high) : BRAND.muted } }],
+              { x, y, w: cw - 0.3, h: SH, fontFace: F, fontSize: 6.8, color: BRAND.text, valign: "middle", margin: 2 });
+            sl.addText(s.l === "-" ? "–" : s.l, { x: x + cw - 0.28, y, w: 0.28, h: SH, fontFace: F, fontSize: 7.5, bold: true, align: "center", valign: "middle", color: lvc(s.l)[1], fill: { color: lvc(s.l)[0] }, margin: 0 });
+          } else {
+            sl.addText(s.name + (s.rep ? " · " + U.dType.rep : ""), { x, y, w: cw, h: SH, fontFace: F, fontSize: 6.8, bold: true, color: BRAND.text, valign: "middle", margin: 2 });
+          }
           y += SH + SG;
         });
       });
-      const lv = (d.sections[0] ? SCALES[scale][d.sections[0].cat] : SCALES[scale].MCP).map(b => b[1]);
+      const lv = !d.rd ? [] : (d.sections[0] ? SCALES[scale][d.sections[0].cat] : SCALES[scale].MCP).map(b => b[1]);
       lv.forEach((l, k) => {
         sl.addShape(pptx.ShapeType.rect, { x: X0 + k * 2.2, y: 6.9, w: 0.26, h: 0.16, fill: { color: lvc(l)[0] }, line: { color: lvc(l)[0] } });
         sl.addText(l === "-" ? U.notReady : `${l} ${desc(l)}`, { x: X0 + 0.32 + k * 2.2, y: 6.84, w: 1.85, h: 0.28, fontFace: F, fontSize: 7.5, color: BRAND.muted });
@@ -2312,14 +2329,14 @@ table.idp { min-width: 1120px; }
   }
 
   async function doChartExport(kind) {
-    const U = L(), btn = $(kind === "pdf" ? "chPdf" : "chPpt"), label = btn.textContent, catSel = $("chCat").value, deptSel = $("chDept").value;
+    const U = L(), btn = $(kind === "pdf" ? "chPdf" : "chPpt"), label = btn.textContent, catSel = $("chCat").value, deptSel = $("chDept").value, withRd = $("chRd").value !== "no";
     const dl = await getDownloads();
     if (!dl) { toast(U.exUnavailable); return; }
     btn.disabled = true; btn.textContent = U.exWorking;
     let blob;
-    try { blob = kind === "pdf" ? await buildChartPdf(chartData(catSel, deptSel)) : await buildChartPpt(chartData(catSel, deptSel)); }
+    try { blob = kind === "pdf" ? await buildChartPdf(chartData(catSel, deptSel, withRd)) : await buildChartPpt(chartData(catSel, deptSel, withRd)); }
     catch (err) { toast(err && err.message === "lib" ? U.exLib : U.exFailed); btn.disabled = false; btn.textContent = label; return; }
-    const filename = "Succession-Chart-" + (deptSel ? deptLabel(deptSel).replace(/[^A-Za-z0-9]+/g, "-") : "All") + "-" + (catSel || "MCP-OCP") + "-2026" + (kind === "pdf" ? ".pdf" : ".pptx");
+    const filename = "Succession-Chart-" + (deptSel ? deptLabel(deptSel).replace(/[^A-Za-z0-9]+/g, "-") : "All") + "-" + (catSel || "MCP-OCP") + (withRd ? "" : "-NoReadiness") + "-2026" + (kind === "pdf" ? ".pdf" : ".pptx");
     try { await dl.save({ filename, data: blob }); toast(U.exSaved(filename)); }
     catch (err) {
       const c = err && err.code;
@@ -2503,7 +2520,7 @@ table.idp { min-width: 1120px; }
   $("exPpt").addEventListener("click", () => doExport("ppt"));
   $("chPdf").addEventListener("click", () => doChartExport("pdf"));
   $("chPpt").addEventListener("click", () => doChartExport("ppt"));
-  if (window.claude && typeof window.claude.use === "function") getDownloads().then(dl => { if (!dl) { dlKnownMissing = true; $("exportBox").hidden = true; $("chPdf").hidden = $("chPpt").hidden = $("chCat").hidden = $("chDept").hidden = true; $("exNote").textContent = L().exUnavailable; } });
+  if (window.claude && typeof window.claude.use === "function") getDownloads().then(dl => { if (!dl) { dlKnownMissing = true; $("exportBox").hidden = true; $("chPdf").hidden = $("chPpt").hidden = $("chCat").hidden = $("chDept").hidden = $("chRd").hidden = true; $("exNote").textContent = L().exUnavailable; } });
   initVal(); readHash();
   render();
   initCycle();
